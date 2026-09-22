@@ -1,0 +1,412 @@
+{
+ "A": [
+  {
+   "session": "220429",
+   "n": 31,
+   "good_frac": 0.774,
+   "runs": 9,
+   "expected": 11.8,
+   "z": -1.51,
+   "p": 0.1322
+  },
+  {
+   "session": "220503",
+   "n": 8,
+   "good_frac": 0.5,
+   "runs": 6,
+   "expected": 5.0,
+   "z": 0.76,
+   "p": 0.445
+  },
+  {
+   "session": "220506",
+   "n": 15,
+   "good_frac": 0.467,
+   "runs": 6,
+   "expected": 8.5,
+   "z": -1.33,
+   "p": 0.1841
+  },
+  {
+   "session": "220512",
+   "n": 15,
+   "good_frac": 0.533,
+   "runs": 8,
+   "expected": 8.5,
+   "z": -0.25,
+   "p": 0.8016
+  },
+  {
+   "session": "220515",
+   "n": 12,
+   "good_frac": 0.833,
+   "runs": 4,
+   "expected": 4.3,
+   "z": -0.4,
+   "p": 0.6918
+  },
+  {
+   "session": "220526",
+   "n": 6,
+   "good_frac": 0.5,
+   "runs": 4,
+   "expected": 4.0,
+   "z": 0.0,
+   "p": 1.0
+  },
+  {
+   "session": "220606",
+   "n": 21,
+   "good_frac": 0.476,
+   "runs": 10,
+   "expected": 11.5,
+   "z": -0.66,
+   "p": 0.5076
+  },
+  {
+   "session": "220609",
+   "n": 16,
+   "good_frac": 0.688,
+   "runs": 5,
+   "expected": 7.9,
+   "z": -1.75,
+   "p": 0.0798
+  },
+  {
+   "session": "220610",
+   "n": 24,
+   "good_frac": 0.75,
+   "runs": 8,
+   "expected": 10.0,
+   "z": -1.13,
+   "p": 0.2583
+  },
+  {
+   "session": "220611",
+   "n": 24,
+   "good_frac": 0.75,
+   "runs": 10,
+   "expected": 10.0,
+   "z": 0.0,
+   "p": 1.0
+  },
+  {
+   "session": "220612",
+   "n": 24,
+   "good_frac": 0.833,
+   "runs": 6,
+   "expected": 7.7,
+   "z": -1.3,
+   "p": 0.1934
+  },
+  {
+   "session": "220620",
+   "n": 12,
+   "good_frac": 0.917,
+   "runs": 3,
+   "expected": 2.8,
+   "z": 0.45,
+   "p": 0.6547
+  },
+  {
+   "session": "220630",
+   "n": 19,
+   "good_frac": 0.158,
+   "runs": 3,
+   "expected": 6.1,
+   "z": -2.86,
+   "p": 0.0042
+  },
+  {
+   "session": "220706",
+   "n": 10,
+   "good_frac": 0.4,
+   "runs": 4,
+   "expected": 5.8,
+   "z": -1.26,
+   "p": 0.2061
+  },
+  {
+   "session": "220708",
+   "n": 13,
+   "good_frac": 0.538,
+   "runs": 3,
+   "expected": 7.5,
+   "z": -2.6,
+   "p": 0.0093
+  },
+  {
+   "session": "220715",
+   "n": 15,
+   "good_frac": 0.8,
+   "runs": 3,
+   "expected": 5.8,
+   "z": -2.45,
+   "p": 0.0142
+  },
+  {
+   "session": "220722",
+   "n": 9,
+   "good_frac": 0.333,
+   "runs": 2,
+   "expected": 5.0,
+   "z": -2.45,
+   "p": 0.0143
+  },
+  {
+   "session": "220724",
+   "n": 9,
+   "good_frac": 0.111,
+   "runs": 3,
+   "expected": 2.8,
+   "z": 0.53,
+   "p": 0.593
+  },
+  {
+   "session": "221010",
+   "n": 99,
+   "good_frac": 0.818,
+   "runs": 13,
+   "expected": 30.5,
+   "z": -5.97,
+   "p": 0.0
+  },
+  {
+   "session": "221123",
+   "n": 12,
+   "good_frac": 0.167,
+   "runs": 3,
+   "expected": 4.3,
+   "z": -1.59,
+   "p": 0.1128
+  },
+  {
+   "session": "221215",
+   "n": 22,
+   "good_frac": 0.909,
+   "runs": 5,
+   "expected": 4.6,
+   "z": 0.54,
+   "p": 0.5904
+  },
+  {
+   "session": "221219",
+   "n": 17,
+   "good_frac": 0.353,
+   "runs": 7,
+   "expected": 8.8,
+   "z": -0.97,
+   "p": 0.3301
+  },
+  {
+   "session": "230109",
+   "n": 107,
+   "good_frac": 0.804,
+   "runs": 14,
+   "expected": 34.8,
+   "z": -6.43,
+   "p": 0.0
+  },
+  {
+   "session": "230110",
+   "n": 17,
+   "good_frac": 0.647,
+   "runs": 5,
+   "expected": 8.8,
+   "z": -2.08,
+   "p": 0.0377
+  },
+  {
+   "session": "230123",
+   "n": 26,
+   "good_frac": 0.846,
+   "runs": 7,
+   "expected": 7.8,
+   "z": -0.62,
+   "p": 0.5383
+  },
+  {
+   "session": "230206",
+   "n": 57,
+   "good_frac": 0.912,
+   "runs": 7,
+   "expected": 10.1,
+   "z": -2.71,
+   "p": 0.0066
+  },
+  {
+   "session": "230214",
+   "n": 48,
+   "good_frac": 0.938,
+   "runs": 7,
+   "expected": 6.6,
+   "z": 0.5,
+   "p": 0.6142
+  },
+  {
+   "session": "230215",
+   "n": 24,
+   "good_frac": 0.667,
+   "runs": 8,
+   "expected": 11.7,
+   "z": -1.73,
+   "p": 0.0833
+  },
+  {
+   "session": "230314",
+   "n": 50,
+   "good_frac": 0.44,
+   "runs": 3,
+   "expected": 25.6,
+   "z": -6.57,
+   "p": 0.0
+  },
+  {
+   "session": "230315",
+   "n": 94,
+   "good_frac": 0.553,
+   "runs": 13,
+   "expected": 47.5,
+   "z": -7.23,
+   "p": 0.0
+  },
+  {
+   "session": "230317",
+   "n": 100,
+   "good_frac": 0.73,
+   "runs": 10,
+   "expected": 40.4,
+   "z": -7.78,
+   "p": 0.0
+  },
+  {
+   "session": "230320",
+   "n": 229,
+   "good_frac": 0.769,
+   "runs": 27,
+   "expected": 82.5,
+   "z": -10.34,
+   "p": 0.0
+  },
+  {
+   "session": "230329",
+   "n": 12,
+   "good_frac": 0.833,
+   "runs": 2,
+   "expected": 4.3,
+   "z": -2.77,
+   "p": 0.0055
+  },
+  {
+   "session": "230403",
+   "n": 12,
+   "good_frac": 0.25,
+   "runs": 7,
+   "expected": 5.5,
+   "z": 1.25,
+   "p": 0.21
+  },
+  {
+   "session": "230411",
+   "n": 79,
+   "good_frac": 0.013,
+   "runs": 3,
+   "expected": 3.0,
+   "z": 0.16,
+   "p": 0.872
+  },
+  {
+   "session": "230419",
+   "n": 124,
+   "good_frac": 0.065,
+   "runs": 2,
+   "expected": 16.0,
+   "z": -10.71,
+   "p": 0.0
+  },
+  {
+   "session": "230424",
+   "n": 108,
+   "good_frac": 0.509,
+   "runs": 21,
+   "expected": 55.0,
+   "z": -6.57,
+   "p": 0.0
+  },
+  {
+   "session": "230425",
+   "n": 215,
+   "good_frac": 0.553,
+   "runs": 21,
+   "expected": 107.3,
+   "z": -11.93,
+   "p": 0.0
+  },
+  {
+   "session": "230510",
+   "n": 94,
+   "good_frac": 0.628,
+   "runs": 18,
+   "expected": 44.9,
+   "z": -5.98,
+   "p": 0.0
+  },
+  {
+   "session": "230512",
+   "n": 89,
+   "good_frac": 0.382,
+   "runs": 28,
+   "expected": 43.0,
+   "z": -3.39,
+   "p": 0.0007
+  },
+  {
+   "session": "230517",
+   "n": 90,
+   "good_frac": 0.6,
+   "runs": 12,
+   "expected": 44.2,
+   "z": -7.11,
+   "p": 0.0
+  },
+  {
+   "session": "230523",
+   "n": 111,
+   "good_frac": 0.387,
+   "runs": 28,
+   "expected": 53.7,
+   "z": -5.16,
+   "p": 0.0
+  },
+  {
+   "session": "230524",
+   "n": 108,
+   "good_frac": 0.231,
+   "runs": 19,
+   "expected": 39.4,
+   "z": -5.57,
+   "p": 0.0
+  },
+  {
+   "session": "230525",
+   "n": 218,
+   "good_frac": 0.693,
+   "runs": 56,
+   "expected": 93.8,
+   "z": -6.03,
+   "p": 0.0
+  },
+  {
+   "session": "230529",
+   "n": 216,
+   "good_frac": 0.426,
+   "runs": 48,
+   "expected": 106.6,
+   "z": -8.18,
+   "p": 0.0
+  }
+ ],
+ "n_sessions_tested": 45,
+ "n_significant": 23,
+ "n_clustered": 36
+}

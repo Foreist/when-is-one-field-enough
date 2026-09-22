@@ -1,0 +1,114 @@
+# Organ-on-a-chip QC: audit, corrected protocol, and a field-sampling tool
+
+This repository contains (1) an **audit** of a public organ-on-a-chip (OoC) quality-control
+benchmark, (2) a **corrected evaluation protocol**, and (3) a **chip-level QC tool** that decides
+whether a chip passes or fails from a handful of brightfield fields, with a calibrated confidence
+and an explicit "inconclusive" outcome.
+
+Everything runs from one public dataset. Every number in this README is reproduced by the scripts
+in `audit/` and `evaluate.py`; the raw outputs are in `results/`.
+
+---
+
+## 1. Data
+
+**OOC Image Dataset** — https://doi.org/10.5281/zenodo.10203721 (CC-BY-4.0; the MDPI data
+descriptor lists CC-BY-SA — we therefore do **not** redistribute the images, only link to Zenodo).
+3,072 brightfield images (2056x1542) from an automated microscope on an OoC setup, 6 cell lines,
+**59 acquisition sessions** (file names `YYMMDD_N.png`), labels `good`/`bad` assigned by four
+cell-biology experts (majority vote), plus protocol metadata (seeding density, flow rate, day).
+Reference paper: Movčana et al., *Data* 2024, 9, 28 (`10.3390/data9020028`).
+
+Download and extract to `../data/OOC_image_dataset/` (or set `OOC_DATA`):
+
+```bash
+curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
+python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('.')"   # unzip(1) fails on this zip64
+```
+
+## 2. What we found (audit)
+
+| # | Finding | Measurement | Script |
+|---|---|---|---|
+| 1 | **The published split leaks sessions** | train∩test = **57/59 sessions**. Controlled A/B (same test images, same training size, 3 seeds): **+6.1 pp accuracy / +10.2 pp AUC** inflation | `audit/leakage_controlled.py` |
+| 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17 → **effective N ≈ 181**; lag-1 autocorrelation 0.32; run length 6.08 vs 2.03 under i.i.d. | `audit/block_structure.py` |
+| 3 | **Failures occupy contiguous stretches of the chip** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views) | `audit/structure_probe.py` |
+| 4 | **Sampling policy matters** | random fields are best for the chip call (0.907 at k=8), adaptive expansion is best for localising the bad region (recall +11% relative); contiguous scans are worst | `audit/adaptive_sampling.py` |
+| 5 | **A re-image/discard rule is NOT supported** | recovery target CV AUC 0.613 vs permutation null p95 0.564; simple rules worse than the base rate → reported as an open problem | `audit/recovery_test.py` |
+
+Known prior art we build on (leakage in benchmarks is a known class of problem):
+*Data Leakage in Visual Datasets* (ICCV 2025 W / arXiv 2508.17416); *Auditing Data Leakage in
+Whole-Slide Image Benchmarks* (arXiv 2607.12278); Tampu et al., *Sci Data* 2022 (OCT split leakage);
+`AutoQC-Bench` (2025) for microscopy QC benchmarks.
+
+## 3. The tool
+
+```bash
+python3 inference.py --images /path/to/one_chip_fields --out out/
+```
+
+Outputs `out/chip_report.json` and `out/qc_map.png`:
+
+* **per-field P(bad)** (continuous, not a hard label)
+* **chip call**: `pass` / `fail` / **`inconclusive`** with a posterior confidence
+* **how many fields were used** (fields are sampled *spread across the chip*, not the first k —
+  reading the first k can land inside a good region and stop early with a wrong confident call)
+* **model card** with the measured performance, so the number is never read out of context
+
+### Measured performance (25 unseen chips, 684 fields, session-disjoint)
+
+| metric | value |
+|---|---|
+| per-field accuracy / AUC | 0.734 / 0.791 |
+| chip accuracy, all fields, mean | 0.80 |
+| chip accuracy **among confident calls** (sequential, spread fields, min 8) | **0.826** |
+| **false-confident calls** (confident and wrong) | **13%** |
+| inconclusive (budget exhausted near P=0.5) | 8% |
+| mean fields used | 9.5 (vs 12 for fixed-k at the same accuracy) |
+
+`evaluate.py` reproduces this table on the session-disjoint split.
+
+### Demo
+
+```bash
+python3 demo/app.py          # http://127.0.0.1:7861
+```
+
+Pick a bundled example chip or upload the fields of your own chip; the app shows the chip call,
+the posterior confidence, the number of fields used and the per-field QC map. Two example chips are
+bundled (12 fields each, with attribution in `demo/examples/README.md`): a mostly-good chip and a
+100%-bad chip.
+
+## 4. Limitations (read this before using the tool)
+
+* **13% of confident calls are wrong** on unseen chips. This is a research prototype, not a
+  validated instrument; do not discard a chip on its output alone.
+* **No reliable out-of-distribution detector.** We tried image-statistics and feature-space
+  Mahalanobis distances; both missed the worst failure (a 100%-bad chip called `pass` with 0.94
+  confidence). The `image_statistics_distance` field is diagnostic only.
+* **The re-image vs discard recommendation is not validated** — the recovery target does not support
+  it (finding 5). The tool reports `pass`/`fail`/`inconclusive`, nothing more.
+* **Single dataset, 25 test chips.** No wet-lab validation; we make no claim about biology or
+  clinical validity. The claim is about *measurement validity*.
+* Simulating decision rules on ground-truth labels **overstates** real performance (label-only
+  simulation suggested 6.6 fields at 94%; the deployed model gives 9.5 fields at 82.6%).
+
+## 5. Layout
+
+```
+inference.py            chip-level tool (per-field P(bad) -> call + confidence + fields used)
+evaluate.py             session-disjoint evaluation of the tool (reproduces section 3)
+model/                  MobileNetV3-small checkpoint + OOD reference statistics
+audit/                  audit scripts (findings 1-5), each writing JSON into results/
+results/                raw outputs: leakage, block structure, sampling, tool evaluation, QC maps
+```
+
+## 6. Licence and attribution
+
+Code: MIT (see `LICENSE`). Derived artefacts (predictions, figures): CC-BY-SA, matching the more
+restrictive of the dataset's two licence statements. The full dataset is **not** redistributed; only
+the 24 demo example fields in `demo/examples/` are included, with attribution. Download the full
+dataset from Zenodo and cite:
+
+> Movčana, V.; Strods, A.; et al. Organ-On-A-Chip (OOC) Image Dataset for Machine Learning and
+> Tissue Model Evaluation. *Data* 2024, 9, 28. DOI 10.3390/data9020028. Dataset: 10.5281/zenodo.10203721.

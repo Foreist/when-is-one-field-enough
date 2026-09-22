@@ -1,0 +1,97 @@
+{
+ "data_root": "/home/dxodnd/wsl/competition/active/ai4s-ooc-2026/data/OOC_image_dataset",
+ "checkpoint": "perfield_mnv3s_384_s0.pt",
+ "n_chips": 25,
+ "n_fields": 684,
+ "field_accuracy": 0.7339181286549707,
+ "field_auc": 0.7913091922005571,
+ "chip_all_fields_mean_acc": 0.8,
+ "chip_sequential_by_min_fields": {
+  "1": {
+   "n_confident": 24,
+   "chip_acc_among_confident": 0.7083333333333334,
+   "mean_fields": 6.76,
+   "frac_stopped": 0.84,
+   "false_confident_rate": 0.25,
+   "outcomes": {
+    "pass": 17,
+    "fail": 7,
+    "inconclusive": 1
+   },
+   "n_chips": 25
+  },
+  "3": {
+   "n_confident": 24,
+   "chip_acc_among_confident": 0.7083333333333334,
+   "mean_fields": 6.76,
+   "frac_stopped": 0.84,
+   "false_confident_rate": 0.25,
+   "outcomes": {
+    "pass": 17,
+    "fail": 7,
+    "inconclusive": 1
+   },
+   "n_chips": 25
+  },
+  "5": {
+   "n_confident": 24,
+   "chip_acc_among_confident": 0.7916666666666666,
+   "mean_fields": 8.52,
+   "frac_stopped": 0.72,
+   "false_confident_rate": 0.16666666666666666,
+   "outcomes": {
+    "pass": 17,
+    "fail": 7,
+    "inconclusive": 1
+   },
+   "n_chips": 25
+  },
+  "8": {
+   "n_confident": 23,
+   "chip_acc_among_confident": 0.8260869565217391,
+   "mean_fields": 9.52,
+   "frac_stopped": 0.48,
+   "false_confident_rate": 0.13043478260869565,
+   "outcomes": {
+    "pass": 17,
+    "inconclusive": 2,
+    "fail": 6
+   },
+   "n_chips": 25
+  },
+  "10": {
+   "n_confident": 23,
+   "chip_acc_among_confident": 0.8260869565217391,
+   "mean_fields": 10.0,
+   "frac_stopped": 0.44,
+   "false_confident_rate": 0.13043478260869565,
+   "outcomes": {
+    "pass": 17,
+    "inconclusive": 2,
+    "fail": 6
+   },
+   "n_chips": 25
+  },
+  "12": {
+   "n_confident": 23,
+   "chip_acc_among_confident": 0.8260869565217391,
+   "mean_fields": 10.48,
+   "frac_stopped": 0.44,
+   "false_confident_rate": 0.13043478260869565,
+   "outcomes": {
+    "pass": 17,
+    "inconclusive": 2,
+    "fail": 6
+   },
+   "n_chips": 25
+  }
+ },
+ "chip_fixed_k_spread": {
+  "3": 0.68,
+  "5": 0.72,
+  "8": 0.72,
+  "12": 0.8,
+  "20": 0.76
+ },
+ "note": "sequential stopping uses a Beta(1,1) posterior on the bad fraction with evenly spread fields; min_fields guards against stopping on a lucky good region"
+}
