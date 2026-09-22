@@ -5,6 +5,15 @@ benchmark, (2) a **corrected evaluation protocol**, and (3) a **chip-level QC to
 whether a chip passes or fails from a handful of brightfield fields, with a calibrated confidence
 and an explicit "inconclusive" outcome.
 
+**Deliverables**
+
+| | |
+|---|---|
+| Technical report (15 pages, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
+| Demo video (3:17, narrated) | [`demo_video.mp4`](demo_video.mp4) |
+| Interactive demo | `python3 demo/app.py` (bundled example chips) |
+| Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it |
+
 Everything runs from one public dataset. Every number in this README is reproduced by the scripts
 in `audit/` and `evaluate.py`; the raw outputs are in `results/`.
 
