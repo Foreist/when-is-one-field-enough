@@ -95,21 +95,36 @@ def fig_label_structure():
 
 
 def fig_sampling():
-    a = load("adaptive_sampling.json")
+    a = load("adaptive_sampling.json")          # label-based simulation
+    m = load("policy_model_in_loop.json")       # deployed model
     ks = sorted(int(k) for k in a)
     pol = ["random", "window", "adaptive"]
     col = {"random": "#4a6fa5", "window": "#95a5a6", "adaptive": "#c0392b"}
-    fig, ax = plt.subplots(1, 3, figsize=(13, 3.2))
+    fig, ax = plt.subplots(1, 3, figsize=(13, 3.3))
     for p in pol:
         ax[0].plot(ks, [a[str(k)][p]["chip_acc"] for k in ks], "o-", color=col[p], label=p)
-        ax[1].plot(ks, [a[str(k)][p]["bad_recall"] for k in ks], "o-", color=col[p], label=p)
-        ax[2].plot(ks, [a[str(k)][p]["frac_err"] for k in ks], "o-", color=col[p], label=p)
-    ax[0].set_ylabel("chip-call accuracy"); ax[1].set_ylabel("bad-region recall")
-    ax[2].set_ylabel("|estimated - true bad fraction|")
-    for i, t in enumerate(["(a) chip call: random wins", "(b) localisation: adaptive wins",
-                           "(c) fraction estimate: random wins"]):
-        ax[i].set_xlabel("fields sampled (budget)"); ax[i].set_title(t, fontsize=9, loc="left")
-        ax[i].legend(fontsize=8)
+        ax[0].plot(ks, [a[str(k)][p]["bad_recall"] for k in ks], "o--", color=col[p], alpha=.6)
+    ax[0].set_ylabel("accuracy (solid) / recall (dashed)")
+    ax[0].set_title("(a) simulated on ground-truth labels", fontsize=9, loc="left")
+    ax[0].set_xlabel("fields sampled (budget)"); ax[0].legend(fontsize=8)
+    mk = sorted(int(k) for k in m)
+    for p in pol:
+        ax[1].plot(mk, [m[str(k)][p]["chip_acc"] for k in mk], "o-", color=col[p], label=p)
+        ax[1].plot(mk, [m[str(k)][p]["bad_recall"] for k in mk], "o--", color=col[p], alpha=.6)
+    ax[1].set_title("(b) with the model in the loop (25 unseen chips)", fontsize=9, loc="left")
+    ax[1].set_xlabel("fields sampled (budget)"); ax[1].legend(fontsize=8)
+    ax[1].set_ylim(ax[0].get_ylim())
+    # paired differences with bootstrap CIs (k=12)
+    cis = load("policy_bootstrap.json")
+    labels = list(cis["k12"].keys()); vals = [cis["k12"][k]["mean"] for k in labels]
+    los = [cis["k12"][k]["lo"] for k in labels]; his = [cis["k12"][k]["hi"] for k in labels]
+    y = np.arange(len(labels))
+    ax[2].errorbar(vals, y, xerr=[np.array(vals) - np.array(los), np.array(his) - np.array(vals)],
+                   fmt="o", color="#333", capsize=4)
+    ax[2].axvline(0, color="k", ls="--", lw=1)
+    ax[2].set_yticks(y); ax[2].set_yticklabels(labels, fontsize=8)
+    ax[2].set_xlabel("paired accuracy difference (k=12)")
+    ax[2].set_title("(c) all differences include zero (n=13 chips)", fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig4_sampling_policy.png", dpi=150); plt.close(fig)
 
 

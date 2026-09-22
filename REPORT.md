@@ -26,11 +26,15 @@ It is not, in three specific and measurable ways.
    independence). The design effect is 17, so the benchmark carries the information of roughly
    **181 independent labels** — and a single field agrees with the session's majority label only
    **78.8%** of the time (91.0% even with ten fields).
-3. **The failure mode is spatial, not per-image.** Failures occupy contiguous stretches of a chip
-   (runs test significant in 23/45 mixed sessions, surviving a cell-type control). Consequently the
-   sampling policy matters: random fields are best for the chip call (0.907 accuracy at eight
-   fields), while adaptive expansion from a bad field is best for *localising* the bad region
-   (recall +11% relative); contiguous scans are worst at both.
+3. **The failure mode is spatial, not per-image — and our own policy comparison did not survive
+   its own criticism.** Failures occupy contiguous stretches of a chip (runs test significant in
+   23/45 mixed sessions, surviving a cell-type control). A policy comparison simulated on the
+   *labels* suggests random fields are best for the chip call; **with the model in the loop that
+   ranking disappears** — every paired difference over 13–15 chips has a bootstrap CI containing
+   zero (§4.3). What does survive is a concrete, reproducible failure: reading the **first** *k*
+   fields called a 100%-bad chip *pass* with 0.94 confidence, because the start of a session can
+   sit inside a good region. The shipped tool samples fields spread across the chip for that
+   reason, not on the strength of a policy ranking.
 
 We then built the tool the corrected protocol implies. Fields are sampled **spread across the
 chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
@@ -266,21 +270,15 @@ even ten fields only **91.0%**. Agreement is worse for late cultures (4+ days: 6
 field) than for day 0–1 (80.5%). The "quality" of a chip is therefore **a property of a region and
 of the sampling**, not of an image.
 
-### 4.3 Sampling policy: what to look at, given the structure
+### 4.3 Sampling policy: a comparison that does not survive the model in the loop
 
-If failures are contiguous, how should fields be chosen? We simulate three policies on the measured
-label sequences at a fixed budget *k* (300 trials per session):
+If failures are contiguous, how should fields be chosen? We first simulate three policies on the
+measured **label sequences** at a fixed budget *k* (300 trials per session):
 
 * **random** — *k* distinct uniform fields;
 * **window** — one contiguous run of *k* fields (a scan);
 * **adaptive** — start at a random field; if it was `bad`, expand to an unsampled neighbour; if
   `good`, jump elsewhere.
-
-| budget k=8 | chip-call accuracy | bad-region recall | bad precision | fraction error |
-|---|---|---|---|---|
-| random | **0.907** | 0.351 | 0.393 | **0.074** |
-| window (scan) | 0.886 | 0.328 | 0.386 | 0.129 |
-| adaptive | 0.851 | **0.391** | **0.468** | 0.120 |
 
 | budget k | random: acc / recall / err | window: acc / recall / err | adaptive: acc / recall / err |
 |---|---|---|---|
@@ -290,16 +288,36 @@ label sequences at a fixed budget *k* (300 trials per session):
 | 12 | 0.920 / 0.429 / 0.055 | 0.891 / 0.413 / 0.106 | 0.849 / 0.474 / 0.110 |
 | 20 | 0.922 / 0.402 / 0.046 | 0.876 / 0.380 / 0.107 | 0.789 / 0.482 / 0.137 |
 
-*Table 3. Full policy comparison. `err` = |estimated − true bad fraction|.*
+*Table 3. Label-based policy simulation. `err` = |estimated − true bad fraction|. Random looks best
+for the call and adaptive best for localisation — and we do not believe this table.*
 
-![Figure 4](figures/fig4_sampling_policy.png)
-*Figure 4. Policy comparison by budget.*
+This is exactly the practice criticised in §6.5, so we repeat the comparison with the deployed
+model's per-field probabilities on the 25 session-disjoint test chips
+(`audit/03c_policy_model_in_loop.py`):
 
-The trade-off is systematic and matches sampling theory: **random sampling is optimal for
-estimating the chip-level fraction (the decision), adaptive expansion is optimal for localising the
-bad region, and a contiguous scan is worst at both.** The practical recommendation is two-phase:
-random fields for the call, adaptive expansion only when the call is borderline or a bad field has
-been found and its extent matters.
+| budget k | random: acc / recall | window: acc / recall | adaptive: acc / recall |
+|---|---|---|---|
+| 4 | 0.791 / 0.335 | 0.785 / 0.321 | 0.772 / 0.323 |
+| 8 | 0.789 / 0.300 | 0.818 / 0.311 | 0.776 / 0.296 |
+| 12 | 0.800 / 0.393 | 0.818 / 0.389 | 0.840 / 0.397 |
+
+*Table 4. The same policies with the model in the loop. The ordering changes, and no difference is
+significant: a paired bootstrap over chips (2,000 resamples) gives 95% intervals of [−0.08, +0.00]
+for random − adaptive at k=12 (13 chips), [−0.12, +0.07] for window − adaptive and [−0.11, +0.07]
+for random − window — all contain zero (Figure 4c).*
+
+**We therefore report no policy ranking.** With only 13–15 chips large enough for these budgets the
+comparison is underpowered, and the label-based ranking is an artefact of scoring policies against
+the very labels they were designed to sample.
+
+What *is* established, and what the tool uses, is a single reproducible failure of the obvious
+default. Reading the **first** *k* fields in acquisition order with the sequential rule of §6.1
+called a 100%-bad chip (session 230405) *pass* with 0.94 confidence: the per-field probabilities in
+the first third of that session are low (mean 0.255 over the first five fields, versus 0.935 over
+the last twenty). Sampling fields spread across the chip fixes that case (the same chip returns
+*fail*, P = 0.91); on the 11 chips with at least 20 fields the accuracy difference (0.727 vs 0.636)
+is ±1 chip and is not significant either. The justification for spread sampling is the observed
+failure, not a measured ranking.
 
 ### 4.4 A hypothesis we tested and rejected: re-image vs discard
 
@@ -344,7 +362,7 @@ the chip reference defined as before:
 | 8 | 0.742 / 0.645 / 0.787 | 0.627 / 0.878 / 0.507 | 0.660 / 0.787 / 0.598 |
 | 12 | 0.742 / 0.851 / 0.710 | 0.570 / 1.000 / 0.354 | 0.631 / 0.997 / 0.452 |
 
-*Table 4. Aggregation rules (25 unseen chips; the same sampled fields for every rule).*
+*Table 5. Aggregation rules (25 unseen chips; the same sampled fields for every rule).*
 
 `mean` maximises chip accuracy and keeps specificity high; `max` maximises sensitivity (it calls
 almost everything bad: specificity collapses to 0.35 at k=12) and `top-2` sits between. **The
@@ -376,9 +394,9 @@ From the audit, three rules follow for anyone training or benchmarking on this d
 2. **Evaluate at the chip level.** Report (i) per-field accuracy/AUC *and* (ii) chip-level accuracy
    with the number of fields used, because per-field numbers do not answer the lab's question and
    are inflated by within-session correlation (effective N ≈ 181, not 3,072).
-3. **State the sampling policy.** Which fields were used, and how many. Numbers obtained with
-   different policies (random vs scan vs adaptive) are not comparable — at eight fields the chip
-   accuracy ranges from 0.851 to 0.907 depending only on the policy.
+3. **State the sampling policy.** Which fields were used, and how many. Policies differ in
+   principle (§4.3) and we could not rank them with this benchmark's 59 sessions; a number is only
+   interpretable together with the policy that produced it.
 
 As a worked example, `audit/01_split_audit.py` and `evaluate.py` reproduce every number in this
 report from the raw dataset.
@@ -473,7 +491,7 @@ last twenty), so an unguarded rule stopped early with a confident *pass*.
 | 230316 | 22 | 0% | 1.000 |
 | 230321 | 8 | 0% | 1.000 |
 
-*Table 5. The 25 unseen test chips, sorted by the true share of bad fields. The three 100%-bad
+*Table 6. The 25 unseen test chips, sorted by the true share of bad fields. The three 100%-bad
 chips with tiny field counts (220706, 220718, 220721) are the hardest; the model is also wrong on
 230403 (83% bad, 6 fields).*
 
@@ -515,10 +533,12 @@ means. In this benchmark the effective sample size is 6% of the nominal one, and
 the shipped split is evaluated on chips it has already seen.
 
 **For laboratories.** The practical consequence of clustered failures is that *which* fields are
-imaged matters as much as how many. Random sampling is the right default for the chip call;
-adaptive expansion is the right tool for mapping a bad region; scanning consecutive fields is the
-worst of both. The tool we ship reflects this, and its cost (9.5 fields on average, versus a fixed
-budget of 12 at equal accuracy) is modest but real.
+imaged matters: the same rule reads the same chip correctly or not depending on whether it looks at
+the beginning of the acquisition order or across the whole chip. We could not establish a general
+ranking between random, scan and adaptive sampling with 59 sessions (§4.3), so the tool uses spread
+sampling to avoid the specific failure we observed rather than as an optimised policy. Its cost
+(9.5 fields on average) is modest; its error rate (13% confident-but-wrong) is the number that
+matters in a deployment decision.
 
 **For method developers.** The largest single lesson is in Figure 6: a decision policy evaluated on
 ground-truth labels looked excellent (6.6 fields, 94.1% accuracy, 3.7% false-confident) and
@@ -546,10 +566,13 @@ settle it, and would be a small, valuable addition to this benchmark.
 4. **One dataset, 25 test chips.** Chip-level metrics carry wide confidence intervals; we report
    them as point estimates with the split size. No wet-lab validation was performed, and we make no
    biological or clinical claim — the claim is about *measurement validity*.
-5. **Labels come from a four-rater majority**, so the ceiling of any model on this benchmark is the
+5. **Sampling policies could not be ranked.** The label-based comparison (§4.3, Table 3) is
+   underpowered when repeated with the model in the loop (13–15 chips; all paired CIs include
+   zero). We report the policy we use and the failure that motivates it, not a ranking.
+6. **Labels come from a four-rater majority**, so the ceiling of any model on this benchmark is the
    agreement among experts, which is not public. Our numbers are therefore a lower bound in that
    specific sense, while the leakage inflation is an upper-bound problem.
-6. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
+7. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
    correlated (r = 0.63 vs 0.09–0.38 for random pairs), which supports the proxy, but the exact
    stage geometry is not public.
 
