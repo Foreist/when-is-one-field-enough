@@ -236,8 +236,10 @@ view-clustering at r > 0.95 finds **1,161 distinct views among 1,183 images (98%
 is therefore not redundancy; **failures occupy contiguous regions of the chip**.
 
 **Effective sample size.** With a session-level intraclass correlation of **ICC = 0.321** and a mean
-cluster size of ~51 fields, the design effect is `1 + (m−1)·ICC = 17.0`, so the benchmark carries
-the information of roughly **3,072 / 17 ≈ 181 independent labels**. The mean lag-1 autocorrelation
+cluster size of ~51 fields, the design effect is `1 + (m−1)·ICC = 17.0`, so for estimating a metric
+the benchmark carries the information of roughly **3,072 / 17 ≈ 181 independent labels** (a model
+may still exploit correlated fields in ways an estimator cannot, so this is a bound on
+*estimation*, not on learning). The mean lag-1 autocorrelation
 is 0.32 (53% of sessions above 0.3).
 
 ![Figure 3](figures/fig3_label_structure.png)
