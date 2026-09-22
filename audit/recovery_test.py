@@ -18,7 +18,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from structure_probe import load
 
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 STATS_CACHE = OUT / "run_image_stats.json"
 NEXT = 5
 

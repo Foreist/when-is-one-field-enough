@@ -21,7 +21,7 @@ from leakage_experiment import (OOC, index_images, make_loaders, evaluate)
 from leakage_controlled import split_controlled
 from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
 
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 
 
 def train_predict(recs, args, seed, device):

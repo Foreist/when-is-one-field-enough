@@ -27,7 +27,7 @@ from torch.utils.data import DataLoader
 from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
 import torch.nn as nn
 
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 
 
 def split_controlled(recs, seed, n_test_sessions=20, test_frac=0.5):

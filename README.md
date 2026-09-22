@@ -39,7 +39,7 @@ python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('.')"   # unzi
 
 | # | Finding | Measurement | Script |
 |---|---|---|---|
-| 1 | **The published split leaks sessions** | train∩test = **57/59 sessions**. Controlled A/B (same test images, same training size, 3 seeds): **+6.1 pp accuracy / +10.2 pp AUC** inflation | `audit/leakage_controlled.py` |
+| 1 | **The published split leaks sessions** | train∩test = **57/59 sessions**. Controlled A/B (same test images, same training size, 8 seeds): **+8.2 pp accuracy (95% CI 6.0–10.4) / +9.6 pp AUC (8.4–10.8)** inflation | `audit/leakage_controlled.py` |
 | 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17 → **effective N ≈ 181**; lag-1 autocorrelation 0.32; run length 6.08 vs 2.03 under i.i.d. | `audit/block_structure.py` |
 | 3 | **Failures occupy contiguous stretches of the chip** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views) | `audit/structure_probe.py` |
 | 4 | **Which fields are read matters — but no policy ranking is claimed** | label-based simulation suggests random > scan > adaptive (0.907 at k=8); with the model in the loop the ordering changes and **all paired differences include zero** (13–15 chips). The tool uses spread sampling because reading the *first* k fields called a 100%-bad chip *pass* with 0.94 confidence | `audit/adaptive_sampling.py`, `audit/03c_policy_model_in_loop.py` |
@@ -70,7 +70,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 |---|---|
 | per-field accuracy / AUC | 0.734 / 0.791 |
 | chip accuracy, all fields, mean | 0.80 |
-| chip accuracy **among confident calls** (sequential, spread fields, min 8) | **0.826** |
+| chip accuracy **among confident calls** (sequential, spread fields, min 8) | **0.826** (95% Wilson CI 0.63–0.93, 23 calls) |
 | **false-confident calls** (confident and wrong) | **13%** |
 | inconclusive (budget exhausted near P=0.5) | 8% |
 | mean fields used | 9.5 (vs 12 for fixed-k at the same accuracy) |

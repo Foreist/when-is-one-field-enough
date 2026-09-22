@@ -93,5 +93,10 @@
   "12": 0.8,
   "20": 0.76
  },
- "note": "sequential stopping uses a Beta(1,1) posterior on the bad fraction with evenly spread fields; min_fields guards against stopping on a lucky good region"
+ "note": "sequential stopping uses a Beta(1,1) posterior on the bad fraction with evenly spread fields; min_fields guards against stopping on a lucky good region",
+ "chip_acc_among_confident_wilson95": [
+  0.629,
+  0.93
+ ],
+ "note_ci": "Wilson interval over 23 confident calls (2 of 25 chips were inconclusive)"
 }

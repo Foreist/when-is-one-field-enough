@@ -19,8 +19,9 @@ It is not, in three specific and measurable ways.
 
 1. **The published split leaks sessions.** Training and test images come from the *same 57 of 59
    sessions*. Holding the test images and the training-set size fixed, and changing only whether
-   the test sessions also contribute training images, moves accuracy by **+6.1 pp and AUC by
-   +10.2 pp**. The shipped split reports 78.9%; the same model on unseen sessions reports 56.0%.
+   the test sessions also contribute training images, moves accuracy by **+8.2 pp (95% CI
+   6.0–10.4) and AUC by +9.6 pp (95% CI 8.4–10.8)** across eight seeds. The shipped split reports
+   78.9%; the same model on unseen sessions reports 56.0%.
 2. **The 3,072 labels are not 3,072 independent observations.** Labels are strongly autocorrelated
    along the acquisition order (session ICC 0.321, mean run length 6.08 fields versus 2.03 under
    independence). The design effect is 17, so the benchmark carries the information of roughly
@@ -178,19 +179,19 @@ are not held out. **Train contains 59 sessions, validation 51, test 57, and trai
 composition, so we hold everything else fixed:
 
 * the **test images** are identical in both arms (20 sessions, 521–712 fields);
-* the **training-set size is identical** (1,823 / 1,822 / 1,440 fields in three seeds);
+* the **training-set size is identical** in the two arms (1,440–1,823 fields depending on the seed);
 * the **model and budget are identical** (MobileNetV3-small, ImageNet-initialised, 6 epochs, 224 px);
 * the only difference is whether the training set may use *the other images of the test sessions*
   (leaky) or must come from disjoint sessions (disjoint).
 
 | arm | accuracy | AUC |
 |---|---|---|
-| session-disjoint | **63.9%** (± 10.2) | **0.725** |
-| same sessions in training (leaky) | **70.0%** (± 12.7) | **0.827** |
-| **inflation** | **+6.1 pp** | **+10.2 pp** |
+| session-disjoint | **67.2%** (± 6.2) | **0.750** |
+| same sessions in training (leaky) | **75.4%** (± 6.8) | **0.846** |
+| **inflation** (paired, 8 seeds) | **+8.2 pp** [6.0, 10.4] | **+9.6 pp** [8.4, 10.8] |
 
 ![Figure 2](figures/fig2_leakage.png)
-*Figure 2. (a) controlled A/B; (b) the shipped split versus a session-grouped split.*
+*Figure 2. (a) controlled A/B (8 seeds; paired inflation +8.2 pp accuracy, +9.6 pp AUC); (b) the shipped split versus a session-grouped split.*
 
 For reference, the shipped split yields **78.9% ± 0.07 / AUC 0.873** (seed-to-seed variation is
 tiny because all test sessions are seen in training), while a session-grouped split that keeps all
@@ -447,7 +448,7 @@ rate from 25% to 13%.
 |---|---|
 | per-field accuracy / AUC | 0.734 / 0.791 |
 | chip accuracy, all fields, mean | 0.80 |
-| **chip accuracy among confident calls** (spread fields, min 8, conf 0.9) | **0.826** |
+| **chip accuracy among confident calls** (spread fields, min 8, conf 0.9) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
 | **false-confident calls** (confident and wrong) | **13%** |
 | inconclusive (budget exhausted near P = 0.5) | 8% |
 | mean fields used | **9.5** (fixed budget of 12 gives 0.80) |
@@ -585,7 +586,7 @@ settle it, and would be a small, valuable addition to this benchmark.
 curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
 python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('.')"   # unzip(1) fails on this zip64
 
-python3 audit/leakage_controlled.py     # +6.1 pp / +10.2 pp (finding 1)
+python3 audit/leakage_controlled.py     # +8.2 pp / +9.6 pp (finding 1, 8 seeds)
 python3 audit/block_structure.py        # ICC 0.321, effective N ≈ 181 (finding 2)
 python3 audit/structure_probe.py        # runs test (finding 3)
 python3 audit/adaptive_sampling.py      # policy comparison (finding 4)
@@ -627,7 +628,7 @@ chip-level QC protocol; the field-dependence we measure is a property of this la
 ## 11. Conclusion
 
 A public benchmark for organ-on-a-chip quality control reports per-image accuracy on a split that
-leaks sessions (+6.1 pp measured by controlled A/B), with labels that are clustered along the
+leaks sessions (+8.2 pp measured by controlled A/B, 8 seeds), with labels that are clustered along the
 acquisition order (ICC 0.321; effective N ≈ 181 of 3,072) and field-dependent (a single field
 agrees with the session majority 78.8% of the time). Correcting the protocol — session-grouped
 splits, chip-level evaluation, explicit sampling policy — and sampling fields spread across the

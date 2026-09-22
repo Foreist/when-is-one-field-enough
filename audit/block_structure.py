@@ -13,7 +13,7 @@ import numpy as np
 
 from structure_probe import load, runs_test
 
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 
 
 def icc_binary(groups):

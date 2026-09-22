@@ -20,7 +20,7 @@ from PIL import Image
 from leakage_experiment import OOC, index_images, PAT
 from leakage_controlled import split_controlled
 
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 
 
 def make_loaders(split, size, bs, workers, seed):

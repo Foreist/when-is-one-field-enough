@@ -22,7 +22,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]          # repo/../.. = competition folder
 import os
 DATA = Path(os.environ.get("OOC_DATA", ROOT / "data" / "OOC_image_dataset"))
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 PAT = re.compile(r"^(\d{6})_(\d+)\.png$")
 
 

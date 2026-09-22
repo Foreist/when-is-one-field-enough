@@ -22,7 +22,7 @@ import numpy as np
 
 from structure_probe import load
 
-OUT = Path(__file__).resolve().parent
+OUT = Path(__file__).resolve().parent.parent / "results"
 TRIALS = 300
 KS = [2, 4, 8, 12, 20]
 
