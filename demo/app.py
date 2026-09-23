@@ -127,8 +127,10 @@ with gr.Blocks(title="Organ-on-a-chip QC") as demo:
     with gr.Tab("single chip"):
         with gr.Row():
             with gr.Column(scale=1):
+                default_chip = ("good_chip" if (HERE / "examples" / "good_chip").is_dir()
+                                else (EXAMPLES[0].name if EXAMPLES else "upload your own"))
                 src = gr.Radio([p.name for p in EXAMPLES] + ["upload your own"],
-                               value=EXAMPLES[0].name if EXAMPLES else "upload your own", label="chip")
+                               value=default_chip, label="chip")
                 up = gr.File(file_count="multiple", file_types=["image"], label="field images (one chip)")
                 run = gr.Button("run QC", variant="primary")
                 gr.Markdown("Examples bundled with attribution from the OOC Image Dataset "
