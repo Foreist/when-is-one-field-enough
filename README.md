@@ -74,7 +74,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | chip accuracy **among confident calls** (sequential, spread fields, min 8) | **0.826** (95% Wilson CI 0.63–0.93, 23 calls) |
 | **false-confident calls** (confident and wrong) | **13%** |
 | inconclusive (budget exhausted near P=0.5) | 8% |
-| mean fields used | 9.5 (vs 12 for fixed-k at the same accuracy) |
+| **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** |
 | held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution) |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 
@@ -85,6 +85,12 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 ```bash
 python3 demo/app.py          # http://127.0.0.1:7861
 ```
+
+**Plate triage** — `python3 inference.py --plate /path/to/plate --out out/`, where the folder contains
+one subfolder per chip. Chips are ranked by how much attention they need, and the run reports how
+many fields were spent. On the 25 test chips: **238 of 684 fields used (65% saved)**, with
+6 chips called *fail*, 2 *inconclusive* and 17 *pass*. The demo app has the same mode in its
+"plate triage" tab.
 
 Pick a bundled example chip or upload the fields of your own chip; the app shows the chip call,
 the posterior confidence, the number of fields used and the per-field QC map. Two example chips are

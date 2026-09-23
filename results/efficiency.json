@@ -1,0 +1,123 @@
+{
+ "n_chips": 25,
+ "total_fields": 684,
+ "mean_fields_per_chip": 27.36,
+ "all_fields_acc": 0.8,
+ "fixed_k": {
+  "2": {
+   "acc": 0.72,
+   "n": 25,
+   "fields": 2
+  },
+  "4": {
+   "acc": 0.75,
+   "n": 24,
+   "fields": 4
+  },
+  "6": {
+   "acc": 0.8,
+   "n": 20,
+   "fields": 6
+  },
+  "8": {
+   "acc": 0.6666666666666666,
+   "n": 15,
+   "fields": 8
+  },
+  "10": {
+   "acc": 0.7142857142857143,
+   "n": 14,
+   "fields": 10
+  },
+  "12": {
+   "acc": 0.8461538461538461,
+   "n": 13,
+   "fields": 12
+  },
+  "16": {
+   "acc": 0.8181818181818182,
+   "n": 11,
+   "fields": 16
+  },
+  "20": {
+   "acc": 0.7272727272727273,
+   "n": 11,
+   "fields": 20
+  }
+ },
+ "sequential": {
+  "abstain_min4": {
+   "mode": "abstain",
+   "min_fields": 4,
+   "acc": 0.7083333333333334,
+   "end_to_end_acc": 0.68,
+   "abstention": 0.04,
+   "fields": 7.32,
+   "n_called": 24
+  },
+  "force_min4": {
+   "mode": "force",
+   "min_fields": 4,
+   "acc": 0.68,
+   "end_to_end_acc": 0.68,
+   "abstention": 0.0,
+   "fields": 7.32,
+   "n_called": 25
+  },
+  "abstain_min6": {
+   "mode": "abstain",
+   "min_fields": 6,
+   "acc": 0.7916666666666666,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.04,
+   "fields": 8.8,
+   "n_called": 24
+  },
+  "force_min6": {
+   "mode": "force",
+   "min_fields": 6,
+   "acc": 0.76,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.0,
+   "fields": 8.8,
+   "n_called": 25
+  },
+  "abstain_min8": {
+   "mode": "abstain",
+   "min_fields": 8,
+   "acc": 0.8260869565217391,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.08,
+   "fields": 9.52,
+   "n_called": 23
+  },
+  "force_min8": {
+   "mode": "force",
+   "min_fields": 8,
+   "acc": 0.8,
+   "end_to_end_acc": 0.8,
+   "abstention": 0.0,
+   "fields": 9.52,
+   "n_called": 25
+  },
+  "abstain_min12": {
+   "mode": "abstain",
+   "min_fields": 12,
+   "acc": 0.8260869565217391,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.08,
+   "fields": 10.48,
+   "n_called": 23
+  },
+  "force_min12": {
+   "mode": "force",
+   "min_fields": 12,
+   "acc": 0.8,
+   "end_to_end_acc": 0.8,
+   "abstention": 0.0,
+   "fields": 10.48,
+   "n_called": 25
+  }
+ },
+ "note": "mode=force calls every chip (no abstention); mode=abstain defers chips whose posterior stays between 0.35 and 0.65, and acc is then conditional on the chips that were called"
+}

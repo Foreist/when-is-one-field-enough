@@ -41,7 +41,10 @@ It is not, in three specific and measurable ways.
    benchmark (OCT organoid tracking, zenodo.15783866) shows the same defect: **40.0% of its test
    files belong to a (well, day) acquisition group that also appears in training** (§4.4).
 
-We then built the tool the corrected protocol implies. Fields are sampled **spread across the
+We then built the tool the corrected protocol implies, and measured what it buys: on 25 unseen
+chips it reaches the same chip-level accuracy as reading **every** field (0.800) while using **9.5
+fields instead of 27.4** — a 2.9× reduction in microscope time — and defers 8% of chips to a human
+rather than guessing. Fields are sampled **spread across the
 chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
 chip called *pass* with 0.94 confidence), and a sequential stopping rule returns **pass / fail /
 inconclusive** with a posterior confidence. On 25 unseen chips: **82.6% chip-level accuracy among
@@ -488,9 +491,38 @@ rate from 25% to 13%.
 0.733 to 0.747, while AUC *fell* from 0.791 to 0.788 — i.e. a larger model buys nothing here
 (`audit/perfield_model.py --arch large`). Together with the session-level domain shift in §6.4 this
 suggests the ceiling is set by the labels and by chip-to-chip appearance, not by model capacity.
-We therefore ship the smaller model, which is also cheaper to run.
+We therefore ship the smaller model, which is also cheaper to run and needs fewer fields to decide (§6.4).
 
-### 6.4 Where the tool fails
+### 6.4 Field efficiency: the same accuracy with 2.9× fewer fields
+
+The naive way to use a per-field model is to read every field of the chip and average. On the 25 test
+chips that costs **27.4 fields per chip for 0.800 accuracy**. The shipped rule — fields spread
+across the chip, Beta posterior, stop at confidence 0.9, minimum 8 fields — reaches **0.800 on all
+25 chips using 9.5 fields (2.9× fewer)**, and when it is allowed to defer the chips it cannot
+resolve it reaches **0.826 on the 23 it calls, deferring 8%** (`audit/07_efficiency.py`):
+
+| policy | fields per chip | chips called | accuracy |
+|---|---|---|---|
+| all fields (mean of every field) | 27.4 | 25/25 | 0.800 |
+| fixed k = 12, spread | 12.0 | 13/25 | 0.846 |
+| **sequential, force** (min 8) | **9.5** | **25/25** | **0.800** |
+| **sequential, abstain** (min 8) | **9.5** | 23/25 | **0.826** |
+
+*Table 7. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
+fields, so it is not comparable with the others; the sequential rows use every chip.*
+
+![Figure 7](figures/fig7_efficiency.png)
+*Figure 7. Accuracy against the number of fields used per chip.*
+
+For a lab imaging plates of chips this is the practical number: the decision costs roughly a third of
+the microscope time of the read-everything workflow, and a further 8% of chips are flagged
+"needs a human" instead of being guessed.
+
+The tool ships this as a **plate mode** (`inference.py --plate <folder>`; one subfolder per chip),
+which returns a ranked triage table. On the 25 test chips it spends **238 of 684 fields (65%
+saved)** and returns 6 *fail*, 2 *inconclusive* and 17 *pass*, worst first.
+
+### 6.5 Where the tool fails
 
 Chip-level failures are not spread evenly; they cluster in a few sessions, and they are not flagged
 by the model's own confidence. The clearest case is session 230405 (69 fields, **100%** labelled
@@ -542,7 +574,7 @@ distance is exposed as a diagnostic only.
 not as an autonomous gate. Its measured error rate (13% confident-but-wrong) is the number to quote
 in any deployment decision.
 
-### 6.5 Generalisation to a cell line the model has never seen
+### 6.6 Generalisation to a cell line the model has never seen
 
 The session-disjoint protocol of §6.3 keeps all six cell lines in training. To measure a stricter
 setting we hold out one cell line entirely — test = all of its fields, train = the other five with
@@ -560,7 +592,7 @@ any session containing the held-out line removed — and retrain the deployed co
 | **mean of the six** | 3,072 (101) | **0.670** | 0.662 | **0.719** |
 | in-distribution (all lines seen, §6.3) | 684 (25) | 0.734 | 0.733 | 0.791 |
 
-*Table 7. Leave-one-cell-line-out. The spread between cell lines (AUC 0.630–0.930) is larger than
+*Table 8. Leave-one-cell-line-out. The spread between cell lines (AUC 0.630–0.930) is larger than
 the effect of any modelling choice we tested — a 2.4× larger backbone or 512 px inputs change
 nothing (§6.3).*
 
@@ -570,7 +602,7 @@ we keep the session-disjoint protocol as the headline because it matches how suc
 used (a new chip of a known cell line), but any deployment to an unseen line needs re-calibration
 on that line.
 
-### 6.6 Label-only simulation overstates deployed performance
+### 6.7 Label-only simulation overstates deployed performance
 
 A common practice — which we followed first — is to simulate a decision policy on **ground-truth
 labels**. Doing so with this dataset's labels gives an attractive result: 6.6 fields on average,

@@ -124,23 +124,77 @@ def sequential_decision(probs, thr_conf=0.9, max_fields=20, min_fields=8):
                 field_indices=order)
 
 
+def plate_triage(root, model, ref, args, out):
+    """Run the decision on every chip folder inside `root` and rank them by attention needed."""
+    import csv
+    chips = [d for d in sorted(Path(root).iterdir()) if d.is_dir()]
+    rows = []
+    tot_fields = tot_used = 0
+    for d in chips:
+        files = sorted([p for p in d.iterdir() if p.suffix.lower() in IMG_EXT], key=natural_key)
+        if not files:
+            continue
+        probs = []
+        with torch.no_grad():
+            for p in files:
+                x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
+                probs.append(float(torch.softmax(model(x), dim=1)[0, 0]))
+        dec = sequential_decision(probs, thr_conf=args.conf, max_fields=args.max_fields,
+                                  min_fields=args.min_fields)
+        call = dec["call"]
+        if not dec["stopped"] and 0.35 < dec["p_bad"] < 0.65:
+            call = "inconclusive"
+        rank = {"fail": 0, "inconclusive": 1, "pass": 2}[call]
+        rows.append(dict(chip=d.name, call=call, p_bad=round(dec["p_bad"], 3),
+                         confidence=round(max(dec["p_bad"], 1 - dec["p_bad"]), 3),
+                         fields_used=dec["n_fields"], fields_available=len(files),
+                         attention_rank=rank))
+        tot_fields += len(files); tot_used += dec["n_fields"]
+    rows.sort(key=lambda r: (r["attention_rank"], -r["p_bad"]))
+    summary = dict(chips=len(rows), fields_available=tot_fields, fields_used=tot_used,
+                   fields_saved_frac=1 - tot_used / max(1, tot_fields),
+                   calls={k: sum(1 for r in rows if r["call"] == k) for k in ("fail", "inconclusive", "pass")},
+                   model_card=MODEL_CARD)
+    (out / "plate_report.json").write_text(json.dumps(dict(summary=summary, chips=rows), indent=1))
+    with open(out / "plate_summary.csv", "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()) if rows else ["chip"])
+        w.writeheader()
+        w.writerows(rows)
+    print(f"plate: {summary['chips']} chips, {summary['fields_available']} fields available, "
+          f"{summary['fields_used']} used ({100*summary['fields_saved_frac']:.0f}% saved)")
+    print(f"calls: {summary['calls']}")
+    print(f"{'chip':<24}{'call':<14}{'P(bad)':>8}{'conf':>7}{'fields':>9}")
+    for r in rows:
+        print(f"{r['chip']:<24}{r['call']:<14}{r['p_bad']:>8}{r['confidence']:>7}"
+              f"{r['fields_used']:>6}/{r['fields_available']}")
+    print(f"\nwrote {out/'plate_report.json'} and {out/'plate_summary.csv'}")
+    return summary
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--images", required=True, help="folder with one chip's field images")
+    ap.add_argument("--images", help="folder with one chip's field images")
+    ap.add_argument("--plate", help="folder containing one subfolder per chip (triage mode)")
     ap.add_argument("--out", default="out", help="output folder")
     ap.add_argument("--checkpoint", default=str(HERE / "model" / "perfield_mnv3s_384_s0.pt"))
     ap.add_argument("--max-fields", type=int, default=20)
     ap.add_argument("--min-fields", type=int, default=8)
     ap.add_argument("--conf", type=float, default=0.9)
     args = ap.parse_args()
+    if not args.images and not args.plate:
+        raise SystemExit("give --images (one chip) or --plate (many chips)")
+    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
+    model = load_model(args.checkpoint)
+
+    if args.plate:
+        ref = json.loads((HERE / "model" / "train_image_stats.json").read_text())
+        plate_triage(args.plate, model, ref, args, out)
+        return
 
     files = sorted([p for p in Path(args.images).iterdir() if p.suffix.lower() in IMG_EXT],
                    key=natural_key)
     if not files:
         raise SystemExit(f"no images in {args.images}")
-    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
-
-    model = load_model(args.checkpoint)
     probs, stats = [], []
     with torch.no_grad():
         for p in files:

@@ -152,6 +152,29 @@ def fig_tool():
     fig.tight_layout(); fig.savefig(F / "fig5_tool.png", dpi=150); plt.close(fig)
 
 
+def fig_efficiency():
+    e = load("efficiency.json")
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
+    fx = sorted(int(k) for k in e["fixed_k"])
+    ax.plot([e["fixed_k"][str(k)]["fields"] for k in fx], [e["fixed_k"][str(k)]["acc"] for k in fx],
+            "s--", color="#95a5a6", label="fixed k spread fields")
+    ax.scatter([e["mean_fields_per_chip"]], [e["all_fields_acc"]], marker="*", s=260,
+               color="#4a6fa5", label=f"all fields ({e['mean_fields_per_chip']:.0f}/chip)")
+    for mode, col, mk in (("force", "#c0392b", "o"), ("abstain", "#e67e22", "^")):
+        keys = [k for k in e["sequential"] if e["sequential"][k]["mode"] == mode]
+        keys.sort(key=lambda k: e["sequential"][k]["fields"])
+        ax.plot([e["sequential"][k]["fields"] for k in keys],
+                [e["sequential"][k]["acc"] for k in keys], mk + "-", color=col,
+                label=f"sequential ({mode})")
+    ax.axhline(e["all_fields_acc"], color="#4a6fa5", ls=":", lw=1)
+    ax.annotate("same accuracy,\n2.9x fewer fields", xy=(9.5, 0.80), xytext=(14, 0.70),
+                arrowprops=dict(arrowstyle="->", color="k", lw=1), fontsize=9)
+    ax.set_xlabel("fields used per chip"); ax.set_ylabel("chip-level accuracy")
+    ax.set_ylim(0.6, 0.9); ax.legend(fontsize=8, loc="lower right")
+    ax.set_title("Field efficiency on 25 unseen chips", fontsize=10, loc="left")
+    fig.tight_layout(); fig.savefig(F / "fig7_efficiency.png", dpi=150); plt.close(fig)
+
+
 def fig_label_vs_model():
     st = load("stopping_rule.json")
     t = load("tool_evaluation.json")
@@ -174,5 +197,6 @@ def fig_label_vs_model():
 
 if __name__ == "__main__":
     fig_dataset(); fig_leakage(); fig_label_structure(); fig_sampling(); fig_tool(); fig_label_vs_model()
+    fig_efficiency()
     for p in sorted(F.glob("*.png")):
         print("wrote", p.relative_to(HERE))

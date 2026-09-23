@@ -6,7 +6,7 @@
 
 Pick a bundled example chip or upload your own field images (one chip per run).
 """
-import json, sys
+import collections, json, sys
 from pathlib import Path
 
 import numpy as np
@@ -77,6 +77,44 @@ def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
     return fig, txt, report
 
 
+def run_plate(files):
+    """files: list of paths from a directory upload; one subfolder per chip."""
+    if not files:
+        return "upload a folder that contains one subfolder per chip", None
+    groups = collections.defaultdict(list)
+    for f in files:
+        p = Path(f)
+        groups[p.parent.name].append(str(p))
+    rows = []
+    tot_avail = tot_used = 0
+    for chip, paths in sorted(groups.items()):
+        probs = []
+        with torch.no_grad():
+            for p in sorted(paths):
+                x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
+                probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
+        order = spread_order(len(probs), 20)
+        bad = good = 0
+        call, used = None, len(order)
+        for i, idx in enumerate(order, 1):
+            bad += int(probs[idx] > 0.5); good += int(probs[idx] <= 0.5)
+            pb = beta_p_bad(bad, good)
+            if i >= 8 and (pb > 0.9 or 1 - pb > 0.9):
+                call, used, p_final = ("fail" if pb > 0.5 else "pass"), i, pb
+                break
+        if call is None:
+            p_final = beta_p_bad(bad, good)
+            call = "inconclusive" if 0.35 < p_final < 0.65 else ("fail" if p_final > 0.5 else "pass")
+        tot_avail += len(paths); tot_used += used
+        rows.append([chip, call, round(p_final, 3), round(max(p_final, 1 - p_final), 3),
+                     f"{used}/{len(paths)}"])
+    order_rank = {"fail": 0, "inconclusive": 1, "pass": 2}
+    rows.sort(key=lambda r: (order_rank[r[1]], -r[2]))
+    txt = (f"**{len(rows)} chips · {tot_used}/{tot_avail} fields used "
+           f"({100*(1-tot_used/max(1,tot_avail)):.0f}% saved)** — sorted by attention needed")
+    return txt, rows
+
+
 with gr.Blocks(title="Organ-on-a-chip QC") as demo:
     gr.Markdown(
         "# Organ-on-a-chip QC — chip-level decision from a few fields\n"
@@ -86,28 +124,39 @@ with gr.Blocks(title="Organ-on-a-chip QC") as demo:
         "**It is a research prototype**: 13% of confident calls are wrong on unseen chips, and we "
         "could not build a reliable OOD detector — see the repository README."
     )
-    with gr.Row():
-        with gr.Column(scale=1):
-            src = gr.Radio([p.name for p in EXAMPLES] + ["upload your own"],
-                           value=EXAMPLES[0].name if EXAMPLES else "upload your own", label="chip")
-            up = gr.File(file_count="multiple", file_types=["image"], label="field images (one chip)")
-            run = gr.Button("run QC", variant="primary")
-            gr.Markdown("Examples bundled with attribution from the OOC Image Dataset "
-                        "(zenodo.10203721). Full dataset not redistributed.")
-        with gr.Column(scale=2):
-            out_txt = gr.Markdown()
-            out_plot = gr.Plot()
-            out_json = gr.Code(label="chip_report.json", language="json")
+    with gr.Tab("single chip"):
+        with gr.Row():
+            with gr.Column(scale=1):
+                src = gr.Radio([p.name for p in EXAMPLES] + ["upload your own"],
+                               value=EXAMPLES[0].name if EXAMPLES else "upload your own", label="chip")
+                up = gr.File(file_count="multiple", file_types=["image"], label="field images (one chip)")
+                run = gr.Button("run QC", variant="primary")
+                gr.Markdown("Examples bundled with attribution from the OOC Image Dataset "
+                            "(zenodo.10203721). Full dataset not redistributed.")
+            with gr.Column(scale=2):
+                out_txt = gr.Markdown()
+                out_plot = gr.Plot()
+                out_json = gr.Code(label="chip_report.json", language="json")
 
-    def _files(src_name, uploaded):
-        if src_name != "upload your own" and uploaded is None:
-            d = HERE / "examples" / src_name
-            return [str(p) for p in sorted(d.glob("*.png"))]
-        return uploaded or []
+        def _files(src_name, uploaded):
+            if src_name != "upload your own" and uploaded is None:
+                d = HERE / "examples" / src_name
+                return [str(p) for p in sorted(d.glob("*.png"))]
+            return uploaded or []
 
-    run.click(lambda s, u: run_chip(_files(s, u)), [src, up], [out_plot, out_txt, out_json])
-    demo.load(lambda s, u: run_chip(_files(s, u)),
-              [src, up], [out_plot, out_txt, out_json])
+        run.click(lambda s, u: run_chip(_files(s, u)), [src, up], [out_plot, out_txt, out_json])
+        demo.load(lambda s, u: run_chip(_files(s, u)),
+                  [src, up], [out_plot, out_txt, out_json])
+
+    with gr.Tab("plate triage"):
+        gr.Markdown("Upload a folder that contains **one subfolder per chip** (each subfolder holds "
+                    "that chip's field images). Chips are ranked by how much attention they need.")
+        plate_up = gr.File(file_count="directory", file_types=["image"], label="plate folder")
+        plate_btn = gr.Button("triage plate", variant="primary")
+        plate_txt = gr.Markdown()
+        plate_tbl = gr.Dataframe(headers=["chip", "call", "P(bad)", "confidence", "fields used"],
+                                 interactive=False)
+        plate_btn.click(run_plate, [plate_up], [plate_txt, plate_tbl])
 
 if __name__ == "__main__":
     import os
