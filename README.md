@@ -19,6 +19,20 @@ in `audit/` and `evaluate.py`; the raw outputs are in `results/`.
 
 ---
 
+## 0. Quickstart
+
+```bash
+pip install -r requirements.txt
+python3 inference.py --plate demo/examples --out out/   # 3 bundled chips — no dataset needed
+python3 demo/app.py                                     # interactive demo (Gradio) at :7861
+```
+
+The tool, the demo, `figures.py` and `make_report_pdf.py` run without the dataset (figures and the
+PDF are rebuilt from the committed `results/*.json`; the PDF additionally needs
+`playwright install chromium`). `evaluate.py` and the `audit/` scripts need the full dataset from §1.
+
+---
+
 ## 1. Data
 
 **OOC Image Dataset** — https://doi.org/10.5281/zenodo.10203721 (CC-BY-4.0; the MDPI data
