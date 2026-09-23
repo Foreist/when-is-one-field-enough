@@ -37,6 +37,10 @@ It is not, in three specific and measurable ways.
    sit inside a good region. The shipped tool samples fields spread across the chip for that
    reason, not on the strength of a policy ranking.
 
+4. **The leakage is not unique to this benchmark.** Auditing a second public organoid imaging
+   benchmark (OCT organoid tracking, zenodo.15783866) shows the same defect: **40.0% of its test
+   files belong to a (well, day) acquisition group that also appears in training** (§4.4).
+
 We then built the tool the corrected protocol implies. Fields are sampled **spread across the
 chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
 chip called *pass* with 0.94 confidence), and a sequential stopping rule returns **pass / fail /
@@ -322,7 +326,28 @@ the last twenty). Sampling fields spread across the chip fixes that case (the sa
 is ±1 chip and is not significant either. The justification for spread sampling is the observed
 failure, not a measured ranking.
 
-### 4.4 A hypothesis we tested and rejected: re-image vs discard
+### 4.4 The same defect in a second organoid benchmark
+
+To test whether the leakage we measure is a property of one dataset or of the field, we audited a
+second public organoid imaging benchmark: the **OCT organoid segmentation-and-tracking dataset**
+(zenodo.15783866, CC-BY-4.0, *Diagnostics* 2024). Its file names encode the acquisition group —
+`w<well>_d<day>_<slice>.png` in train/val and `d<day>_p<plate>_w<well>_<slice>.png` in test — and the
+same (well, day) means the same organoids imaged in the same session. Reading the archive's central
+directory over HTTP range requests (no 4.9 GB download; `audit/06_oct_leakage.py`):
+
+* train: 16,752 files in **8** (well, day) groups; val: 4,188 files in 2 groups; test: 20,940 files in 10 groups
+* **train ∩ test = 4 groups** — well 2 at days 5, 7, 11 and 13; val ∩ test = 1 group
+* **40.0% of test files (8,376 of 20,940) belong to a (well, day) group that also appears in training**
+
+For a *tracking* benchmark this is more severe than for classification: the same organoid instances,
+imaged in the same session at the same timepoint, appear on both sides of the split. We report the
+structural overlap rather than a re-trained inflation number, because re-training their
+segmentation/tracking pipeline is out of scope here.
+
+Two datasets, two independent instances of the same defect — group-level splits that leak — which is
+the empirical basis for the first rule of the corrected protocol (§5).
+
+### 4.5 A hypothesis we tested and rejected: re-image vs discard
 
 The dataset's own definition of `bad` mixes **technical artifacts** (bubbles, defocus, deformed
 walls) with **biological problems** (morphology/density off expectation) [1]. If these could be
@@ -351,7 +376,7 @@ reach the end"), and — more fundamentally — **no re-imaging was ever perform
 the causal question cannot be observed**. We therefore ship `pass`/`fail`/`inconclusive` and
 document the two-mode observation as an *open problem*, not a feature.
 
-### 4.5 Aggregation rules are a sensitivity/specificity dial
+### 4.6 Aggregation rules are a sensitivity/specificity dial
 
 If several fields are read, their scores must be combined. We compare three rules on per-field
 probabilities from a session-disjoint model, at a fixed field threshold chosen on validation, with
@@ -378,7 +403,7 @@ along the acquisition order before aggregating. It did **not** help (chip accura
 k=6 for a 5-field moving average): smoothing suppresses exactly the sharp block edges that carry
 the signal. Reported as a negative result.
 
-### 4.6 Metadata does not explain the labels
+### 4.7 Metadata does not explain the labels
 
 A logistic model on day, log seeding density, flow rate and cell line reaches only 0.562 in-sample
 accuracy, and apparent cell-line differences (Caco-2 68.5% bad vs NHBE 23.9%) dissolve on
@@ -457,6 +482,13 @@ rate from 25% to 13%.
 
 ![Figure 5](figures/fig5_tool.png)
 *Figure 5. Tool behaviour versus the minimum-fields guard.*
+
+**Capacity is not the bottleneck.** We trained a 2.4× larger backbone (MobileNetV3-large, same
+384 px, same protocol). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from
+0.733 to 0.747, while AUC *fell* from 0.791 to 0.788 — i.e. a larger model buys nothing here
+(`audit/perfield_model.py --arch large`). Together with the session-level domain shift in §6.4 this
+suggests the ceiling is set by the labels and by chip-to-chip appearance, not by model capacity.
+We therefore ship the smaller model, which is also cheaper to run.
 
 ### 6.4 Where the tool fails
 
@@ -552,7 +584,7 @@ recommend model-in-the-loop evaluation as the default.
 
 **Open problem.** The dataset's own definition of `bad` mixes technical artifacts with biological
 failure, which suggests the actionable output should be "re-image" versus "discard". We tried and
-failed to validate that mapping (§4.4): the causal question cannot be observed without actual
+failed to validate that mapping (§4.5): the causal question cannot be observed without actual
 re-imaging. A dataset that images each chip twice — before and after a re-imaging attempt — would
 settle it, and would be a small, valuable addition to this benchmark.
 
@@ -564,7 +596,7 @@ settle it, and would be a small, valuable addition to this benchmark.
    feature-space Mahalanobis distance against the training chips; both failed to flag the worst
    case (the 100%-bad chip called *pass* with 0.94 confidence). The tool exposes the distance as a
    diagnostic only.
-3. **The re-image/discard recommendation is not validated** (§4.4) and is not part of the tool's
+3. **The re-image/discard recommendation is not validated** (§4.5) and is not part of the tool's
    output.
 4. **One dataset, 25 test chips.** Chip-level metrics carry wide confidence intervals; we report
    them as point estimates with the split size. No wet-lab validation was performed, and we make no

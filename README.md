@@ -43,6 +43,7 @@ python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('.')"   # unzi
 | 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17 → **effective N ≈ 181**; lag-1 autocorrelation 0.32; run length 6.08 vs 2.03 under i.i.d. | `audit/block_structure.py` |
 | 3 | **Failures occupy contiguous stretches of the chip** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views) | `audit/structure_probe.py` |
 | 4 | **Which fields are read matters — but no policy ranking is claimed** | label-based simulation suggests random > scan > adaptive (0.907 at k=8); with the model in the loop the ordering changes and **all paired differences include zero** (13–15 chips). The tool uses spread sampling because reading the *first* k fields called a 100%-bad chip *pass* with 0.94 confidence | `audit/adaptive_sampling.py`, `audit/03c_policy_model_in_loop.py` |
+| 4b | **The leakage is not unique to this benchmark** | a second organoid benchmark (OCT organoid tracking, zenodo.15783866) has **40.0% of test files in a (well, day) group that also appears in training** | `audit/06_oct_leakage.py` |
 | 5 | **A re-image/discard rule is NOT supported** | recovery target CV AUC 0.613 vs permutation null p95 0.564; simple rules worse than the base rate → reported as an open problem | `audit/recovery_test.py` |
 
 Known prior art we build on (leakage in benchmarks is a known class of problem):

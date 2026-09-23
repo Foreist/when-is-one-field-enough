@@ -1,0 +1,130 @@
+{
+ "source": "zenodo.15783866",
+ "title": "Dataset for \"Segmentation and Multi-Timepoint Tracking of 3D Cancer Organoids from Optical Coherence Tomography Images using Deep Neural Networks\"",
+ "licence": "cc-by-4.0",
+ "files_per_split": {
+  "train": 16752,
+  "val": 4188,
+  "test": 20940
+ },
+ "groups_per_split": {
+  "train": 8,
+  "val": 2,
+  "test": 10
+ },
+ "train_groups": [
+  [
+   "2",
+   "11"
+  ],
+  [
+   "2",
+   "13"
+  ],
+  [
+   "2",
+   "5"
+  ],
+  [
+   "2",
+   "7"
+  ],
+  [
+   "6",
+   "11"
+  ],
+  [
+   "6",
+   "5"
+  ],
+  [
+   "6",
+   "7"
+  ],
+  [
+   "6",
+   "9"
+  ]
+ ],
+ "val_groups": [
+  [
+   "2",
+   "9"
+  ],
+  [
+   "6",
+   "13"
+  ]
+ ],
+ "test_groups": [
+  [
+   "2",
+   "1"
+  ],
+  [
+   "2",
+   "11"
+  ],
+  [
+   "2",
+   "13"
+  ],
+  [
+   "2",
+   "15"
+  ],
+  [
+   "2",
+   "17"
+  ],
+  [
+   "2",
+   "21"
+  ],
+  [
+   "2",
+   "3"
+  ],
+  [
+   "2",
+   "5"
+  ],
+  [
+   "2",
+   "7"
+  ],
+  [
+   "2",
+   "9"
+  ]
+ ],
+ "train_cap_test": [
+  [
+   "2",
+   "11"
+  ],
+  [
+   "2",
+   "13"
+  ],
+  [
+   "2",
+   "5"
+  ],
+  [
+   "2",
+   "7"
+  ]
+ ],
+ "train_cap_val": [],
+ "val_cap_test": [
+  [
+   "2",
+   "9"
+  ]
+ ],
+ "test_files": 20940,
+ "test_files_in_train_group": 8376,
+ "frac_test_files_in_train_group": 0.4,
+ "note": "the same (well, day) = the same organoids imaged in the same session; for a tracking benchmark the same instances therefore appear on both sides"
+}
