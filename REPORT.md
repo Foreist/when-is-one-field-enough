@@ -316,6 +316,10 @@ significant: a paired bootstrap over chips (2,000 resamples) gives 95% intervals
 for random − adaptive at k=12 (13 chips), [−0.12, +0.07] for window − adaptive and [−0.11, +0.07]
 for random − window — all contain zero (Figure 4c).*
 
+![Figure 4](figures/fig4_sampling_policy.png)
+*Figure 4. Policy comparison. (a) simulated on ground-truth labels; (b) with the model in the loop;
+(c) paired bootstrap differences at k=12 — all intervals include zero, so no ranking is claimed.*
+
 **We therefore report no policy ranking.** With only 13–15 chips large enough for these budgets the
 comparison is underpowered, and the label-based ranking is an artefact of scoring policies against
 the very labels they were designed to sample.
