@@ -18,7 +18,9 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 3d | (see 3c + bootstrap) | `policy_bootstrap.json` | paired CIs over chips (all include zero) |
 | 3c | `aggregation_experiment.py` | `aggregation_results.json` | mean/max/top2 aggregation trade-off |
 | 4 | `recovery_test.py` | `recovery_test.json` | **negative result**: re-image/discard is not predictable |
-| 5 | `perfield_model.py` | `perfield_*.pt/json` | trains the deployed per-field model |
+| 4b | `06_oct_leakage.py` | `oct_leakage.json` | second benchmark: 40% of test files share a (well, day) with training |
+| 5 | `perfield_model.py` | `perfield_*.pt/json` | trains the deployed per-field model (`--arch large`, `--size 512` for the capacity/resolution checks) |
+| 5b | `05_lolo_cellline.py` | `lolo_cellline.json` | leave-one-cell-line-out: unseen cell line costs ~7 AUC points |
 | 5b | `qc_map.py` | `qc_maps_384.png` | per-chip QC maps |
 | 6 | `../evaluate.py` | `tool_evaluation.json` | deployed-tool numbers (section 3 of README) |
 

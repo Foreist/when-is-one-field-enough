@@ -1,0 +1,61 @@
+{
+ "per_cell": {
+  "cell_type_A549": {
+   "n_train": 1278,
+   "n_test": 775,
+   "n_sessions_test": 24,
+   "acc": 0.712258064516129,
+   "bal_acc": 0.6613539270456786,
+   "auc": 0.6778320266654148,
+   "secs": 1326.2
+  },
+  "cell_type_CACO": {
+   "n_train": 2272,
+   "n_test": 346,
+   "n_sessions_test": 17,
+   "acc": 0.5115606936416185,
+   "bal_acc": 0.6112530484264314,
+   "auc": 0.6656214918902179,
+   "secs": 1729.7
+  },
+  "cell_type_HPMEC": {
+   "n_train": 636,
+   "n_test": 1462,
+   "n_sessions_test": 29,
+   "acc": 0.5889192886456909,
+   "bal_acc": 0.6049725216656099,
+   "auc": 0.6588553461968173,
+   "secs": 529.5
+  },
+  "cell_type_HUVEC": {
+   "n_train": 2734,
+   "n_test": 107,
+   "n_sessions_test": 4,
+   "acc": 0.8785046728971962,
+   "bal_acc": 0.8735507246376812,
+   "auc": 0.9297101449275362,
+   "secs": 1582.4
+  },
+  "cell_type_NHBE": {
+   "n_train": 2426,
+   "n_test": 138,
+   "n_sessions_test": 6,
+   "acc": 0.6014492753623188,
+   "bal_acc": 0.4991341991341991,
+   "auc": 0.6303030303030303,
+   "secs": 1422.3
+  },
+  "cell_type_HSAEC": {
+   "n_train": 2643,
+   "n_test": 244,
+   "n_sessions_test": 21,
+   "acc": 0.7295081967213115,
+   "bal_acc": 0.7230174960236311,
+   "auc": 0.7526319775808529,
+   "secs": 1455.8
+  }
+ },
+ "mean_acc": 0.6703666986307107,
+ "mean_auc": 0.7191590029273116,
+ "note": "test = all fields of the held-out cell line; sessions containing it are excluded from training"
+}

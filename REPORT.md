@@ -542,7 +542,35 @@ distance is exposed as a diagnostic only.
 not as an autonomous gate. Its measured error rate (13% confident-but-wrong) is the number to quote
 in any deployment decision.
 
-### 6.5 Label-only simulation overstates deployed performance
+### 6.5 Generalisation to a cell line the model has never seen
+
+The session-disjoint protocol of §6.3 keeps all six cell lines in training. To measure a stricter
+setting we hold out one cell line entirely — test = all of its fields, train = the other five with
+any session containing the held-out line removed — and retrain the deployed configuration
+(`audit/05_lolo_cellline.py`):
+
+| held-out cell line | test fields (sessions) | accuracy | balanced acc | AUC |
+|---|---|---|---|---|
+| A549 | 775 (24) | 0.712 | 0.661 | 0.678 |
+| CACO | 346 (17) | 0.512 | 0.611 | 0.666 |
+| HPMEC | 1462 (29) | 0.589 | 0.605 | 0.659 |
+| HUVEC | 107 (4) | 0.879 | 0.874 | 0.930 |
+| NHBE | 138 (6) | 0.601 | 0.499 | 0.630 |
+| HSAEC | 244 (21) | 0.730 | 0.723 | 0.753 |
+| **mean of the six** | 3,072 (101) | **0.670** | 0.662 | **0.719** |
+| in-distribution (all lines seen, §6.3) | 684 (25) | 0.734 | 0.733 | 0.791 |
+
+*Table 7. Leave-one-cell-line-out. The spread between cell lines (AUC 0.630–0.930) is larger than
+the effect of any modelling choice we tested — a 2.4× larger backbone or 512 px inputs change
+nothing (§6.3).*
+
+**Deploying on a new cell line costs about seven AUC points on average and up to 22 accuracy
+points** (Caco-2), and the per-line variation dominates. This is the strictest evaluation we have;
+we keep the session-disjoint protocol as the headline because it matches how such a tool would be
+used (a new chip of a known cell line), but any deployment to an unseen line needs re-calibration
+on that line.
+
+### 6.6 Label-only simulation overstates deployed performance
 
 A common practice — which we followed first — is to simulate a decision policy on **ground-truth
 labels**. Doing so with this dataset's labels gives an attractive result: 6.6 fields on average,
@@ -607,7 +635,10 @@ settle it, and would be a small, valuable addition to this benchmark.
 6. **Labels come from a four-rater majority**, so the ceiling of any model on this benchmark is the
    agreement among experts, which is not public. Our numbers are therefore a lower bound in that
    specific sense, while the leakage inflation is an upper-bound problem.
-7. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
+7. **Generalisation to a new cell line is untested in deployment.** Held-out cell lines cost
+   ~7 AUC points on average (0.791 → 0.719) and the spread between lines dominates every modelling
+   choice we tested (§6.5). The tool is validated for cell lines it has seen.
+8. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
    correlated (r = 0.63 vs 0.09–0.38 for random pairs), which supports the proxy, but the exact
    stage geometry is not public.
 

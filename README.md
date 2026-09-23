@@ -75,6 +75,8 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | **false-confident calls** (confident and wrong) | **13%** |
 | inconclusive (budget exhausted near P=0.5) | 8% |
 | mean fields used | 9.5 (vs 12 for fixed-k at the same accuracy) |
+| held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution) |
+| larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 
 `evaluate.py` reproduces this table on the session-disjoint split.
 
