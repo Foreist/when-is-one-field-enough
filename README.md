@@ -10,7 +10,7 @@ and an explicit "inconclusive" outcome.
 | | |
 |---|---|
 | Technical report (20 pages, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
-| Demo video (4:37, narrated) | [`demo_video.mp4`](demo_video.mp4) |
+| Demo video (4:41, narrated) | [`demo_video.mp4`](demo_video.mp4) |
 | **Interactive demo** (permanent, no server, no login) | **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** |
 | Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it |
 
