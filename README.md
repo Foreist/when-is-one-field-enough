@@ -22,7 +22,8 @@ in `audit/` and `evaluate.py`; the raw outputs are in `results/`.
 ## 1. Data
 
 **OOC Image Dataset** — https://doi.org/10.5281/zenodo.10203721 (CC-BY-4.0; the MDPI data
-descriptor lists CC-BY-SA — we therefore do **not** redistribute the images, only link to Zenodo).
+descriptor lists CC-BY-SA — we therefore do **not** redistribute the full dataset, only the 44 demo
+example fields, with attribution; download the full dataset from Zenodo).
 3,072 brightfield images (2056x1542) from an automated microscope on an OoC setup, 6 cell lines,
 **59 acquisition sessions** (file names `YYMMDD_N.png`), labels `good`/`bad` assigned by four
 cell-biology experts (majority vote), plus protocol metadata (seeding density, flow rate, day).
@@ -93,9 +94,9 @@ many fields were spent. On the 25 test chips: **238 of 684 fields used (65% save
 "plate triage" tab.
 
 Pick a bundled example chip or upload the fields of your own chip; the app shows the chip call,
-the posterior confidence, the number of fields used and the per-field QC map. Two example chips are
-bundled (12 fields each, with attribution in `demo/examples/README.md`): a mostly-good chip and a
-100%-bad chip.
+the posterior confidence, the number of fields used and the per-field QC map. Three example chips
+are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a mostly-good chip, a
+100%-bad chip and a borderline chip.
 
 ### Input / output formats
 
@@ -134,7 +135,7 @@ results/                raw outputs: leakage, block structure, sampling, tool ev
 
 Code: MIT (see `LICENSE`). Derived artefacts (predictions, figures): CC-BY-SA, matching the more
 restrictive of the dataset's two licence statements. The full dataset is **not** redistributed; only
-the 24 demo example fields in `demo/examples/` are included, with attribution. Download the full
+the 44 demo example fields in `demo/examples/` are included, with attribution. Download the full
 dataset from Zenodo and cite:
 
 > Movčana, V.; Strods, A.; et al. Organ-On-A-Chip (OOC) Image Dataset for Machine Learning and

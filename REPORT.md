@@ -115,8 +115,8 @@ implies** — together with two negative results that bound the claims.
 **Source.** OOC Image Dataset, Zenodo record `10.5281/zenodo.10203721`; data descriptor in *Data*
 2024 [1] and a companion conference paper [2]. The Zenodo record states **CC-BY-4.0**; the MDPI
 descriptor lists **CC-BY-SA**. We resolve the ambiguity conservatively: we redistribute no images
-(only 24 example fields for the demo, with attribution), license our code MIT and our derived
-artefacts CC-BY-SA.
+beyond the 44 attributed demo example fields, license our code MIT and our derived artefacts
+CC-BY-SA.
 
 **Content.** 3,072 brightfield images (2,056 × 1,542 px) from an automated microscope on an OoC
 setup, covering six cell lines (A549, Caco-2, HPMEC, HUVEC, NHBE, HSAEC). Filenames are
@@ -825,4 +825,4 @@ high-throughput microscopy. 2025 (PMC12594752).
 high-content screens. *J. Biomol. Screen.* 2012.
 [15] MultiOrg: A Multi-rater Organoid-detection Dataset. NeurIPS 2024 Datasets & Benchmarks.
 
-*Code licence MIT; derived artefacts CC-BY-SA; dataset images not redistributed.*
+*Code licence MIT; derived artefacts CC-BY-SA; dataset images not redistributed beyond the 44 attributed demo example fields.*

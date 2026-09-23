@@ -21,6 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 --- Data attribution ---
-The OOC Image Dataset (10.5281/zenodo.10203721) is NOT redistributed in this
-repository. Derived artefacts (model predictions, figures) are shared under
-CC-BY-SA 4.0 to satisfy the stricter of the dataset's two licence statements.
+The OOC Image Dataset (10.5281/zenodo.10203721) is licensed CC-BY-4.0 on the
+Zenodo record (its MDPI data descriptor lists CC-BY-SA). The full dataset is
+NOT redistributed in this repository; only the 44 attributed demo example
+fields in demo/examples/ are included. Derived artefacts (model predictions,
+figures) are shared under CC-BY-SA 4.0 to satisfy the stricter of the two
+licence statements.
