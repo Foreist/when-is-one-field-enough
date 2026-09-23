@@ -5,6 +5,13 @@ protocol, and a chip-level QC tool with an explicit "inconclusive" outcome.**
 
 *Category: Tool & Platform* — AI4S Open Innovation (AI + Organ-on-a-Chip), 2026.
 
+| | |
+|---|---|
+| Team | **solo ranker** (individual) |
+| Member | Taewoong Kim (independent researcher, South Korea) |
+| Kaggle | `aleaiest` |
+| Code, video, demo | https://github.com/Foreist/when-is-one-field-enough · browser demo in §6.8 |
+
 ---
 
 ## Summary
@@ -80,6 +87,11 @@ is inflated; if its labels are clustered, its effective sample size is far small
 if its labels are field-dependent, then "accuracy per image" is not the quantity a lab actually
 needs. None of these properties are usually checked.
 
+**Who this is for.** (i) *Chip and organoid labs* that image cultures daily and decide keep /
+re-image / discard by eye; (ii) *imaging and data teams* building reusable, trustworthy culture
+datasets; (iii) *assays downstream of QC* — dose-response, toxicity, drug evaluation — which inherit
+the quality of the fields that were kept.
+
 ### 1.2 What this report does
 
 We take one public OoC QC benchmark — the OOC Image Dataset [1,2] — and treat the benchmark itself
@@ -120,6 +132,14 @@ share of fields labelled `bad` ranges from 0% to 100% per session.
 
 **The published split.** The zip ships `train/val/test` folders (2,130 / 286 / 656 images). This is
 the split used by the reference baseline in [1].
+
+**Privacy, ethics and compliance.** The dataset contains brightfield images of immortalised cell
+lines grown in microfluidic devices. There are no human subjects, no patient-derived material, no
+identifiable personal data and no clinical records, so no consent or IRB review applies; the data
+are distributed publicly under the licences above. The tool automates a quality judgement about an
+image — it makes no biological, diagnostic or clinical claim, and we do not use it to make
+decisions about patient material. The second benchmark audited in §4.4 is likewise public
+(CC-BY-4.0) and contains only instrument images.
 
 ---
 
@@ -622,7 +642,36 @@ label-only simulation measures the policy, not the system.
 
 ---
 
-## 7. Discussion
+## 7. Application value
+
+**Laboratory automation.** The daily QC pass is the most repetitive imaging task in a chip lab: every
+chip is looked at, most are fine, and the decision is made by eye. The tool returns a ranked plate
+triage — on 25 test chips it flags 6 failures and defers 2, while spending 238 of 684 fields (65%
+saved) — so a human looks only where it matters, and the imaging budget follows the risk.
+
+**Data assetisation and standardisation.** The audit's most transferable result is that a chip
+imaging dataset's *information content* is not its file count: 3,072 fields carry roughly **181
+independent labels**, and a published split that leaks acquisition groups can inflate accuracy by
+**8.2 pp**. Any organisation building chip data assets — or training models on them — needs exactly
+this kind of measurement to know what its data is worth and when a reported number can be believed.
+The corrected protocol (session-level splits, chip-level metrics, explicit sampling policy) is
+dataset-agnostic and applies to any group-structured imaging corpus.
+
+**Drug evaluation and toxicology.** QC is the gate in front of every downstream readout. A
+calibrated, chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess —
+prevents failing chips from contaminating dose-response curves, and makes the provenance of each
+excluded chip auditable.
+
+**Toward chip digital twins.** A digital twin needs a state estimate of the physical system at each
+time point. The tool's output is exactly that at the culture level: a calibrated pass/fail state
+plus a spatial map of where the culture is degrading, and a measured cost (9.5 fields) for obtaining
+it. Feeding such state estimates into a model of the culture over time is the natural next step.
+
+**What we do not claim.** No wet-lab validation, no biological or clinical validity, one dataset for
+the tool, and 13% of confident calls are wrong on unseen chips (§9). The contribution is a
+trustworthy *measurement and decision layer*, not a biological finding.
+
+## 8. Discussion
 
 **For benchmark authors.** The three defects we measure are cheap to check and were not checked
 here: a session-level (or patient-level, or chip-level) split; a design-effect estimate for the
@@ -652,7 +701,7 @@ failed to validate that mapping (§4.5): the causal question cannot be observed 
 re-imaging. A dataset that images each chip twice — before and after a re-imaging attempt — would
 settle it, and would be a small, valuable addition to this benchmark.
 
-## 8. Limitations
+## 9. Limitations
 
 1. **13% of confident calls are wrong** on unseen chips. This is a research prototype, not a
    validated instrument; a chip should not be discarded on its output alone.
@@ -688,7 +737,7 @@ implementation, so the demo reproduces the numbers in this report exactly; user 
 live in the browser. The page is static, so it stays available throughout the judging period
 without any server running.
 
-## 9. Reproducibility
+## 10. Reproducibility
 
 ```bash
 # data (not redistributed here)
@@ -709,7 +758,7 @@ Every number in this report is written to `results/*.json` by the script that pr
 
 ---
 
-## 10. Related work
+## 11. Related work
 
 **Leakage in benchmarks.** Split leakage is a known and actively studied class of problem: Ramos et
 al. audit leakage across seven visual datasets and measure its effect on downstream evaluation [7];
@@ -734,7 +783,7 @@ chip-level QC protocol; the field-dependence we measure is a property of this la
 
 ---
 
-## 11. Conclusion
+## 12. Conclusion
 
 A public benchmark for organ-on-a-chip quality control reports per-image accuracy on a split that
 leaks sessions (+8.2 pp measured by controlled A/B, 8 seeds), with labels that are clustered along the

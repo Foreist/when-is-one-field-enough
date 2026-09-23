@@ -97,6 +97,15 @@ the posterior confidence, the number of fields used and the per-field QC map. Tw
 bundled (12 fields each, with attribution in `demo/examples/README.md`): a mostly-good chip and a
 100%-bad chip.
 
+### Input / output formats
+
+* **Input** — a folder of field images (`.png`, `.jpg`, `.tif`), one folder per chip; the file names
+  are read in natural order (`230425_7.png` before `230425_10.png`) and that order is treated as the
+  acquisition order. With `--plate`, the given folder must contain one subfolder per chip.
+* **Output** — `chip_report.json` (per-field P(bad), chip call, posterior confidence, fields used,
+  model card) and `qc_map.png`; in plate mode also `plate_summary.csv` with one row per chip
+  (`chip, call, p_bad, confidence, fields_used, fields_available, attention_rank`).
+
 ## 4. Limitations (read this before using the tool)
 
 * **13% of confident calls are wrong** on unseen chips. This is a research prototype, not a
