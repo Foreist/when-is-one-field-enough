@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 _report.html
 _check.html
+.gradio/
+out/
