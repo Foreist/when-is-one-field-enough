@@ -11,7 +11,7 @@ and an explicit "inconclusive" outcome.
 |---|---|
 | Technical report (15 pages, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
 | Demo video (3:17, narrated) | [`demo_video.mp4`](demo_video.mp4) |
-| Interactive demo | `python3 demo/app.py` (bundled example chips) |
+| **Interactive demo** (permanent, no server, no login) | **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** |
 | Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it |
 
 Everything runs from one public dataset. Every number in this README is reproduced by the scripts

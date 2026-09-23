@@ -680,6 +680,14 @@ settle it, and would be a small, valuable addition to this benchmark.
 
 ---
 
+### 6.8 Interactive demo
+
+A browser-side build of the tool (ONNX Runtime Web, no server) is available at
+**https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html**. The bundled example chips use the reference probabilities computed by the Python
+implementation, so the demo reproduces the numbers in this report exactly; user uploads are scored
+live in the browser. The page is static, so it stays available throughout the judging period
+without any server running.
+
 ## 9. Reproducibility
 
 ```bash
