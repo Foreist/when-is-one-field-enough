@@ -46,9 +46,13 @@ Reference paper: Movčana et al., *Data* 2024, 9, 28 (`10.3390/data9020028`).
 Download and extract to `../data/OOC_image_dataset/` (or set `OOC_DATA`):
 
 ```bash
+mkdir -p ../data
 curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
-python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('.')"   # unzip(1) fails on this zip64
+python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
+rm ooc.zip
 ```
+
+The zip contains a top-level `OOC_image_dataset/` folder, so this lands at `../data/OOC_image_dataset/`.
 
 ## 2. What we found (audit)
 

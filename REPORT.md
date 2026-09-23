@@ -740,9 +740,14 @@ without any server running.
 ## 10. Reproducibility
 
 ```bash
-# data (not redistributed here)
+pip install -r requirements.txt          # torch, torchvision, numpy, Pillow, scipy, scikit-learn,
+                                         # matplotlib, openpyxl, gradio, markdown, playwright
+
+# data (not redistributed here) — the zip holds a top-level OOC_image_dataset/ folder
+mkdir -p ../data
 curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
-python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('.')"   # unzip(1) fails on this zip64
+python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
+rm ooc.zip                                # lands at ../data/OOC_image_dataset/ (or set OOC_DATA)
 
 python3 audit/leakage_controlled.py     # +8.2 pp / +9.6 pp (finding 1, 8 seeds)
 python3 audit/block_structure.py        # ICC 0.321, effective N ≈ 181 (finding 2)
