@@ -536,8 +536,8 @@ resolve it reaches **0.826 on the 23 it calls, deferring 8%** (`audit/07_efficie
 *Table 7. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
 fields, so it is not comparable with the others; the sequential rows use every chip.*
 
-![Figure 7](figures/fig7_efficiency.png)
-*Figure 7. Accuracy against the number of fields used per chip.*
+![Figure 6](figures/fig7_efficiency.png)
+*Figure 6. Accuracy against the number of fields used per chip.*
 
 For a lab imaging plates of chips this is the practical number: the decision costs roughly a third of
 the microscope time of the read-everything workflow, and a further 8% of chips are flagged
@@ -637,8 +637,8 @@ labels**. Doing so with this dataset's labels gives an attractive result: 6.6 fi
 **9.5 fields, 82.6% accuracy and 13% false-confident**. The optimistic gap comes from two sources:
 per-field model errors (AUC 0.791, not 1.0) and the stopping rule's interaction with them.
 
-![Figure 6](figures/fig6_label_vs_model.png)
-*Figure 6. The same policy, simulated on labels versus measured in deployment.*
+![Figure 7](figures/fig6_label_vs_model.png)
+*Figure 7. The same policy, simulated on labels versus measured in deployment.*
 
 **Recommendation for the field:** evaluate QC decision policies **with the model in the loop**. A
 label-only simulation measures the policy, not the system.
@@ -691,7 +691,7 @@ sampling to avoid the specific failure we observed rather than as an optimised p
 (9.5 fields on average) is modest; its error rate (13% confident-but-wrong) is the number that
 matters in a deployment decision.
 
-**For method developers.** The largest single lesson is in Figure 6: a decision policy evaluated on
+**For method developers.** The largest single lesson is in Figure 7: a decision policy evaluated on
 ground-truth labels looked excellent (6.6 fields, 94.1% accuracy, 3.7% false-confident) and
 collapsed once the model was in the loop (9.5 fields, 82.6%, 13%). The gap is not a bug in the
 policy; it is what happens when per-field errors interact with an early-stopping rule. QC papers
