@@ -533,7 +533,7 @@ resolve it reaches **0.826 on the 23 it calls, deferring 8%** (`audit/07_efficie
 | **sequential, force** (min 8) | **9.5** | **25/25** | **0.800** |
 | **sequential, abstain** (min 8) | **9.5** | 23/25 | **0.826** |
 
-*Table 7. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
+*Table 6. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
 fields, so it is not comparable with the others; the sequential rows use every chip.*
 
 ![Figure 6](figures/fig7_efficiency.png)
@@ -583,7 +583,7 @@ last twenty), so an unguarded rule stopped early with a confident *pass*.
 | 230316 | 22 | 0% | 1.000 |
 | 230321 | 8 | 0% | 1.000 |
 
-*Table 6. The 25 unseen test chips, sorted by the true share of bad fields. The deployed rule
+*Table 7. The 25 unseen test chips, sorted by the true share of bad fields. The deployed rule
 (spread fields, min 8, conf 0.9) makes four wrong calls — 220706 (100% bad, 5 fields) and 230403
 (83% bad, 6 fields) called *pass* with confidence 0.89 and 0.99, 230314 (64% bad) *pass* at 0.91,
 230425 (49% bad) *fail* at 0.93 — and returns *inconclusive* on 220606 and 230529. Short chips
@@ -642,6 +642,14 @@ per-field model errors (AUC 0.791, not 1.0) and the stopping rule's interaction 
 
 **Recommendation for the field:** evaluate QC decision policies **with the model in the loop**. A
 label-only simulation measures the policy, not the system.
+
+### 6.8 Interactive demo
+
+A browser-side build of the tool (ONNX Runtime Web, no server) is available at
+**https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html**. The bundled example chips use the reference probabilities computed by the Python
+implementation, so the demo reproduces the numbers in this report exactly; user uploads are scored
+live in the browser. The page is static, so it stays available throughout the judging period
+without any server running.
 
 ---
 
@@ -726,20 +734,12 @@ settle it, and would be a small, valuable addition to this benchmark.
    specific sense, while the leakage inflation is an upper-bound problem.
 7. **Generalisation to a new cell line is untested in deployment.** Held-out cell lines cost
    ~7 AUC points on average (0.791 → 0.719) and the spread between lines dominates every modelling
-   choice we tested (§6.5). The tool is validated for cell lines it has seen.
+   choice we tested (§6.6). The tool is validated for cell lines it has seen.
 8. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
    correlated (r = 0.63 vs 0.09–0.38 for random pairs), which supports the proxy, but the exact
    stage geometry is not public.
 
 ---
-
-### 6.8 Interactive demo
-
-A browser-side build of the tool (ONNX Runtime Web, no server) is available at
-**https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html**. The bundled example chips use the reference probabilities computed by the Python
-implementation, so the demo reproduces the numbers in this report exactly; user uploads are scored
-live in the browser. The page is static, so it stays available throughout the judging period
-without any server running.
 
 ## 10. Reproducibility
 
