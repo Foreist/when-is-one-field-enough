@@ -14,7 +14,7 @@ PDF = HERE / "report.pdf"
 CSS = """
 @page { size: A4; margin: 18mm 16mm; }
 body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-       font-size: 10pt; line-height: 1.5; color: #1a1a1a; }
+       font-size: 10pt; line-height: 1.48; color: #1a1a1a; }
 h1 { font-size: 19pt; margin: 0 0 4mm 0; line-height: 1.25; }
 h2 { font-size: 13.5pt; margin: 8mm 0 2mm 0; border-bottom: 1px solid #ccc; padding-bottom: 1mm;
      page-break-after: avoid; }

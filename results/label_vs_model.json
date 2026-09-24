@@ -1,0 +1,38 @@
+{
+ "min8_labels": {
+  "mean_fields": 8.48,
+  "n_called": 24,
+  "n_correct": 21,
+  "accuracy": 0.875,
+  "n_false_confident": 1,
+  "n_inconclusive": 1,
+  "n_chips": 25
+ },
+ "min8_model": {
+  "mean_fields": 9.52,
+  "n_called": 23,
+  "n_correct": 19,
+  "accuracy": 0.8260869565217391,
+  "n_false_confident": 3,
+  "n_inconclusive": 2,
+  "n_chips": 25
+ },
+ "min1_labels": {
+  "mean_fields": 6.48,
+  "n_called": 24,
+  "n_correct": 21,
+  "accuracy": 0.875,
+  "n_false_confident": 1,
+  "n_inconclusive": 1,
+  "n_chips": 25
+ },
+ "min1_model": {
+  "mean_fields": 6.76,
+  "n_called": 24,
+  "n_correct": 17,
+  "accuracy": 0.7083333333333334,
+  "n_false_confident": 6,
+  "n_inconclusive": 1,
+  "n_chips": 25
+ }
+}

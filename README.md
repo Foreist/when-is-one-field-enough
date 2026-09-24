@@ -138,8 +138,9 @@ are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a 
   it (finding 5). The tool reports `pass`/`fail`/`inconclusive`, nothing more.
 * **Single dataset, 25 test chips.** No wet-lab validation; we make no claim about biology or
   clinical validity. The claim is about *measurement validity*.
-* Simulating decision rules on ground-truth labels **overstates** real performance (label-only
-  simulation suggested 6.6 fields at 94%; the deployed model gives 9.5 fields at 82.6%).
+* Simulating a stopping rule on ground-truth labels **overstates** real performance: the same rule
+  on the same 25 chips is 0.875 on labels but 0.708 with the model when no minimum is enforced; the
+  8-field minimum brings the model to 0.826 (`audit/label_vs_model_same_rule.py`).
 
 ## 5. Layout
 

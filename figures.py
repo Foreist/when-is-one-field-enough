@@ -179,22 +179,26 @@ def fig_efficiency():
 
 
 def fig_label_vs_model():
-    st = load("stopping_rule.json")
-    t = load("tool_evaluation.json")
-    seq = t["chip_sequential_by_min_fields"]["8"]
-    fig, ax = plt.subplots(1, 2, figsize=(9, 3.4))
-    labels = ["label-only\nsimulation", "deployed model\n(25 unseen chips)"]
-    ax[0].bar(labels, [st["naive"]["mean_fields"], seq["mean_fields"]], color=["#95a5a6", "#c0392b"])
-    for i, v in enumerate([st["naive"]["mean_fields"], seq["mean_fields"]]):
-        ax[0].text(i, v + 0.1, f"{v:.1f}", ha="center", fontsize=9)
-    ax[0].set_ylabel("mean fields used"); ax[0].set_ylim(0, 12)
-    ax[0].set_title("(a) imaging cost", fontsize=9, loc="left")
-    ax[1].bar(labels, [100 * st["naive"]["accuracy"], 100 * seq["chip_acc_among_confident"]],
-              color=["#95a5a6", "#c0392b"])
-    for i, v in enumerate([100 * st["naive"]["accuracy"], 100 * seq["chip_acc_among_confident"]]):
-        ax[1].text(i, v + 1, f"{v:.1f}%", ha="center", fontsize=9)
-    ax[1].set_ylabel("chip accuracy (%)"); ax[1].set_ylim(0, 100)
-    ax[1].set_title("(b) accuracy", fontsize=9, loc="left")
+    r = load("label_vs_model.json")
+    keys = [("min1_labels", "labels\nno min"), ("min1_model", "model\nno min"),
+            ("min8_labels", "labels\nmin 8"), ("min8_model", "model\nmin 8 (shipped)")]
+    cols = ["#95a5a6", "#c0392b", "#95a5a6", "#c0392b"]
+    names = [n for _, n in keys]
+    fig, ax = plt.subplots(1, 2, figsize=(9, 2.7))
+    acc = [100 * r[k]["accuracy"] for k, _ in keys]
+    ax[0].bar(names, acc, color=cols)
+    for i, k in enumerate(keys):
+        ax[0].text(i, acc[i] + 1, f"{r[k[0]]['n_correct']}/{r[k[0]]['n_called']}", ha="center", fontsize=8)
+    ax[0].set_ylabel("chip accuracy among calls (%)"); ax[0].set_ylim(0, 100)
+    ax[0].set_title("(a) accuracy, same rule, same 25 chips", fontsize=9, loc="left")
+    wc = [r[k]["n_false_confident"] for k, _ in keys]
+    ax[1].bar(names, wc, color=cols)
+    for i, v in enumerate(wc):
+        ax[1].text(i, v + 0.1, str(v), ha="center", fontsize=9)
+    ax[1].set_ylabel("confident-but-wrong chips"); ax[1].set_ylim(0, 8)
+    ax[1].set_title("(b) confident errors", fontsize=9, loc="left")
+    for a in ax:
+        a.tick_params(axis="x", labelsize=8)
     fig.tight_layout(); fig.savefig(F / "fig6_label_vs_model.png", dpi=150); plt.close(fig)
 
 

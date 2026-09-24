@@ -64,9 +64,8 @@ We also report two things we could not do, because they define the honest bounda
 the **re-image vs discard** distinction is *not* supported by the data (a constructed recovery
 target is not predictable; CV AUC 0.613 against a permutation null of 0.564), and **no reliable
 out-of-distribution detector** was found (image statistics and feature-space distance both missed
-the worst failure). Finally, simulating decision rules on ground-truth labels — as is common —
-**overstates** deployed performance by a wide margin (6.6 fields at 94% in simulation versus 9.5
-fields at 82.6% in deployment).
+the worst failure). Finally, simulating a stopping rule on ground-truth labels **overstates** it:
+on the same 25 chips, without a minimum-field guard, labels give 0.875 and the model 0.708.
 
 Everything is reproducible from one public dataset with the scripts in this repository.
 
@@ -419,7 +418,7 @@ the chip reference defined as before:
 | 8 | 0.742 / 0.645 / 0.787 | 0.627 / 0.878 / 0.507 | 0.660 / 0.787 / 0.598 |
 | 12 | 0.742 / 0.851 / 0.710 | 0.570 / 1.000 / 0.354 | 0.631 / 0.997 / 0.452 |
 
-*Table 5. Aggregation rules (25 unseen chips; the same sampled fields for every rule).*
+*Table 5. Aggregation rules (224 px model, 2 seeds × 25 held-out sessions; 60 random k-field draws per chip, shared by all rules; chips with < k fields excluded).*
 
 `mean` maximises chip accuracy and keeps specificity high; `max` maximises sensitivity (it calls
 almost everything bad: specificity collapses to 0.35 at k=12) and `top-2` sits between. **The
@@ -428,9 +427,9 @@ ranges from 0.570 to 0.742 and sensitivity from 0.851 to 1.000 depending only on
 deployment must therefore state its aggregation rule; "accuracy" without it is not a specification.
 
 We also tested a rule that exploits the measured autocorrelation — smoothing the per-field scores
-along the acquisition order before aggregating. It did **not** help (chip accuracy 0.676 → 0.642 at
-k=6 for a 5-field moving average): smoothing suppresses exactly the sharp block edges that carry
-the signal. Reported as a negative result.
+along the acquisition order before aggregating. It did **not** help: on the shipped predictions a
+3- or 5-field moving average changes chip accuracy by at most 0.007 at any budget from 4 to 12
+fields (k=6: 0.792 → 0.793; `audit/smoothing_test.py`). Reported as a negative result.
 
 ### 4.7 Metadata does not explain the labels
 
@@ -639,13 +638,16 @@ on that line.
 ### 6.7 Label-only simulation overstates deployed performance
 
 A common practice — which we followed first — is to simulate a decision policy on **ground-truth
-labels**. Doing so with this dataset's labels gives an attractive result: 6.6 fields on average,
-94.1% chip accuracy, 3.7% false-confident. Measured with the deployed model, the same policy gives
-**9.5 fields, 82.6% accuracy and 13% false-confident**. The optimistic gap comes from two sources:
-per-field model errors (AUC 0.791, not 1.0) and the stopping rule's interaction with them.
+labels**. Our first one (random order, no minimum, all 59 chips) gave 94.1% chip accuracy with 6.6
+fields — not comparable with the deployed 82.6%, since rule and chips differ. Like for like, we run
+the *deployed* rule on the *same* 25 held-out chips with ground-truth field labels and with the
+model's calls (`audit/label_vs_model_same_rule.py`, Figure 7). Without a minimum, labels give 21/24 = 0.875 with one confident-but-wrong chip and the
+model 17/24 = 0.708 with six; with the shipped 8-field minimum, labels give 0.875 (8.5 fields) and
+the model 19/23 = 0.826 (9.5 fields, three confident-but-wrong). Per-field errors (AUC 0.791) let
+an unguarded rule stop early on a wrong run of calls; the 8-field minimum closes most of that gap.
 
 ![Figure 7](figures/fig6_label_vs_model.png)
-*Figure 7. The same policy, simulated on labels versus measured in deployment.*
+*Figure 7. The same rule on the same 25 chips: ground-truth field labels versus model calls.*
 
 **Recommendation for the field:** evaluate QC decision policies **with the model in the loop**. A
 label-only simulation measures the policy, not the system.
@@ -706,10 +708,9 @@ sampling to avoid the specific failure we observed rather than as an optimised p
 (9.5 fields on average) is modest; its error rate (13% confident-but-wrong) is the number that
 matters in a deployment decision.
 
-**For method developers.** The largest single lesson is in Figure 7: a decision policy evaluated on
-ground-truth labels looked excellent (6.6 fields, 94.1% accuracy, 3.7% false-confident) and
-collapsed once the model was in the loop (9.5 fields, 82.6%, 13%). The gap is not a bug in the
-policy; it is what happens when per-field errors interact with an early-stopping rule. QC papers
+**For method developers.** The largest single lesson is in Figure 7: without a minimum-field guard
+the same rule on the same chips is 0.875 accurate on labels and 0.708 with the model in the loop.
+Per-field errors interact with early stopping. QC papers
 that report policy numbers from label simulations should be read with this in mind, and we
 recommend model-in-the-loop evaluation as the default.
 
@@ -809,8 +810,9 @@ splits, chip-level evaluation, explicit sampling policy — and sampling fields 
 chip yields a tool that reaches 82.6% chip-level accuracy among confident calls with 9.5 fields on
 average, and says "inconclusive" when it cannot decide. Two negative results bound the claims: the
 re-image/discard distinction is not supported by this data, and no reliable OOD detector was found.
-Simulating the same decision policy on ground-truth labels overstates its deployed performance
-(94% vs 82.6%), a caution that generalises beyond this benchmark.
+Simulating the same stopping rule on ground-truth labels overstates its performance with the model
+in the loop (0.875 vs 0.708 without a minimum-field guard), a caution that generalises beyond this
+benchmark.
 
 **Future work.** (i) Extend the model-in-the-loop versus label-only comparison to a second dataset
 and modality (we have begun with a patient-derived-organoid drug-response dataset); (ii) a
