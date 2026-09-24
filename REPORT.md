@@ -539,8 +539,8 @@ resolve it reaches **0.826 on the 23 it calls, deferring 8%** (`audit/07_efficie
 *Table 6. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
 fields, so it is not comparable with the others; the cap and sequential rows use every chip. A plain
 cap of 12 fields is as frugal as the sequential rule, but the right cap is only known after the fact
-(a cap of 8 gives 0.720, a cap of 20 gives 0.760); the rule's contribution is the calibrated
-pass / fail / inconclusive call and the option to defer, not a further cut in fields.*
+(a cap of 8 gives 0.720, a cap of 20 gives 0.760); the rule's contribution is the per-chip
+confidence, the pass / fail / inconclusive call and the option to defer, not a further cut in fields.*
 
 ![Figure 6](figures/fig7_efficiency.png)
 *Figure 6. Accuracy against the number of fields used per chip.*
@@ -678,12 +678,12 @@ The corrected protocol (session-level splits, chip-level metrics, explicit sampl
 dataset-agnostic and applies to any group-structured imaging corpus.
 
 **Drug evaluation and toxicology.** QC is the gate in front of every downstream readout. A
-calibrated, chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess —
+chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess —
 prevents failing chips from contaminating dose-response curves, and makes the provenance of each
 excluded chip auditable.
 
 **Toward chip digital twins.** A digital twin needs a state estimate of the physical system at each
-time point. The tool's output is exactly that at the culture level: a calibrated pass/fail state
+time point. The tool's output is exactly that at the culture level: a pass/fail state with a posterior confidence
 plus a spatial map of where the culture is degrading, and a measured cost (9.5 fields) for obtaining
 it. Feeding such state estimates into a model of the culture over time is the natural next step.
 
@@ -723,7 +723,9 @@ settle it, and would be a small, valuable addition to this benchmark.
 ## 9. Limitations
 
 1. **13% confident-but-wrong** on unseen chips: 4 of 23 calls are wrong, 3 of them with ≥0.9
-   confidence. This is a research prototype, not a
+   confidence. The stated confidence is a posterior under an independence assumption, not a
+   calibrated probability: it averages 0.93 over the 23 calls, while 0.826 of them are correct.
+   This is a research prototype, not a
    validated instrument; a chip should not be discarded on its output alone.
 2. **No reliable out-of-distribution detector.** We tested image-statistics distance and
    feature-space Mahalanobis distance against the training chips; both failed to flag the worst

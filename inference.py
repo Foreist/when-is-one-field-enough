@@ -5,11 +5,12 @@
 Give it a folder of field images from ONE chip (filenames in acquisition order).
 It returns:
   * per-field P(bad)
-  * a chip-level call (pass / fail) with a calibrated confidence
-  * how many fields were needed (sequential stopping rule; validated: 6.6 fields
-    on average for 94.1% chip-level accuracy)
-  * an out-of-distribution warning when the chip does not look like the training
-    chips (the model can be confidently wrong on unseen chip appearances)
+  * a chip-level call (pass / fail) with a posterior confidence (not calibrated:
+    stated confidence averages 0.93 while 82.6% of calls are correct)
+  * how many fields were needed (sequential stopping rule; on 25 held-out chips:
+    9.5 fields on average, 82.6% accurate on the 23 chips it calls)
+  * an image-statistics distance to the training chips, as a diagnostic only
+    (it is not a reliable out-of-distribution detector; see README limitations)
   * a QC map PNG (field index vs P(bad))
 
 Model : MobileNetV3-small, 384 px, trained on a SESSION-DISJOINT split of the

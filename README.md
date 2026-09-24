@@ -2,7 +2,7 @@
 
 This repository contains (1) an **audit** of a public organ-on-a-chip (OoC) quality-control
 benchmark, (2) a **corrected evaluation protocol**, and (3) a **chip-level QC tool** that decides
-whether a chip passes or fails from a handful of brightfield fields, with a calibrated confidence
+whether a chip passes or fails from a handful of brightfield fields, with a posterior confidence
 and an explicit "inconclusive" outcome.
 
 **Deliverables**
