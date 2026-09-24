@@ -94,6 +94,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | **false-confident calls** (confident and wrong) | **13%** |
 | inconclusive (budget exhausted near P=0.5) | 8% |
 | **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** |
+| plain cap of 12 spread fields (for comparison) | 9.0 fields, 0.800 — as frugal, but only at 12 (cap 8: 0.720, cap 20: 0.760); no confidence, no *inconclusive* |
 | held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution) |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 

@@ -55,8 +55,10 @@ rather than guessing. Fields are sampled **spread across the
 chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
 chip called *pass* with 0.94 confidence), and a sequential stopping rule returns **pass / fail /
 inconclusive** with a posterior confidence. On 25 unseen chips: **82.6% chip-level accuracy among
-confident calls, 13% confident-but-wrong, 8% inconclusive, 9.5 fields on average** — versus 12
-fields for a fixed budget at the same accuracy.
+confident calls, 13% confident-but-wrong, 8% inconclusive, 9.5 fields on average**. A plain cap
+of 12 spread fields per chip does as well on field count (9.0 on average, 0.800); the saving comes
+from not reading every field, and what the sequential rule adds is a posterior confidence and the
+option to defer.
 
 We also report two things we could not do, because they define the honest boundary of this work:
 the **re-image vs discard** distinction is *not* supported by the data (a constructed recovery
@@ -506,7 +508,7 @@ rate from 25% to 13%.
 | **chip accuracy among confident calls** (spread fields, min 8, conf 0.9) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
 | **false-confident calls** (confident and wrong) | **13%** |
 | inconclusive (budget exhausted near P = 0.5) | 8% |
-| mean fields used | **9.5** (fixed budget of 12 gives 0.80) |
+| mean fields used | **9.5** (a plain cap of 12 spread fields: 9.0 fields, 0.80) |
 
 ![Figure 5](figures/fig5_tool.png)
 *Figure 5. Tool behaviour versus the minimum-fields guard.*
@@ -516,7 +518,8 @@ rate from 25% to 13%.
 0.733 to 0.747, while AUC *fell* from 0.791 to 0.788 — i.e. a larger model buys nothing here
 (`audit/perfield_model.py --arch large`). Together with the session-level domain shift in §6.4 this
 suggests the ceiling is set by the labels and by chip-to-chip appearance, not by model capacity.
-We therefore ship the smaller model, which is also cheaper to run and needs fewer fields to decide (§6.4).
+We therefore ship the smaller model, which is cheaper to run; with the same stopping rule the larger
+model uses the same 9.5 fields and is not more accurate on the chips it calls (0.792 vs 0.826).
 
 ### 6.4 Field efficiency: the same accuracy with 2.9× fewer fields
 
@@ -529,12 +532,16 @@ resolve it reaches **0.826 on the 23 it calls, deferring 8%** (`audit/07_efficie
 | policy | fields per chip | chips called | accuracy |
 |---|---|---|---|
 | all fields (mean of every field) | 27.4 | 25/25 | 0.800 |
-| fixed k = 12, spread | 12.0 | 13/25 | 0.846 |
+| fixed k = 12, spread (chips with ≥ 12 fields only) | 12.0 | 13/25 | 0.846 |
+| cap of 12 spread fields (all fields if fewer) | 9.0 | 25/25 | 0.800 |
 | **sequential, force** (min 8) | **9.5** | **25/25** | **0.800** |
 | **sequential, abstain** (min 8) | **9.5** | 23/25 | **0.826** |
 
 *Table 6. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
-fields, so it is not comparable with the others; the sequential rows use every chip.*
+fields, so it is not comparable with the others; the cap and sequential rows use every chip. A plain
+cap of 12 fields is as frugal as the sequential rule, but the right cap is only known after the fact
+(a cap of 8 gives 0.720, a cap of 20 gives 0.760); the rule's contribution is the calibrated
+pass / fail / inconclusive call and the option to defer, not a further cut in fields.*
 
 ![Figure 6](figures/fig7_efficiency.png)
 *Figure 6. Accuracy against the number of fields used per chip.*

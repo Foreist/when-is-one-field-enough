@@ -45,6 +45,23 @@
    "fields": 20
   }
  },
+ "cap_k": {
+  "8": {
+   "acc": 0.72,
+   "n": 25,
+   "fields": 6.88
+  },
+  "12": {
+   "acc": 0.8,
+   "n": 25,
+   "fields": 9.04
+  },
+  "20": {
+   "acc": 0.76,
+   "n": 25,
+   "fields": 12.6
+  }
+ },
  "sequential": {
   "abstain_min4": {
    "mode": "abstain",

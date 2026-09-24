@@ -67,6 +67,15 @@ def main():
         fixed[k] = dict(acc=float(np.mean(acc)), n=len(acc), fields=k)
         print(f"  fixed k={k:>2}: accuracy {fixed[k]['acc']:.3f}  (chips {len(acc)})")
 
+    # ---- cap of k spread fields on EVERY chip (all fields when the chip has fewer) ----
+    cap = {}
+    for k in [8, 12, 20]:
+        acc = [int(int(np.mean([c["p"][i] for i in spread_order(len(c["p"]), k)]) > 0.5)
+                   == int(np.mean(c["y"]) < 0.5)) for c in chips.values()]
+        cap[k] = dict(acc=float(np.mean(acc)), n=len(acc),
+                      fields=float(np.mean([min(len(c["p"]), k) for c in chips.values()])))
+        print(f"  cap k={k:>2}: accuracy {cap[k]['acc']:.3f}  fields {cap[k]['fields']:.1f}")
+
     # ---- sequential (shipped rule), two modes ----
     seq = {}
     for min_f in [4, 6, 8, 12]:
@@ -98,7 +107,7 @@ def main():
                   f"fields {seq[key]['fields']:.1f}")
 
     out = dict(n_chips=n_chips, total_fields=total_fields, mean_fields_per_chip=total_fields / n_chips,
-               all_fields_acc=float(acc_all), fixed_k=fixed, sequential=seq,
+               all_fields_acc=float(acc_all), fixed_k=fixed, cap_k=cap, sequential=seq,
                note="mode=force calls every chip (no abstention); mode=abstain defers chips whose "
                     "posterior stays between 0.35 and 0.65, and acc is then conditional on the "
                     "chips that were called")

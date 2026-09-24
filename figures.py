@@ -157,7 +157,10 @@ def fig_efficiency():
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
     fx = sorted(int(k) for k in e["fixed_k"])
     ax.plot([e["fixed_k"][str(k)]["fields"] for k in fx], [e["fixed_k"][str(k)]["acc"] for k in fx],
-            "s--", color="#95a5a6", label="fixed k spread fields")
+            "s--", color="#95a5a6", label="fixed k spread (only chips with >= k fields)")
+    cx = sorted(int(k) for k in e["cap_k"])
+    ax.plot([e["cap_k"][str(k)]["fields"] for k in cx], [e["cap_k"][str(k)]["acc"] for k in cx],
+            "D:", color="#7f8c8d", label="cap of k spread fields (all chips)")
     ax.scatter([e["mean_fields_per_chip"]], [e["all_fields_acc"]], marker="*", s=260,
                color="#4a6fa5", label=f"all fields ({e['mean_fields_per_chip']:.0f}/chip)")
     for mode, col, mk in (("force", "#c0392b", "o"), ("abstain", "#e67e22", "^")):
