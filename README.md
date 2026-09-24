@@ -127,7 +127,8 @@ are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a 
 
 ## 4. Limitations (read this before using the tool)
 
-* **13% of confident calls are wrong** on unseen chips. This is a research prototype, not a
+* **13% confident-but-wrong** on unseen chips (4 of 23 calls wrong, 3 of them with ≥0.9
+  confidence). This is a research prototype, not a
   validated instrument; do not discard a chip on its output alone.
 * **No reliable out-of-distribution detector.** We tried image-statistics and feature-space
   Mahalanobis distances; both missed the worst failure (a 100%-bad chip called `pass` with 0.94

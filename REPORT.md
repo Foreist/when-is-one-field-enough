@@ -486,7 +486,8 @@ checkpoint is shipped in `model/`.
 Deploying the tool on real chips exposed two failure modes that a label-only simulation had hidden.
 
 **(a) Reading the first *k* fields is wrong.** On a 100%-bad chip, walking the first fields in
-acquisition order stopped after three `good` predictions and returned *pass* with 0.94 confidence.
+acquisition order stopped after six fields (five `good` predictions, one `bad`) and returned *pass*
+with 0.94 confidence.
 Because failures are contiguous (§4.2), the beginning of a session can lie inside a good region.
 Sampling fields spread across the chip fixed this specific case (the same chip now returns *fail*
 at 0.91).
@@ -510,7 +511,7 @@ rate from 25% to 13%.
 ![Figure 5](figures/fig5_tool.png)
 *Figure 5. Tool behaviour versus the minimum-fields guard.*
 
-**Capacity is not the bottleneck.** We trained a 2.4× larger backbone (MobileNetV3-large, same
+**Capacity is not the bottleneck.** We trained a backbone with 2.8× the parameters (MobileNetV3-large, same
 384 px, same protocol). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from
 0.733 to 0.747, while AUC *fell* from 0.791 to 0.788 — i.e. a larger model buys nothing here
 (`audit/perfield_model.py --arch large`). Together with the session-level domain shift in §6.4 this
@@ -582,9 +583,11 @@ last twenty), so an unguarded rule stopped early with a confident *pass*.
 | 230316 | 22 | 0% | 1.000 |
 | 230321 | 8 | 0% | 1.000 |
 
-*Table 6. The 25 unseen test chips, sorted by the true share of bad fields. The three 100%-bad
-chips with tiny field counts (220706, 220718, 220721) are the hardest; the model is also wrong on
-230403 (83% bad, 6 fields).*
+*Table 6. The 25 unseen test chips, sorted by the true share of bad fields. The deployed rule
+(spread fields, min 8, conf 0.9) makes four wrong calls — 220706 (100% bad, 5 fields) and 230403
+(83% bad, 6 fields) called *pass* with confidence 0.89 and 0.99, 230314 (64% bad) *pass* at 0.91,
+230425 (49% bad) *fail* at 0.93 — and returns *inconclusive* on 220606 and 230529. Short chips
+cannot reach the min-8 guard, so they are the most exposed.*
 
 **Out-of-distribution detection failed.** We tested two standard detectors against the training
 chips: a Mahalanobis distance on four image statistics (mean, standard deviation, Laplacian focus
@@ -617,7 +620,7 @@ any session containing the held-out line removed — and retrain the deployed co
 | in-distribution (all lines seen, §6.3) | 684 (25) | 0.734 | 0.733 | 0.791 |
 
 *Table 8. Leave-one-cell-line-out. The spread between cell lines (AUC 0.630–0.930) is larger than
-the effect of any modelling choice we tested — a 2.4× larger backbone or 512 px inputs change
+the effect of any modelling choice we tested — a backbone with 2.8× the parameters or 512 px inputs change
 nothing (§6.3).*
 
 **Deploying on a new cell line costs about seven AUC points on average and up to 22 accuracy
@@ -668,7 +671,7 @@ plus a spatial map of where the culture is degrading, and a measured cost (9.5 f
 it. Feeding such state estimates into a model of the culture over time is the natural next step.
 
 **What we do not claim.** No wet-lab validation, no biological or clinical validity, one dataset for
-the tool, and 13% of confident calls are wrong on unseen chips (§9). The contribution is a
+the tool, and 3 of 23 calls on unseen chips are confident (≥0.9) and wrong (§9). The contribution is a
 trustworthy *measurement and decision layer*, not a biological finding.
 
 ## 8. Discussion
@@ -703,7 +706,8 @@ settle it, and would be a small, valuable addition to this benchmark.
 
 ## 9. Limitations
 
-1. **13% of confident calls are wrong** on unseen chips. This is a research prototype, not a
+1. **13% confident-but-wrong** on unseen chips: 4 of 23 calls are wrong, 3 of them with ≥0.9
+   confidence. This is a research prototype, not a
    validated instrument; a chip should not be discarded on its output alone.
 2. **No reliable out-of-distribution detector.** We tested image-statistics distance and
    feature-space Mahalanobis distance against the training chips; both failed to flag the worst

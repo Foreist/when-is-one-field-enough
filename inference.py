@@ -98,8 +98,8 @@ def sequential_decision(probs, thr_conf=0.9, max_fields=20, min_fields=8):
     """Walk SPREAD fields; stop when the chip call is confident.
 
     min_fields guards against stopping inside a lucky good region: with the real
-    model, stopping after 1-3 fields gave a 24% false-confident rate, while
-    min_fields=8 cut it to 12% (see results/tool_evaluation.json).
+    model, stopping after 1-3 fields gave a 25% false-confident rate, while
+    min_fields=8 cut it to 13% (see results/tool_evaluation.json).
     """
     order = spread_order(len(probs), max_fields)
     bad = good = 0
@@ -222,8 +222,8 @@ def main():
         image_statistics_distance=round(d, 3),
         reliability=dict(
             model_card=MODEL_CARD,
-            note="measured on 25 unseen chips: chip-level accuracy 0.80 and 12% of chips get a "
-                 "CONFIDENT WRONG call. We could not build a reliable out-of-distribution detector "
+            note="measured on 25 unseen chips: chip-level accuracy 0.80 and 13% of calls are "
+                 "CONFIDENT and WRONG. We could not build a reliable out-of-distribution detector "
                  "for these failures (image statistics and feature-space distance both missed the "
                  "100%-bad chip that was called pass with 0.94 confidence) — see README limitations.",
         ),

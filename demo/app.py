@@ -121,7 +121,7 @@ with gr.Blocks(title="Organ-on-a-chip QC") as demo:
         "Feed in the brightfield fields of **one chip** (filenames in acquisition order). "
         "The tool reports a chip call, a posterior confidence, how many fields it needed, and a "
         "per-field QC map.\n\n"
-        "**It is a research prototype**: 13% of confident calls are wrong on unseen chips, and we "
+        "**It is a research prototype**: 13% of calls are confident but wrong on unseen chips, and we "
         "could not build a reliable OOD detector — see the repository README."
     )
     with gr.Tab("single chip"):
