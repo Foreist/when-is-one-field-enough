@@ -10,7 +10,7 @@ and an explicit "inconclusive" outcome.
 | | |
 |---|---|
 | Technical report (20 pages, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
-| Demo video (4:41, narrated) | [`demo_video.mp4`](demo_video.mp4) |
+| Demo video (4:41, narrated) | [plays in the browser](https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html) · file: [`demo_video.mp4`](demo_video.mp4) |
 | **Interactive demo** (permanent, no server, no login) | **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** |
 | Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it |
 
@@ -66,8 +66,8 @@ The zip contains a top-level `OOC_image_dataset/` folder, so this lands at `../d
 | 5 | **A re-image/discard rule is NOT supported** | recovery target CV AUC 0.613 vs permutation null p95 0.564; simple rules worse than the base rate → reported as an open problem | `audit/recovery_test.py` |
 
 Known prior art we build on (leakage in benchmarks is a known class of problem):
-*Data Leakage in Visual Datasets* (ICCV 2025 W / arXiv 2508.17416); *Auditing Data Leakage in
-Whole-Slide Image Benchmarks* (arXiv 2607.12278); Tampu et al., *Sci Data* 2022 (OCT split leakage);
+*Data Leakage in Visual Datasets* (Ramos et al., arXiv 2508.17416); *Auditing Data Leakage in
+Whole-Slide Image Multimodal Benchmarks* (arXiv 2607.12278); Tampu et al., *Sci Data* 2022 (OCT split leakage);
 `AutoQC-Bench` (2025) for microscopy QC benchmarks.
 
 ## 3. The tool

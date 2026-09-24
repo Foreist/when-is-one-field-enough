@@ -10,7 +10,7 @@ protocol, and a chip-level QC tool with an explicit "inconclusive" outcome.**
 | Team | **solo ranker** (individual) |
 | Member | Taewoong Kim (independent researcher, South Korea) |
 | Kaggle | `aleaiest` |
-| Code, video, demo | https://github.com/Foreist/when-is-one-field-enough · browser demo in §6.8 |
+| Code, video, demo | https://github.com/Foreist/when-is-one-field-enough · video https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html · browser demo in §6.8 |
 
 ---
 
@@ -112,7 +112,7 @@ implies** — together with two negative results that bound the claims.
 
 ## 2. Data
 
-**Source.** OOC Image Dataset, Zenodo record `10.5281/zenodo.10203721`; data descriptor in *Data*
+**Source.** OOC Image Dataset, Zenodo record `10.5281/zenodo.10203721` [3]; data descriptor in *Data*
 2024 [1] and a companion conference paper [2]. The Zenodo record states **CC-BY-4.0**; the MDPI
 descriptor lists **CC-BY-SA**. We resolve the ambiguity conservatively: we redistribute no images
 beyond the 44 attributed demo example fields, license our code MIT and our derived artefacts
@@ -207,7 +207,7 @@ composition, so we hold everything else fixed:
 
 * the **test images** are identical in both arms (20 sessions, 521–712 fields);
 * the **training-set size is identical** in the two arms (1,440–1,823 fields depending on the seed);
-* the **model and budget are identical** (MobileNetV3-small, ImageNet-initialised, 6 epochs, 224 px);
+* the **model and budget are identical** (MobileNetV3-small [4], ImageNet-initialised, 6 epochs, 224 px);
 * the only difference is whether the training set may use *the other images of the test sessions*
   (leaky) or must come from disjoint sessions (disjoint).
 
@@ -357,7 +357,7 @@ failure, not a measured ranking.
 
 To test whether the leakage we measure is a property of one dataset or of the field, we audited a
 second public organoid imaging benchmark: the **OCT organoid segmentation-and-tracking dataset**
-(zenodo.15783866, CC-BY-4.0, *Diagnostics* 2024). Its file names encode the acquisition group —
+(zenodo.15783866, CC-BY-4.0; Branciforti et al., *Diagnostics* 2024 [5,6]). Its file names encode the acquisition group —
 `w<well>_d<day>_<slice>.png` in train/val and `d<day>_p<plate>_w<well>_<slice>.png` in test — and the
 same (well, day) means the same organoids imaged in the same session. Reading the archive's central
 directory over HTTP range requests (no 4.9 GB download; `audit/06_oct_leakage.py`):
@@ -473,7 +473,7 @@ report from the raw dataset.
   first *k*;
 * a **QC map** (field index vs P(bad)) and a `chip_report.json`.
 
-**Model and training.** MobileNetV3-small, ImageNet-initialised, classifier head replaced with a
+**Model and training.** MobileNetV3-small [4], ImageNet-initialised, classifier head replaced with a
 2-way linear layer. Input 384 × 384 (the source images are 2,056 × 1,542). AdamW (lr 3e-4, weight
 decay 0.02), cosine schedule to lr/30, label smoothing 0.05, batch 32, 25 epochs
 (≈14 s/epoch on one RTX 3090, ≈6 min total), RandomResizedCrop(0.7–1.0) + horizontal/vertical
@@ -771,8 +771,8 @@ Every number in this report is written to `results/*.json` by the script that pr
 
 **Leakage in benchmarks.** Split leakage is a known and actively studied class of problem: Ramos et
 al. audit leakage across seven visual datasets and measure its effect on downstream evaluation [7];
-whole-slide-image benchmarks have been shown to leak at patient *and* institution level, inflating
-accuracy by several points [8]; OCT classification was shown to be inflated by improper splitting
+whole-slide-image multimodal benchmarks have been shown to leak at patient *and* institution level,
+with a measurable accuracy gap between leaked and audit-clean cases [8]; OCT classification was shown to be inflated by improper splitting
 [9]. Tooling exists for near-duplicate detection and grouped splitting [10,11]. Our finding is a
 new instance of this class, with the magnitude measured in an OoC QC benchmark by a controlled A/B.
 
@@ -816,22 +816,38 @@ of the two-mode (transient vs persistent) hypothesis with actual re-imaging.
 
 [1] Movčana, V., Strods, A., Narbute, K., et al. Organ-On-A-Chip (OOC) Image Dataset for Machine
 Learning and Tissue Model Evaluation. *Data* 2024, 9, 28. DOI 10.3390/data9020028.
-[2] Companion conference paper, DOI 10.23919/SPA59660.2023.10274460.
+[2] Ivanovs, M., Leja, L., Zviedris, K., Rimsa, R., et al. Synthetic Image Generation With a
+Fine-Tuned Latent Diffusion Model for Organ on Chip Cell Image Classification. *SPA 2023*, pp.
+148–153. DOI 10.23919/SPA59660.2023.10274460.
 [3] Dataset: OOC Image Dataset, Zenodo, DOI 10.5281/zenodo.10203721 (CC-BY-4.0 per Zenodo record;
 CC-BY-SA per [1]).
-[7] Ramos, P., Ramos, R., Garcia, N. Data Leakage in Visual Datasets. arXiv:2508.17416 (ICCV 2025
-Workshop Findings).
-[8] Auditing Data Leakage in Whole-Slide Image Multimodal Benchmarks. arXiv:2607.12278.
-[9] Tampu, I. E., et al. Inflation of test accuracy due to data leakage in deep learning-based
-classification of OCT images. *Scientific Data* 2022.
-[10] `leakaudit` (R package) — near-duplicate detection and corrected split assignment.
-[11] Group-aware splitting (GroupShuffleSplit) — standard grouped-split tooling.
-[12] Designing image segmentation studies: statistical power, sample size and reference standard
-quality. *Medical Image Analysis* (PMC5666910).
-[13] Pan, Z., et al. AutoQC-Bench: a diffusion model and benchmark for automatic quality control in
-high-throughput microscopy. 2025 (PMC12594752).
-[14] Bray, M.-A., et al. Workflow and metrics for image quality control in large-scale
-high-content screens. *J. Biomol. Screen.* 2012.
-[15] MultiOrg: A Multi-rater Organoid-detection Dataset. NeurIPS 2024 Datasets & Benchmarks.
+[4] Howard, A., Sandler, M., Chen, B., Wang, W., et al. Searching for MobileNetV3. *ICCV* 2019,
+pp. 1314–1324. DOI 10.1109/ICCV.2019.00140.
+[5] Branciforti, F., Salvi, M., D'Agostino, F., Marzola, F., et al. Segmentation and Multi-Timepoint
+Tracking of 3D Cancer Organoids from Optical Coherence Tomography Images Using Deep Neural Networks.
+*Diagnostics* 2024, 14(12), 1217. DOI 10.3390/diagnostics14121217.
+[6] Dataset: Meiburger, K. M. Dataset for "Segmentation and Multi-Timepoint Tracking of 3D Cancer
+Organoids from OCT Images using Deep Neural Networks". Zenodo, DOI 10.5281/zenodo.15783866
+(CC-BY-4.0).
+[7] Ramos, P., Ramos, R., Garcia, N. Data Leakage in Visual Datasets. arXiv:2508.17416, 2025.
+[8] Zhang, W., Zhou, Z., Kang, J., Li, S. Auditing Data Leakage in Whole-Slide Image Multimodal
+Benchmarks. arXiv:2607.12278, 2026.
+[9] Tampu, I. E., Eklund, A., Haj-Hosseini, N. Inflation of test accuracy due to data leakage in deep
+learning-based classification of OCT images. *Scientific Data* 2022, 9, 580.
+DOI 10.1038/s41597-022-01618-6.
+[10] `leakaudit` (R package, CRAN) — near-duplicate detection and corrected split assignment.
+https://cran.r-project.org/package=leakaudit
+[11] Group-aware splitting (scikit-learn `GroupShuffleSplit`) — standard grouped-split tooling.
+[12] Gibson, E., Hu, Y., Huisman, H. J., Barratt, D. C. Designing image segmentation studies:
+statistical power, sample size and reference standard quality. *Medical Image Analysis* 2017, 42,
+44–59. DOI 10.1016/j.media.2017.07.004.
+[13] Pan, Z., Sonneck, J., Nagel, D., Hasenberg, A., et al. AutoQC-Bench: a diffusion model and
+benchmark for automatic quality control in high-throughput microscopy. *npj Imaging* 2025, 3, 57.
+DOI 10.1038/s44303-025-00117-8.
+[14] Bray, M.-A., Fraser, A. N., Hasaka, T. P., Carpenter, A. E. Workflow and metrics for image
+quality control in large-scale high-content screens. *J. Biomol. Screen.* 2012, 17(2), 266–274.
+DOI 10.1177/1087057111420292.
+[15] Bukas, C., Subramanian, H., See, F., Steinchen, C., et al. MultiOrg: A Multi-rater
+Organoid-detection Dataset. *NeurIPS 2024 Datasets & Benchmarks*. DOI 10.52202/079017-3036.
 
 *Code licence MIT; derived artefacts CC-BY-SA; dataset images not redistributed beyond the 44 attributed demo example fields.*
