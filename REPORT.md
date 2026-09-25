@@ -125,7 +125,7 @@ setup, covering six cell lines (A549, Caco-2, HPMEC, HUVEC, NHBE, HSAEC). Filena
 number within it. Each image carries a binary label, `good` or `bad`, assigned by **four expert
 cell biologists**, with disagreement resolved by majority vote or an additional rater [1].
 Metadata (cell type, seeding density, flow rate, day after seeding) is available for part of the
-data. Figure 1 summarises the corpus: sessions range from 3 to 229 fields (median 24), and the
+data. Figure 1 summarises the corpus: sessions range from 6 to 229 fields (median 24), and the
 share of fields labelled `bad` ranges from 0% to 100% per session.
 
 ![Figure 1](figures/fig1_dataset.png)

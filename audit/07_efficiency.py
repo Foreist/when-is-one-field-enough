@@ -3,7 +3,7 @@
 """Field efficiency: how many fields does the chip decision need?
 
 Baselines on the 25 session-disjoint test chips:
-  all-fields   : average every field of the chip (the naive workflow; ~27 fields/chip here)
+  all-fields   : average every field of the chip (the naive workflow; ~27 fields/chip here = half of each held-out session)
   fixed-k      : k evenly spread fields, mean of the scores
   sequential   : the shipped rule (spread fields, Beta posterior, stop at conf 0.9, min 8)
 
