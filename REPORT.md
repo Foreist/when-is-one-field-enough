@@ -26,8 +26,8 @@ It is not, in three specific and measurable ways.
 
 1. **The published split leaks sessions.** Training and test images come from the *same 57 of 59
    sessions*. Holding the test images and the training-set size fixed, and changing only whether
-   the test sessions also contribute training images, moves accuracy by **+8.2 pp (95% CI
-   6.0–10.4) and AUC by +9.6 pp (95% CI 8.4–10.8)** across eight seeds. The shipped split reports
+   the test sessions also contribute training images, moves accuracy by **+7.9 pp (95% CI
+   4.2–11.5) and AUC by +8.9 pp (95% CI 6.7–11.0)** across eight seeds. The shipped split reports
    78.9%; the same model on unseen sessions reports 56.0%.
 2. **The 3,072 labels are not 3,072 independent observations.** Labels are strongly autocorrelated
    along the acquisition order (session ICC 0.321, mean run length 6.08 fields versus 2.03 under
@@ -54,8 +54,8 @@ fields instead of 27.4** — a 2.9× reduction in microscope time — and defers
 rather than guessing. Fields are sampled **spread across the
 chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
 chip called *pass* with 0.94 confidence), and a sequential stopping rule returns **pass / fail /
-inconclusive** with a posterior confidence. On 25 unseen chips: **82.6% chip-level accuracy among
-confident calls, 13% confident-but-wrong, 8% inconclusive, 9.5 fields on average**. A plain cap
+inconclusive** with a posterior confidence. On 25 unseen chips: **82.6% chip-level accuracy on the
+chips it calls (23 of 25), 13% of calls confident-but-wrong, 8% inconclusive, 9.5 fields on average**. A plain cap
 of 12 spread fields per chip does as well on field count (9.0 on average, 0.800); the saving comes
 from not reading every field, and what the sequential rule adds is a posterior confidence and the
 option to defer.
@@ -167,7 +167,8 @@ is `N / design effect`. This is the standard cluster-sampling treatment of "imag
 
 **Controlled leakage A/B.** Test images are fixed by choosing 20 sessions and withholding half of
 each session's fields as the test set. The other half of those sessions' fields are *available* but
-used only in the leaky arm. Both arms receive exactly `N` training fields: the disjoint arm draws
+used only in the leaky arm. Both arms receive exactly `N` training fields (`N` = the non-test pool minus the 200 shared
+validation fields): the disjoint arm draws
 all `N` from non-test sessions; the leaky arm draws `N − k` from non-test sessions and `k` from the
 available test-session fields. Model, budget, augmentation and seeds are identical.
 
@@ -183,9 +184,10 @@ rule maintains a Beta(1,1) posterior on the bad fraction `f` — `f | data ~ Bet
 replaces "the first `k` fields" after the failure described in §6.2.
 
 **Metrics.** *Field accuracy* is the fraction of fields whose predicted side of 0.5 matches the
-expert label. *Chip reference* is the session's majority label. *Chip accuracy among confident
-calls* counts only calls the rule made with posterior confidence ≥ 0.9; *false-confident rate* is
-the fraction of all chips that received a confident but wrong call; *inconclusive rate* is the
+expert label. *Chip reference* is the session's majority label. *Chip accuracy among called
+chips* counts every chip that received a *pass* or *fail* — whether the rule stopped at confidence
+≥ 0.9 or exhausted the budget outside the inconclusive band; *false-confident rate* is the fraction
+of called chips whose call was wrong with posterior confidence ≥ 0.9; *inconclusive rate* is the
 fraction that exhausted the budget near 0.5. *Bad-region recall* (sampling simulations) is the
 fraction of the session's bad fields that the sampled set contains.
 
@@ -208,20 +210,21 @@ are not held out. **Train contains 59 sessions, validation 51, test 57, and trai
 **Controlled measurement.** A plain comparison of splits confounds leakage with differences in test
 composition, so we hold everything else fixed:
 
-* the **test images** are identical in both arms (20 sessions, 521–712 fields);
-* the **training-set size is identical** in the two arms (1,440–1,823 fields depending on the seed);
+* the **test images** are identical in both arms (20 sessions, 494–712 fields depending on the seed);
+* the **training-set size is identical** in the two arms (1,440–1,876 fields depending on the seed; the
+  200 validation fields are identical too and outside both training sets);
 * the **model and budget are identical** (MobileNetV3-small [4], ImageNet-initialised, 6 epochs, 224 px);
 * the only difference is whether the training set may use *the other images of the test sessions*
   (leaky) or must come from disjoint sessions (disjoint).
 
 | arm | accuracy | AUC |
 |---|---|---|
-| session-disjoint | **67.2%** (± 6.2) | **0.750** |
-| same sessions in training (leaky) | **75.4%** (± 6.8) | **0.846** |
-| **inflation** (paired, 8 seeds) | **+8.2 pp** [6.0, 10.4] | **+9.6 pp** [8.4, 10.8] |
+| session-disjoint | **67.4%** (± 6.8) | **0.753** |
+| same sessions in training (leaky) | **75.2%** (± 3.3) | **0.842** |
+| **inflation** (paired, 8 seeds) | **+7.9 pp** [4.2, 11.5] | **+8.9 pp** [6.7, 11.0] |
 
 ![Figure 2](figures/fig2_leakage.png)
-*Figure 2. (a) controlled A/B (8 seeds; paired inflation +8.2 pp accuracy, +9.6 pp AUC); (b) the shipped split versus a session-grouped split.*
+*Figure 2. (a) controlled A/B (8 seeds; paired inflation +7.9 pp accuracy, +8.9 pp AUC; the gain is positive in every seed, 4.2–17.8 pp); (b) the shipped split versus a session-grouped split.*
 
 For reference, the shipped split yields **78.9% ± 0.07 / AUC 0.873** (seed-to-seed variation is
 tiny because all test sessions are seen in training), while a session-grouped split that keeps all
@@ -240,28 +243,30 @@ not.
 contiguous blocks of equal label). Under independence the expected run length is
 `1 / (2 p (1-p))`; with `p ≈ 0.56` that is **2.03** fields. Observed: **6.08**. A Wald–Wolfowitz
 test is significant (p < 0.05) in **23 of the 45 mixed sessions**, and 36/45 have negative z
-(clustered) — against 22.5 expected by chance. The most extreme session has z = −10.3 (27 runs
-where 82.5 were expected, 229 fields).
+(clustered) — against 22.5 expected by chance. The most extreme session has z = −11.9 (21 runs
+where 107.3 were expected, 215 fields).
 
 | session | fields | good share | runs | expected runs | z | p |
 |---|---|---|---|---|---|---|
-| 221010 | 99 | 0.82 | 13 | 30.5 | -5.97 | <1e-6 |
-| 230109 | 107 | 0.80 | 14 | 34.8 | -6.43 | <1e-6 |
-| 230314 | 50 | 0.44 | 3 | 25.6 | -6.57 | <1e-6 |
-| 230315 | 94 | 0.55 | 13 | 47.5 | -7.23 | <1e-6 |
-| 230317 | 100 | 0.73 | 10 | 40.4 | -7.78 | <1e-6 |
-| 230320 | 229 | 0.77 | 27 | 82.5 | -10.34 | <1e-6 |
+| 230425 | 215 | 0.55 | 21 | 107.3 | -11.93 | <1e-6 |
 | 230419 | 124 | 0.07 | 2 | 16.0 | -10.71 | <1e-6 |
+| 230320 | 229 | 0.77 | 27 | 82.5 | -10.34 | <1e-6 |
+| 230529 | 216 | 0.43 | 48 | 106.6 | -8.18 | <1e-6 |
+| 230317 | 100 | 0.73 | 10 | 40.4 | -7.78 | <1e-6 |
+| 230315 | 94 | 0.55 | 13 | 47.5 | -7.23 | <1e-6 |
+| 230517 | 90 | 0.60 | 12 | 44.2 | -7.11 | <1e-6 |
+| 230314 | 50 | 0.44 | 3 | 25.6 | -6.57 | <1e-6 |
 | 230424 | 108 | 0.51 | 21 | 55.0 | -6.57 | <1e-6 |
 
-*Table 1. The eight most clustered sessions (all p < 1e-6). Expected runs are what independence would give for the same good/bad counts.*
+*Table 1. The nine most clustered sessions, by z (the last two tie; 15 of the 45 mixed sessions have p < 1e-6). Expected runs are what independence would give for the same good/bad counts.*
 
 **This is not a cell-type artifact.** A session can contain several cell types imaged in contiguous
 blocks, which would create clustering for trivial reasons. Restricting the test to *maximal
 contiguous same-cell-type stretches*, **38 of 72 stretches remain significant** (57/72 clustered).
 
-**It is not duplicate frames either.** Downscaled correlation between consecutive fields is 0.63 on
-average (random pairs: 0.09–0.38), i.e. consecutive fields are spatially adjacent — but a greedy
+**It is not duplicate frames either.** In the six largest sessions, downscaled correlation between
+consecutive fields is 0.58–0.74 (random pairs in the same sessions: 0.06–0.36; 12 sessions sampled,
+mean 0.54 vs 0.28), i.e. consecutive fields are spatially adjacent — but a greedy
 view-clustering at r > 0.95 finds **1,161 distinct views among 1,183 images (98%)**. The clustering
 is therefore not redundancy; **failures occupy contiguous regions of the chip**.
 
@@ -506,8 +511,8 @@ rate from 25% to 13%.
 |---|---|
 | per-field accuracy / AUC | 0.734 / 0.791 |
 | chip accuracy, all fields, mean | 0.80 |
-| **chip accuracy among confident calls** (spread fields, min 8, conf 0.9) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
-| **false-confident calls** (confident and wrong) | **13%** |
+| **chip accuracy among called chips** (spread fields, min 8, conf 0.9) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
+| **false-confident calls** (conf ≥ 0.9 and wrong, of 23 calls) | **13%** (3/23) |
 | inconclusive (budget exhausted near P = 0.5) | 8% |
 | mean fields used | **9.5** (a plain cap of 12 spread fields: 9.0 fields, 0.80) |
 
@@ -680,7 +685,7 @@ saved) — so a human looks only where it matters, and the imaging budget follow
 **Data assetisation and standardisation.** The audit's most transferable result is that a chip
 imaging dataset's *information content* is not its file count: 3,072 fields carry roughly **181
 independent labels**, and a published split that leaks acquisition groups can inflate accuracy by
-**8.2 pp**. Any organisation building chip data assets — or training models on them — needs exactly
+**7.9 pp**. Any organisation building chip data assets — or training models on them — needs exactly
 this kind of measurement to know what its data is worth and when a reported number can be believed.
 The corrected protocol (session-level splits, chip-level metrics, explicit sampling policy) is
 dataset-agnostic and applies to any group-structured imaging corpus.
@@ -755,7 +760,7 @@ settle it, and would be a small, valuable addition to this benchmark.
    ~7 AUC points on average (0.791 → 0.719) and the spread between lines dominates every modelling
    choice we tested (§6.6). The tool is validated for cell lines it has seen.
 8. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
-   correlated (r = 0.63 vs 0.09–0.38 for random pairs), which supports the proxy, but the exact
+   correlated (r = 0.58–0.74 vs 0.06–0.36 for random pairs in the six largest sessions), which supports the proxy, but the exact
    stage geometry is not public.
 
 ---
@@ -772,7 +777,7 @@ curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_data
 python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
 rm ooc.zip                                # lands at ../data/OOC_image_dataset/ (or set OOC_DATA)
 
-python3 audit/leakage_controlled.py     # +8.2 pp / +9.6 pp (finding 1, 8 seeds)
+python3 audit/leakage_controlled.py     # +7.9 pp / +8.9 pp (finding 1, 8 seeds)
 python3 audit/block_structure.py        # ICC 0.321, effective N ≈ 181 (finding 2)
 python3 audit/structure_probe.py        # runs test (finding 3)
 python3 audit/adaptive_sampling.py      # policy comparison (finding 4)
@@ -814,11 +819,11 @@ chip-level QC protocol; the field-dependence we measure is a property of this la
 ## 12. Conclusion
 
 A public benchmark for organ-on-a-chip quality control reports per-image accuracy on a split that
-leaks sessions (+8.2 pp measured by controlled A/B, 8 seeds), with labels that are clustered along the
+leaks sessions (+7.9 pp measured by controlled A/B, 8 seeds), with labels that are clustered along the
 acquisition order (ICC 0.321; effective N ≈ 181 of 3,072) and field-dependent (a single field
 agrees with the session majority 78.8% of the time). Correcting the protocol — session-grouped
 splits, chip-level evaluation, explicit sampling policy — and sampling fields spread across the
-chip yields a tool that reaches 82.6% chip-level accuracy among confident calls with 9.5 fields on
+chip yields a tool that reaches 82.6% chip-level accuracy on the chips it calls with 9.5 fields on
 average, and says "inconclusive" when it cannot decide. Two negative results bound the claims: the
 re-image/discard distinction is not supported by this data, and no reliable OOD detector was found.
 Simulating the same stopping rule on ground-truth labels overstates its performance with the model

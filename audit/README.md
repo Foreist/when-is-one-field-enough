@@ -6,7 +6,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | order | script | produces | finding |
 |---|---|---|---|
 | 1 | `leakage_experiment.py` | `leakage_results.json` | published split has 57/59 sessions in train∩test |
-| 1b | `leakage_controlled.py` | `leakage_controlled.json` | controlled A/B, 8 seeds: +8.2 pp accuracy, +9.6 pp AUC |
+| 1b | `leakage_controlled.py` | `leakage_controlled.json` | controlled A/B, 8 seeds: +7.9 pp accuracy, +8.9 pp AUC |
 | 2 | `structure_probe.py` | `structure_probe.json` | runs test: failures are contiguous |
 | 2a | `02c_celltype_control.py` | `celltype_control.json` | runs test survives a cell-type control |
 | 2b | `02d_redundancy.py` | `redundancy.json` | consecutive fields are correlated but not duplicates |

@@ -245,7 +245,7 @@ def main():
     ax.set_ylabel("P(bad)")
     ttl = (f"chip call: {dec['call'].upper()}  (P={dec['p_bad']:.2f}, conf {report['confidence']:.2f})"
            f"   fields used {dec['n_fields']}/{len(probs)}"
-           f"   [model card: chip acc 0.83 among confident calls, false-confident 13%, inconclusive 8%]")
+           f"   [model card: chip acc 0.83 among called chips, false-confident 13%, inconclusive 8%]")
     ax.set_title(ttl, fontsize=10, loc="left")
     fig.tight_layout()
     fig.savefig(out / "qc_map.png", dpi=130)

@@ -69,7 +69,7 @@ def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
            f"- posterior P(chip is bad) = **{p_final:.2f}**  (confidence {max(p_final, 1-p_final):.2f})\n"
            f"- fields used: **{used} / {len(probs)}**{'  (early stop)' if stopped else '  (budget exhausted)'}\n"
            f"- model card: field acc {MODEL_CARD['field_accuracy']}, "
-           f"chip acc among confident calls {MODEL_CARD['chip_accuracy_among_confident']}, "
+           f"chip acc among called chips {MODEL_CARD['chip_accuracy_among_confident']}, "
            f"false-confident {MODEL_CARD['false_confident_rate']}")
     report = json.dumps(dict(call=call, p_bad=p_final, fields_used=used,
                              n_fields=len(probs), per_field=[round(p, 4) for p in probs],

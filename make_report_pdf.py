@@ -12,7 +12,7 @@ MD = HERE / "REPORT.md"
 PDF = HERE / "report.pdf"
 
 CSS = """
-@page { size: A4; margin: 18mm 16mm; }
+@page { size: A4; margin: 17mm 16mm; }
 body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
        font-size: 10pt; line-height: 1.48; color: #1a1a1a; }
 h1 { font-size: 19pt; margin: 0 0 4mm 0; line-height: 1.25; }

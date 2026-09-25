@@ -10,6 +10,7 @@ sessions as the test images.
   arm DISJOINT   : train = N images drawn only from non-T sessions
   arm LEAKY      : train = (N - k) images from non-T sessions + k images from T sessions
                    (k = number of available T images)  -> same total N
+                   (N = non-T pool minus the 200 validation images, identical in both arms)
   both arms are evaluated on the identical withheld test images.
 
 Difference in test accuracy = inflation caused by session leakage.
@@ -54,9 +55,11 @@ def split_controlled(recs, seed, n_test_sessions=20, test_frac=0.5):
         k = N // 4
         avail_T = avail_T[:k]
     disjoint = pool[:N]                      # all non-T
-    leaky = pool[:N - k] + avail_T           # same size N, k of them from test sessions
     # a small val split from non-T (fixed across arms)
     val = disjoint[-200:]
+    # leaky train: swap k non-T images for the k available T images -> same size N - 200
+    leaky = pool[:N - 200 - k] + avail_T
+    assert len(leaky) == len(disjoint) - 200
     return dict(disjoint=dict(train=disjoint[:-200], val=val, test=test_imgs),
                 leaky=dict(train=leaky, val=val, test=test_imgs),
                 meta=dict(n_test_sessions=len(T), test_images=len(test_imgs),

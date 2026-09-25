@@ -49,21 +49,21 @@ def fig_leakage():
               label="accuracy", color=["#7fb3d5", "#c0392b"])
     ax[0].bar(x + 0.18, [c["disjoint"]["auc"], c["leaky"]["auc"]], width=0.34,
               label="AUC", color=["#a9cce3", "#e6b0aa"])
-    for i, (a, b) in enumerate(zip([c["disjoint"]["acc"], c["disjoint"]["auc"]],
-                                   [c["leaky"]["acc"], c["leaky"]["auc"]])):
-        ax[0].text(i - 0.18, a + 0.01, f"{a:.3f}", ha="center", fontsize=8)
-        ax[0].text(i + 0.18, b + 0.01, f"{b:.3f}", ha="center", fontsize=8)
+    for i, arm in enumerate(["disjoint", "leaky"]):          # x=i: accuracy left, AUC right
+        for dx, key in ((-0.18, "acc"), (0.18, "auc")):
+            v = c[arm][key]
+            ax[0].text(i + dx, v + 0.01, f"{v:.3f}", ha="center", fontsize=8)
     ax[0].set_xticks(x); ax[0].set_xticklabels(["session-disjoint\n(no leakage)", "same sessions\nin train (leaky)"])
-    ax[0].set_ylim(0, 1); ax[0].legend(fontsize=8, loc="lower right")
+    ax[0].set_ylim(0, 1); ax[0].legend(fontsize=8, loc="upper left")
     ax[0].set_title(f"(a) controlled A/B: +{100*c['inflation_acc']:.1f} pp accuracy, "
                     f"+{100*c['inflation_auc']:.1f} pp AUC", fontsize=9, loc="left")
-    ax[0].set_ylabel("test score (same test images, same training size)")
+    ax[0].set_ylabel("test score")
     tags = ["published\nsplit", "session-\ngrouped"]
     vals = [l["published"]["acc_mean"], l["cellaware_grouped"]["acc_mean"]]
     errs = [l["published"]["acc_sd"], l["cellaware_grouped"]["acc_sd"]]
     ax[1].bar(tags, vals, yerr=errs, color=["#c0392b", "#4a6fa5"], capsize=4)
     for i, v in enumerate(vals):
-        ax[1].text(i, v + 0.02, f"{v:.3f}", ha="center", fontsize=9)
+        ax[1].text(i + 0.08, v + 0.02, f"{v:.3f}", ha="left", fontsize=9)
     ax[1].set_ylim(0, 1); ax[1].set_ylabel("accuracy")
     ax[1].set_title("(b) as shipped vs session-grouped (all 6 cell lines kept)", fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig2_leakage.png", dpi=150); plt.close(fig)

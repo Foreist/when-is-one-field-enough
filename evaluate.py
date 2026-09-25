@@ -7,7 +7,7 @@ Reproduces:
   2. per-field accuracy / AUC on 25 unseen chips
   3. chip-level decisions: all-field mean vs sequential stopping (with a
      minimum-fields guard), including the FALSE-CONFIDENCE rate
-  4. (the controlled split-leakage inflation, +8.2 pp, is audit/leakage_controlled.py)
+  4. (the controlled split-leakage inflation, +7.9 pp, is audit/leakage_controlled.py)
 
 Outputs results/tool_evaluation.json
 """
