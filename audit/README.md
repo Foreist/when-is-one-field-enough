@@ -25,6 +25,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 5b | `05_lolo_cellline.py` | `lolo_cellline.json` | leave-one-cell-line-out: unseen cell line costs ~7 AUC points |
 | 5b | `qc_map.py` | `qc_maps_384.png` | per-chip QC maps |
 | 6 | `../evaluate.py` | `tool_evaluation.json` | deployed-tool numbers (section 3 of README) |
+| 6b | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
 
 Note: `stopping_rule.py` simulates the sequential rule on **ground-truth labels**, which overstates
 the deployed tool. `evaluate.py` re-measures it with the model's predictions (9.5 fields, 82.6%),

@@ -1,0 +1,94 @@
+{
+ "n_chips": 25,
+ "total_fields": 1377,
+ "mean_fields_per_chip": 55.08,
+ "fields_range": [
+  6,
+  216
+ ],
+ "reference_changes_vs_half": 2,
+ "all_fields_acc": 0.76,
+ "cap_k": {
+  "8": {
+   "acc": 0.76,
+   "fields": 7.92
+  },
+  "12": {
+   "acc": 0.76,
+   "fields": 11.28
+  },
+  "20": {
+   "acc": 0.8,
+   "fields": 16.16
+  }
+ },
+ "sequential": {
+  "abstain_min8": {
+   "acc": 0.76,
+   "n_called": 25,
+   "abstained": 0,
+   "fields": 9.0,
+   "confident_wrong": 6,
+   "wilson95": [
+    0.566,
+    0.885
+   ]
+  },
+  "force_min8": {
+   "acc": 0.76,
+   "n_called": 25,
+   "abstained": 0,
+   "fields": 9.0,
+   "confident_wrong": 6,
+   "wilson95": [
+    0.566,
+    0.885
+   ]
+  },
+  "abstain_min10": {
+   "acc": 0.8,
+   "n_called": 25,
+   "abstained": 0,
+   "fields": 11.0,
+   "confident_wrong": 5,
+   "wilson95": [
+    0.609,
+    0.911
+   ]
+  },
+  "force_min10": {
+   "acc": 0.8,
+   "n_called": 25,
+   "abstained": 0,
+   "fields": 11.0,
+   "confident_wrong": 5,
+   "wilson95": [
+    0.609,
+    0.911
+   ]
+  },
+  "abstain_min12": {
+   "acc": 0.8,
+   "n_called": 25,
+   "abstained": 0,
+   "fields": 12.56,
+   "confident_wrong": 4,
+   "wilson95": [
+    0.609,
+    0.911
+   ]
+  },
+  "force_min12": {
+   "acc": 0.8,
+   "n_called": 25,
+   "abstained": 0,
+   "fields": 12.56,
+   "confident_wrong": 4,
+   "wilson95": [
+    0.609,
+    0.911
+   ]
+  }
+ },
+ "note": "same model and rule as the headline; chips = all fields of the 25 held-out sessions (none used in training); reference = full-session majority label"
+}

@@ -97,6 +97,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | plain cap of 12 spread fields (for comparison) | 9.0 fields, 0.800 — as frugal, but only at 12 (cap 8: 0.720, cap 20: 0.760); no confidence, no *inconclusive* |
 | held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution) |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
+| **full held-out sessions** (all 1,377 fields; the rows above use the withheld half of each session) | read-everything 0.76 with 55.1 fields; shipped rule **0.76 with 9.0 fields**, no deferral, 6/25 confident-but-wrong (`audit/08_full_sessions.py`) |
 
 `evaluate.py` reproduces this table on the session-disjoint split.
 
@@ -136,7 +137,8 @@ are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a 
   confidence). The `image_statistics_distance` field is diagnostic only.
 * **The re-image vs discard recommendation is not validated** — the recovery target does not support
   it (finding 5). The tool reports `pass`/`fail`/`inconclusive`, nothing more.
-* **Single dataset, 25 test chips.** No wet-lab validation; we make no claim about biology or
+* **Single dataset, 25 test chips**, each the withheld half of a held-out session; on the full
+  sessions the rule is 0.76 accurate with 6/25 confident-but-wrong. No wet-lab validation; we make no claim about biology or
   clinical validity. The claim is about *measurement validity*.
 * Simulating a stopping rule on ground-truth labels **overstates** real performance: the same rule
   on the same 25 chips is 0.875 on labels but 0.708 with the model when no minimum is enforced; the

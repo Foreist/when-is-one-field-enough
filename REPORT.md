@@ -190,7 +190,9 @@ fraction that exhausted the budget near 0.5. *Bad-region recall* (sampling simul
 fraction of the session's bad fields that the sampled set contains.
 
 **Evaluation discipline.** Every model number in this report comes from a **session-disjoint** test
-set of 25 sessions (684 fields). Where we also report the shipped split's number, it is labelled as
+set of 25 sessions (684 fields). These are the withheld half of each held-out session's fields (the
+controlled-leakage design sets the other half aside; it is never used for training), so a "test
+chip" is a random half of a session; §6.4 repeats the tool on all 1,377 fields of the same sessions. Where we also report the shipped split's number, it is labelled as
 such. Hyperparameters were fixed before the final evaluation; no test-set tuning was performed.
 
 ---
@@ -549,6 +551,12 @@ For a lab imaging plates of chips this is the practical number: the decision cos
 the microscope time of the read-everything workflow, and a further 8% of chips are flagged
 "needs a human" instead of being guessed.
 
+**Full sessions.** On all fields of the same 25 held-out sessions (1,377 fields, 55.1 per chip,
+reference = full-session majority; `audit/08_full_sessions.py`) the saving grows and the accuracy
+drops: reading every field gives 0.76, the shipped rule gives **0.76 with 9.0 fields (6.1× fewer)**,
+but it defers no chip and 6 of its 25 calls are confident and wrong (min 10 or 12: 0.80, 11–12.6
+fields). The half-session numbers above are therefore the favourable end.
+
 The tool ships this as a **plate mode** (`inference.py --plate <folder>`; one subfolder per chip),
 which returns a ranked triage table. On the 25 test chips it spends **238 of 684 fields (65%
 saved)** and returns 6 *fail*, 2 *inconclusive* and 17 *pass*, worst first.
@@ -734,7 +742,8 @@ settle it, and would be a small, valuable addition to this benchmark.
 3. **The re-image/discard recommendation is not validated** (§4.5) and is not part of the tool's
    output.
 4. **One dataset, 25 test chips.** Chip-level metrics carry wide confidence intervals; we report
-   them as point estimates with the split size. No wet-lab validation was performed, and we make no
+   them as point estimates with the split size. Each test chip is half of a held-out session; on
+   the full sessions the rule is 0.76 accurate with 6 of 25 confident-but-wrong (§6.4). No wet-lab validation was performed, and we make no
    biological or clinical claim — the claim is about *measurement validity*.
 5. **Sampling policies could not be ranked.** The label-based comparison (§4.3, Table 3) is
    underpowered when repeated with the model in the loop (13–15 chips; all paired CIs include
