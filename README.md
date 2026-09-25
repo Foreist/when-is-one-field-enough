@@ -12,7 +12,7 @@ and an explicit "inconclusive" outcome.
 | Technical report (20 pages, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
 | Demo video (4:41, narrated) | [plays in the browser](https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html) · file: [`demo_video.mp4`](demo_video.mp4) |
 | **Interactive demo** (permanent, no server, no login) | **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** |
-| Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it |
+| Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it; `python3 check_numbers.py` fails if a number in REPORT/README has no source |
 
 Everything runs from one public dataset. Every number in this README is reproduced by the scripts
 in `audit/` and `evaluate.py`; the raw outputs are in `results/`.
@@ -90,11 +90,12 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 |---|---|
 | per-field accuracy / AUC | 0.734 / 0.791 |
 | chip accuracy, all fields, mean | 0.80 |
-| chip accuracy **among called chips** (sequential, spread fields, min 8) | **0.826** (95% Wilson CI 0.63–0.93, 23 calls) |
+| chip accuracy **among called chips** (sequential, spread fields, min 8 — tuned on these chips, see below) | **0.826** (95% Wilson CI 0.63–0.93, 23 calls) |
 | **false-confident calls** (conf ≥ 0.9 and wrong, of 23 calls) | **13%** (3/23) |
 | inconclusive (budget exhausted near P=0.5) | 8% |
 | **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** |
 | plain cap of 12 spread fields (for comparison) | 9.0 fields, 0.800 — as frugal, but only at 12 (cap 8: 0.720, cap 20: 0.760); no confidence, no *inconclusive* |
+| **min-8 and cap-12 re-selected without the test chips** (5-fold CV, 34 other sessions) | min **1** (0.680 here) and cap **20** (0.760 here); on those 68 chips the rule matches read-everything (0.765–0.779 vs 0.765) with 5.3–9.9 of 24.9 fields (`audit/09_inner_cv_minfields.py`) |
 | held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution) |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 | **full held-out sessions** (all 1,377 fields; the rows above use the withheld half of each session) | read-everything 0.76 with 55.1 fields; shipped rule **0.76 with 9.0 fields**, no deferral, 6/25 confident-but-wrong (`audit/08_full_sessions.py`) |
@@ -143,6 +144,8 @@ are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a 
 * Simulating a stopping rule on ground-truth labels **overstates** real performance: the same rule
   on the same 25 chips is 0.875 on labels but 0.708 with the model when no minimum is enforced; the
   8-field minimum brings the model to 0.826 (`audit/label_vs_model_same_rule.py`).
+* **The 8-field minimum was tuned on the 25 test chips**, so 0.826 / 13% are optimistic; re-selected
+  on the other 34 sessions it would be 1 (REPORT §6.2(c)). The field saving replicates there.
 
 ## 5. Layout
 

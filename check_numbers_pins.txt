@@ -1,0 +1,35 @@
+# Headline numbers pinned to the JSON leaf they come from.
+# literal-as-written   file:key.path   format   (x100 prefix "%" = multiply by 100)
+# check_numbers.py fails if the JSON no longer formats to the literal, or the literal vanished from
+# the docs -- so a rerun that moves a headline cannot leave the old value in the text.
+0.826   tool_evaluation.json:chip_sequential_by_min_fields.8.chip_acc_among_confident   .3f
+9.5     tool_evaluation.json:chip_sequential_by_min_fields.8.mean_fields                .1f
+0.734   tool_evaluation.json:field_accuracy                                             .3f
+0.791   tool_evaluation.json:field_auc                                                  .3f
+27.4    efficiency.json:mean_fields_per_chip                                            .1f
+0.800   efficiency.json:sequential.force_min8.acc                                       .3f
+0.321   block_structure.json:icc_session                                                .3f
+181     block_structure.json:n_eff_session                                              .0f
+6.08    block_structure.json:runlen_mean                                                .2f
+2.03    block_structure.json:runlen_iid_expected                                        .2f
++7.9    leakage_ci.json:acc.mean                                                        %+.1f
++8.9    leakage_ci.json:auc.mean                                                        %+.1f
+4.2     leakage_ci.json:acc.lo                                                          %.1f
+11.5    leakage_ci.json:acc.hi                                                          %.1f
+6.7     leakage_ci.json:auc.lo                                                          %.1f
+11.0    leakage_ci.json:auc.hi                                                          %.1f
+67.4    leakage_controlled.json:disjoint.acc                                            %.1f
+75.2    leakage_controlled.json:leaky.acc                                               %.1f
+0.753   leakage_controlled.json:disjoint.auc                                            .3f
+0.842   leakage_controlled.json:leaky.auc                                               .3f
+55.1    full_sessions.json:mean_fields_per_chip                                         .1f
+1,377   full_sessions.json:total_fields                                                 ,.0f
+0.719   lolo_cellline.json:mean_auc                                                     .3f
+0.564   recovery_test.json:null_p95                                                     .3f
+21 ood_check.json:summary.feature_median_field.n_flagged d
+0.680 efficiency.json:sequential.force_min1.acc .3f
+0.779 inner_cv_minfields.json:by_min_fields.1.force_acc .3f
+0.765 inner_cv_minfields.json:all_fields.force_acc .3f
+24.9 inner_cv_minfields.json:all_fields.mean_fields .1f
+0.760 efficiency.json:cap_k.20.acc .3f
+0.806 inner_cv_minfields.json:by_min_fields.8.abstain_acc .3f

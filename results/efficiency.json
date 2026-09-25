@@ -63,6 +63,42 @@
   }
  },
  "sequential": {
+  "abstain_min1": {
+   "mode": "abstain",
+   "min_fields": 1,
+   "acc": 0.7083333333333334,
+   "end_to_end_acc": 0.68,
+   "abstention": 0.04,
+   "fields": 6.76,
+   "n_called": 24
+  },
+  "force_min1": {
+   "mode": "force",
+   "min_fields": 1,
+   "acc": 0.68,
+   "end_to_end_acc": 0.68,
+   "abstention": 0.0,
+   "fields": 6.76,
+   "n_called": 25
+  },
+  "abstain_min3": {
+   "mode": "abstain",
+   "min_fields": 3,
+   "acc": 0.7083333333333334,
+   "end_to_end_acc": 0.68,
+   "abstention": 0.04,
+   "fields": 6.76,
+   "n_called": 24
+  },
+  "force_min3": {
+   "mode": "force",
+   "min_fields": 3,
+   "acc": 0.68,
+   "end_to_end_acc": 0.68,
+   "abstention": 0.0,
+   "fields": 6.76,
+   "n_called": 25
+  },
   "abstain_min4": {
    "mode": "abstain",
    "min_fields": 4,
@@ -79,6 +115,24 @@
    "end_to_end_acc": 0.68,
    "abstention": 0.0,
    "fields": 7.32,
+   "n_called": 25
+  },
+  "abstain_min5": {
+   "mode": "abstain",
+   "min_fields": 5,
+   "acc": 0.7916666666666666,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.04,
+   "fields": 8.52,
+   "n_called": 24
+  },
+  "force_min5": {
+   "mode": "force",
+   "min_fields": 5,
+   "acc": 0.76,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.0,
+   "fields": 8.52,
    "n_called": 25
   },
   "abstain_min6": {
@@ -115,6 +169,24 @@
    "end_to_end_acc": 0.8,
    "abstention": 0.0,
    "fields": 9.52,
+   "n_called": 25
+  },
+  "abstain_min10": {
+   "mode": "abstain",
+   "min_fields": 10,
+   "acc": 0.8260869565217391,
+   "end_to_end_acc": 0.76,
+   "abstention": 0.08,
+   "fields": 10.0,
+   "n_called": 23
+  },
+  "force_min10": {
+   "mode": "force",
+   "min_fields": 10,
+   "acc": 0.8,
+   "end_to_end_acc": 0.8,
+   "abstention": 0.0,
+   "fields": 10.0,
    "n_called": 25
   },
   "abstain_min12": {

@@ -12,16 +12,18 @@ MD = HERE / "REPORT.md"
 PDF = HERE / "report.pdf"
 
 CSS = """
-@page { size: A4; margin: 17mm 16mm; }
+@page { size: A4; margin: 15mm 16mm; }
 body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-       font-size: 10pt; line-height: 1.48; color: #1a1a1a; }
+       font-size: 9.8pt; line-height: 1.45; color: #1a1a1a; }
+h2.refs ~ p { font-size: 8.6pt; line-height: 1.35; }
 h1 { font-size: 19pt; margin: 0 0 4mm 0; line-height: 1.25; }
 h2 { font-size: 13.5pt; margin: 8mm 0 2mm 0; border-bottom: 1px solid #ccc; padding-bottom: 1mm;
      page-break-after: avoid; }
 h3 { font-size: 11.5pt; margin: 5mm 0 1.5mm 0; page-break-after: avoid; }
 p, li { text-align: justify; }
 table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm 0; font-size: 8.8pt;
-        page-break-inside: avoid; }
+        }
+tr { page-break-inside: avoid; }
 th, td { border: 1px solid #bbb; padding: 1.2mm 2mm; text-align: left; }
 th { background: #f0f3f7; }
 img { max-width: 100%; display: block; margin: 3mm auto 1mm auto; page-break-inside: avoid; }
@@ -41,6 +43,7 @@ def main():
     text = MD.read_text()
     html = markdown.markdown(text, extensions=["tables", "fenced_code", "sane_lists"])
     # inline the figures so the HTML is self-contained
+    html = html.replace("<h2>References</h2>", '<h2 class="refs">References</h2>')  # smaller type for the reference list
     for png in sorted((HERE / "figures").glob("*.png")):
         html = html.replace(f'src="figures/{png.name}"', f'src="{img_data_uri(png)}"')
     doc = f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{html}</body></html>"

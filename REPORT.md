@@ -58,7 +58,9 @@ inconclusive** with a posterior confidence. On 25 unseen chips: **82.6% chip-lev
 chips it calls (23 of 25), 13% of calls confident-but-wrong, 8% inconclusive, 9.5 fields on average**. A plain cap
 of 12 spread fields per chip does as well on field count (9.0 on average, 0.800); the saving comes
 from not reading every field, and what the sequential rule adds is a posterior confidence and the
-option to defer.
+option to defer. The 8-field minimum behind these numbers was tuned on the same 25 chips; re-selected
+by cross-validation on the other 34 sessions it would be 1, which scores 0.680 here (§6.2(c)). On those
+independent chips the rule still matches reading every field with a fifth to two-fifths of the fields.
 
 We also report two things we could not do, because they define the honest boundary of this work:
 the **re-image vs discard** distinction is *not* supported by the data (a constructed recovery
@@ -105,7 +107,7 @@ measured structure, and (iv) build and honestly evaluate a chip-level QC tool.
 We claim **measurement results** about a specific benchmark and a **protocol/tool** that follows
 from them. We do *not* claim a new model architecture, biological or clinical validity, or
 generalisation beyond this dataset. Leakage and label clustering are known phenomena in machine
-learning [7,8,9,10,11]; our contribution is not their discovery but their **measured magnitude in
+learning [7–11]; our contribution is not their discovery but their **measured magnitude in
 this benchmark, the corrected protocol, and the field-sampling policy that the measured structure
 implies** — together with two negative results that bound the claims.
 
@@ -177,7 +179,10 @@ rule maintains a Beta(1,1) posterior on the bad fraction `f` — `f | data ~ Bet
 `b`, `g` the counts of fields with `p_j > 0.5` and `≤ 0.5` — and stops as soon as
 `P(f > 0.5) > 0.9` or `P(f < 0.5) > 0.9`, at most after a budget of 20 fields and never before
 `min_fields`. If the budget is exhausted with `0.35 < P(f > 0.5) < 0.65`, the call is
-**inconclusive** rather than forced.
+**inconclusive** rather than forced. The confidence 0.9 and budget 20 were fixed in the label-only
+simulation (`audit/stopping_rule.py`) before any model existed, and the ±0.15 band is a round
+number that was never tuned; none of the three was varied on the test chips. `min_fields` was, and
+§6.2 reports how it was re-selected without them.
 
 **Spread-field order.** With `n` available fields and a budget of `k`, the rule inspects indices
 `round(i·(n−1)/(k−1))` for `i = 0…k−1`, i.e. fields spaced evenly across the acquisition order. This
@@ -270,8 +275,8 @@ mean 0.54 vs 0.28), i.e. consecutive fields are spatially adjacent — but a gre
 view-clustering at r > 0.95 finds **1,161 distinct views among 1,183 images (98%)**. The clustering
 is therefore not redundancy; **failures occupy contiguous regions of the chip**.
 
-**Effective sample size.** With a session-level intraclass correlation of **ICC = 0.321** and a mean
-cluster size of ~51 fields, the design effect is `1 + (m−1)·ICC = 17.0`, so for estimating a metric
+**Effective sample size.** With a session-level intraclass correlation of **ICC = 0.321** and an ANOVA-adjusted mean
+cluster size of m ≈ 51 fields, the design effect is `1 + (m−1)·ICC = 17.0`, so for estimating a metric
 the benchmark carries the information of roughly **3,072 / 17 ≈ 181 independent labels** (a model
 may still exploit correlated fields in ways an estimator cannot, so this is a bound on
 *estimation*, not on learning). The mean lag-1 autocorrelation
@@ -494,7 +499,7 @@ flips. Label smoothing and the modest capacity are deliberate: the labels are fo
 majorities, and 3,072 fields with an effective N of ~181 do not support a large model. The
 checkpoint is shipped in `model/`.
 
-### 6.2 Two bugs found during deployment (and why they matter)
+### 6.2 Two bugs found during deployment, and how their fixes were chosen
 
 Deploying the tool on real chips exposed two failure modes that a label-only simulation had hidden.
 
@@ -510,19 +515,47 @@ one, `P(chip bad) = 0.0625` — "94% confident" — which is indefensible when t
 imperfect. Requiring a minimum of eight fields before a stop is allowed cut the false-confident
 rate from 25% to 13%.
 
+**(c) The value 8 was read off the test chips, and it does not survive re-selection.** Both fixes
+above were found *on* the 25 test chips, and the minimum of eight was chosen from a sweep on them
+(Figure 5). To see how much of the test gain is selection, we re-selected it without the test
+chips (`audit/09_inner_cv_minfields.py`): five-fold session-grouped cross-validation over the 34
+non-test sessions with the shipped training recipe, each session cut into two half-chips like the
+test chips (68 chips), and a criterion fixed before looking — highest chip accuracy with every chip
+called, ties to fewer fields.
+
+| on 68 non-test chips (out-of-fold) | min 1 | min 8 | min 12 | all fields |
+|---|---|---|---|---|
+| chip accuracy, every chip called | 0.779 | 0.765 | 0.765 | 0.765 |
+| confident-but-wrong chips | 11 | 10 | 8 | — |
+| fields per chip | 5.3 | 8.1 | 9.9 | 24.9 |
+
+The criterion selects **min 1**, whose test result is **0.680** with every chip called (0.708 on the
+24 it calls, 6.8 fields). The guard's accuracy gain on the test chips (0.680 → 0.800) is therefore
+not reproduced on independent chips and should be read as optimistic; on those chips the guard only
+trims confident errors (11 → 8 of 68 at min 12) for one chip of accuracy. What *does* replicate is
+the efficiency claim: at every minimum the rule matches reading every field (0.765–0.779 versus
+0.765) with 5.3–9.9 fields instead of 24.9, and in the deferring mode it is 0.806 on the 62 of 68
+chips it calls at min 8 (0.800 on 65 at min 1) — close to the 0.826 measured on the test chips. We keep min 8 in the tool for the a-priori reason in (b)
+— three agreeing fields cannot justify 94% — and report the test-chip numbers at 8 below with this
+caveat. The same re-selection picks the plain cap of Table 6 as **20**, not 12 (0.765 on the 68
+chips, 0.760 on the test chips with 12.6 fields), and reading the first fields instead of spread
+ones is no better there (0.750 vs 0.765 at min 8): the spread order is kept for the failure in (a),
+not for a measured gain.
+
 ### 6.3 Measured performance (25 unseen chips, 684 fields)
 
 | metric | value |
 |---|---|
 | per-field accuracy / AUC | 0.734 / 0.791 |
 | chip accuracy, all fields, mean | 0.80 |
-| **chip accuracy among called chips** (spread fields, min 8, conf 0.9) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
+| **chip accuracy among called chips** (spread fields, min 8 — tuned on these chips, §6.2(c)) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
 | **false-confident calls** (conf ≥ 0.9 and wrong, of 23 calls) | **13%** (3/23) |
 | inconclusive (budget exhausted near P = 0.5) | 8% |
 | mean fields used | **9.5** (a plain cap of 12 spread fields: 9.0 fields, 0.80) |
 
 ![Figure 5](figures/fig5_tool.png)
-*Figure 5. Tool behaviour versus the minimum-fields guard.*
+*Figure 5. Tool behaviour versus the minimum-fields guard, swept on the 25 test chips (the sweep
+the value 8 was read from; §6.2(c) re-selects it without them).*
 
 **Capacity is not the bottleneck.** We trained a backbone with 2.8× the parameters (MobileNetV3-large, same
 384 px, same protocol). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from
@@ -551,7 +584,9 @@ resolve it reaches **0.826 on the 23 it calls, deferring 8%** (`audit/07_efficie
 *Table 6. Field efficiency. The fixed-k row is evaluated only on the 13 chips that have at least 12
 fields, so it is not comparable with the others; the cap and sequential rows use every chip. A plain
 cap of 12 fields is as frugal as the sequential rule, but the right cap is only known after the fact
-(a cap of 8 gives 0.720, a cap of 20 gives 0.760); the rule's contribution is the per-chip
+(a cap of 8 gives 0.720, a cap of 20 gives 0.760; selected without the test chips the cap would be
+20, §6.2(c)). The min-8 rows share the same caveat: without the test chips the minimum would be 1,
+which scores 0.680 here; the rule's contribution is the per-chip
 confidence, the pass / fail / inconclusive call and the option to defer, not a further cut in fields.*
 
 ![Figure 6](figures/fig7_efficiency.png)
@@ -614,12 +649,14 @@ last twenty), so an unguarded rule stopped early with a confident *pass*.
 cannot reach the min-8 guard, so they are the most exposed.*
 
 **Out-of-distribution detection failed.** We tested two standard detectors against the training
-chips: a Mahalanobis distance on four image statistics (mean, standard deviation, Laplacian focus
-proxy, dark fraction) and a Mahalanobis distance in the model's 576-dimensional penultimate feature
-space. The image-statistics detector flags almost nothing; the feature-space detector flags almost
-everything (16 of 25 sessions above the training 99th percentile), and **neither flags session
-230405**, the worst failure. We therefore do not present an OOD alarm as a safety feature; the
-distance is exposed as a diagnostic only.
+fields: a Mahalanobis distance on four image statistics (mean, standard deviation, mean absolute
+gradient as a focus proxy, dark fraction) and a Mahalanobis distance on the model's 576-dimensional
+pooled backbone feature, each alarming above the training 99th percentile
+(`audit/10_ood_check.py`). The image-statistics detector flags none of the 25 unseen chips. The
+feature-space detector flags 21 of 25 when a chip is scored by its median field distance (almost
+every unseen session looks shifted) and 4 of 25 when scored by its mean feature. **None of the
+three flags session 230405**, the worst failure. We therefore do not present an OOD alarm as a
+safety feature; the distance is exposed as a diagnostic only.
 
 **What this means in practice.** The tool is usable as a *screening* aid with a human in the loop,
 not as an autonomous gate. Its measured error rate (13% confident-but-wrong) is the number to quote
@@ -767,6 +804,10 @@ settle it, and would be a small, valuable addition to this benchmark.
 8. **The acquisition order is used as a proxy for spatial order.** Consecutive fields are highly
    correlated (r = 0.58–0.74 vs 0.06–0.36 for random pairs in the six largest sessions), which supports the proxy, but the exact
    stage geometry is not public.
+9. **The minimum-fields guard was tuned on the test chips.** The shipped value 8 comes from a sweep
+   on the 25 test chips; re-selected on the 34 other sessions it would be 1 (test accuracy 0.680
+   instead of 0.800 with every chip called). The headline 0.826 / 13% are therefore optimistic by an
+   unknown amount; the field saving is not (§6.2(c)).
 
 ---
 
@@ -783,6 +824,7 @@ python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   
 rm ooc.zip                                # lands at ../data/OOC_image_dataset/ (or set OOC_DATA)
 
 python3 audit/leakage_controlled.py     # +7.9 pp / +8.9 pp (finding 1, 8 seeds)
+python3 audit/01b_leakage_ci.py         # paired 95% CIs over the 8 seeds (Table 2)
 python3 audit/block_structure.py        # ICC 0.321, effective N ≈ 181 (finding 2)
 python3 audit/structure_probe.py        # runs test (finding 3)
 python3 audit/adaptive_sampling.py      # policy comparison on labels (finding 4)
@@ -790,11 +832,14 @@ python3 audit/03c_policy_model_in_loop.py   # ... with the model in the loop (Ta
 python3 audit/03d_policy_bootstrap.py   # paired bootstrap CIs over chips (Figure 4c)
 python3 audit/recovery_test.py          # negative result (finding 5)
 python3 evaluate.py                     # deployed-tool numbers (§6.3)
+python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without the test chips
+python3 audit/10_ood_check.py          # OOD detectors on the 25 unseen chips (§6.5)
 python3 figures.py                      # every figure in this report
 python3 demo/app.py                     # interactive demo
 ```
 
-Every number in this report is written to `results/*.json` by the script that produced it.
+Every number in this report is written to `results/*.json` by the script that produced it;
+`python3 check_numbers.py` fails if a number in REPORT/README cannot be traced to one of them.
 
 ---
 
@@ -831,7 +876,8 @@ acquisition order (ICC 0.321; effective N ≈ 181 of 3,072) and field-dependent 
 agrees with the session majority 78.8% of the time). Correcting the protocol — session-grouped
 splits, chip-level evaluation, explicit sampling policy — and sampling fields spread across the
 chip yields a tool that reaches 82.6% chip-level accuracy on the chips it calls with 9.5 fields on
-average, and says "inconclusive" when it cannot decide. Two negative results bound the claims: the
+average, and says "inconclusive" when it cannot decide (the 8-field minimum behind that number was
+tuned on the test chips; re-selected without them the rule scores 0.680, §6.2(c)). Two negative results bound the claims: the
 re-image/discard distinction is not supported by this data, and no reliable OOD detector was found.
 Simulating the same stopping rule on ground-truth labels overstates its performance with the model
 in the loop (0.875 vs 0.708 without a minimum-field guard), a caution that generalises beyond this

@@ -78,7 +78,7 @@ def main():
 
     # ---- sequential (shipped rule), two modes ----
     seq = {}
-    for min_f in [4, 6, 8, 12]:
+    for min_f in [1, 3, 4, 5, 6, 8, 10, 12]:
         for mode in ("abstain", "force"):
             acc, abst, used = [], [], []
             for c in chips.values():

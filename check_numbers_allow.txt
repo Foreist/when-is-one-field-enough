@@ -1,0 +1,16 @@
+# Numbers that are not in results/*.json, each with where it comes from.
+2026            # competition year
+2,056
+2056 # source image width (px), dataset
+1542            # source image height (px), dataset
+3090            # GPU model name (RTX 3090)
+576             # MobileNetV3-small penultimate width (torchvision)
+0.0625          # 1 - BetaCDF(0.5; 1, 4): three good fields, no bad (worked example)
+238             # 9.52 mean fields x 25 chips (tool_evaluation.json)
+494             # leakage split test fields, min over seeds (split_controlled seeds 1000-1007, deterministic)
+712             # ... max over seeds
+1440            # leakage split train fields, min over seeds
+1876            # ... max over seeds
+101             # sum of per-cell-line test sessions in Table 7 (sessions mix cell lines)
+7861            # demo port
+127.0           # localhost

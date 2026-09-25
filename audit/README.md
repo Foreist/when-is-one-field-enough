@@ -7,6 +7,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 |---|---|---|---|
 | 1 | `leakage_experiment.py` | `leakage_results.json` | published split has 57/59 sessions in train∩test |
 | 1b | `leakage_controlled.py` | `leakage_controlled.json` | controlled A/B, 8 seeds: +7.9 pp accuracy, +8.9 pp AUC |
+| 1c | `01b_leakage_ci.py` | `leakage_ci.json` | paired t-interval over the 8 seeds: accuracy [4.2, 11.5], AUC [6.7, 11.0]; 8/8 seeds positive |
 | 2 | `structure_probe.py` | `structure_probe.json` | runs test: failures are contiguous |
 | 2a | `02c_celltype_control.py` | `celltype_control.json` | runs test survives a cell-type control |
 | 2b | `02d_redundancy.py` | `redundancy.json` | consecutive fields are correlated but not duplicates |
@@ -25,6 +26,8 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 5b | `05_lolo_cellline.py` | `lolo_cellline.json` | leave-one-cell-line-out: unseen cell line costs ~7 AUC points |
 | 5b | `qc_map.py` | `qc_maps_384.png` | per-chip QC maps |
 | 6 | `../evaluate.py` | `tool_evaluation.json` | deployed-tool numbers (section 3 of README) |
+| 6a | `09_inner_cv_minfields.py` | `inner_cv_oof.json`, `inner_cv_minfields.json` | re-selects the minimum-fields guard by 5-fold session-grouped CV on the 34 non-test sessions (test chips untouched) |
+| 6b | `10_ood_check.py` | `ood_check.json` | image-statistics and feature-space Mahalanobis alarms (training p99) on the 25 unseen chips: 0/25, 21/25 (median field) or 4/25 (mean feature); none flags 230405 |
 | 6b | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
 
 Note: `stopping_rule.py` simulates the sequential rule on **ground-truth labels**, which overstates

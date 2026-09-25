@@ -100,7 +100,9 @@ def sequential_decision(probs, thr_conf=0.9, max_fields=20, min_fields=8):
 
     min_fields guards against stopping inside a lucky good region: with the real
     model, stopping after 1-3 fields gave a 25% false-confident rate, while
-    min_fields=8 cut it to 13% (see results/tool_evaluation.json).
+    min_fields=8 cut it to 13% (see results/tool_evaluation.json). That value was
+    read off the test chips; re-selected on the other 34 sessions it would be 1
+    (results/inner_cv_minfields.json, REPORT section 6.2(c)).
     """
     order = spread_order(len(probs), max_fields)
     bad = good = 0
