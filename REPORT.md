@@ -449,7 +449,7 @@ deployment must therefore state its aggregation rule; "accuracy" without it is n
 We also tested a rule that exploits the measured autocorrelation — smoothing the per-field scores
 along the acquisition order before aggregating. It did **not** help: on the shipped predictions a
 3- or 5-field moving average changes chip accuracy by at most 0.007 at any budget from 4 to 12
-fields (k=6: 0.792 → 0.793; `audit/smoothing_test.py`). Reported as a negative result.
+fields (k=6: 0.792 → 0.795 with a 3-field and 0.793 with a 5-field window; `audit/smoothing_test.py`). Reported as a negative result.
 
 ### 4.7 Metadata does not explain the labels
 
