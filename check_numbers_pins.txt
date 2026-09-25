@@ -33,3 +33,10 @@
 24.9 inner_cv_minfields.json:all_fields.mean_fields .1f
 0.760 efficiency.json:cap_k.20.acc .3f
 0.806 inner_cv_minfields.json:by_min_fields.8.abstain_acc .3f
+0.94 per_chip_calls.json:per_session.230405.first_k.confidence .2f
+0.91 per_chip_calls.json:per_session.230405.confidence .2f
+0.255 per_chip_calls.json:per_session.230405.mean_p_bad_first5 .3f
+0.935 per_chip_calls.json:per_session.230405.mean_p_bad_last20 .3f
+0.89 per_chip_calls.json:per_session.220706.confidence .2f
+0.99 per_chip_calls.json:per_session.230403.confidence .2f
+0.93 per_chip_calls.json:per_session.230425.confidence .2f

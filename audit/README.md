@@ -13,7 +13,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 2b | `02d_redundancy.py` | `redundancy.json` | consecutive fields are correlated but not duplicates |
 | 2b | `block_structure.py` | `block_structure.json` | ICC 0.321, design effect 17, effective N ≈ 181 |
 | 2c | `label_sufficiency.py` | `label_sufficiency.json` | m-field majority vs session majority |
-| 3 | `adaptive_sampling.py` | `adaptive_sampling.json` | random = best for the call, adaptive = best for localisation |
+| 3 | `adaptive_sampling.py` | `adaptive_sampling.json` | label-only: random = best for the call, adaptive = best for localisation (does not survive 3c) |
 | 3b | `stopping_rule.py` | `stopping_rule.json` | label-only stopping simulation (optimistic) |
 | 3c | `03c_policy_model_in_loop.py` | `policy_model_in_loop.json` | policy ranking does NOT survive the model in the loop |
 | 3d | `03d_policy_bootstrap.py` | `policy_bootstrap.json` | paired bootstrap CIs over chips — none survives a Bonferroni correction for 6 comparisons |
@@ -28,7 +28,8 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 6 | `../evaluate.py` | `tool_evaluation.json` | deployed-tool numbers (section 3 of README) |
 | 6a | `09_inner_cv_minfields.py` | `inner_cv_oof.json`, `inner_cv_minfields.json` | re-selects the minimum-fields guard by 5-fold session-grouped CV on the 34 non-test sessions (test chips untouched) |
 | 6b | `10_ood_check.py` | `ood_check.json` | image-statistics and feature-space Mahalanobis alarms (training p99) on the 25 unseen chips: 0/25, 21/25 (median field) or 4/25 (mean feature); none flags 230405 |
-| 6b | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
+| 6c | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
+| 6d | `11_per_chip_calls.py` | `per_chip_calls.json` | per-chip calls of the shipped rule (Table 7: four wrong, two inconclusive) and the first-*k* failure on 230405 (*pass* at 0.94 after 6 fields; spread order: *fail* at 0.91) |
 
 Note: `stopping_rule.py` simulates the sequential rule on **ground-truth labels**, which overstates
 the deployed tool. `evaluate.py` re-measures it with the model's predictions (9.5 fields, 82.6%),

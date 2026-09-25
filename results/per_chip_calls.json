@@ -1,0 +1,439 @@
+{
+ "wrong": [
+  "220706",
+  "230314",
+  "230403",
+  "230425"
+ ],
+ "inconclusive": [
+  "220606",
+  "230529"
+ ],
+ "per_session": {
+  "220502": {
+   "n_fields": 4,
+   "bad_share": 0.0,
+   "field_acc": 1.0,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.96875,
+   "fields_used": 4,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.10790203884243965,
+   "mean_p_bad_last20": 0.10790203884243965
+  },
+  "220506": {
+   "n_fields": 7,
+   "bad_share": 0.2857142857142857,
+   "field_acc": 0.8571428571428571,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.96484375,
+   "fields_used": 7,
+   "correct": true,
+   "first_k": {
+    "n_fields": 6,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.23150362223386764,
+   "mean_p_bad_last20": 0.20099301955529622
+  },
+  "220515": {
+   "n_fields": 6,
+   "bad_share": 0.16666666666666666,
+   "field_acc": 0.8333333333333334,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.9921875,
+   "fields_used": 6,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.07117341682314873,
+   "mean_p_bad_last20": 0.06364800687879324
+  },
+  "220606": {
+   "n_fields": 10,
+   "bad_share": 0.5,
+   "field_acc": 0.2,
+   "truth": "pass",
+   "call": "inconclusive",
+   "confidence": 0.5,
+   "fields_used": 10,
+   "correct": null,
+   "first_k": {
+    "n_fields": 3,
+    "call": "fail",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.9446557402610779,
+   "mean_p_bad_last20": 0.5113831398542971
+  },
+  "220620": {
+   "n_fields": 6,
+   "bad_share": 0.0,
+   "field_acc": 1.0,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.9921875,
+   "fields_used": 6,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.11528894305229187,
+   "mean_p_bad_last20": 0.10578109758595626
+  },
+  "220706": {
+   "n_fields": 5,
+   "bad_share": 1.0,
+   "field_acc": 0.2,
+   "truth": "fail",
+   "call": "pass",
+   "confidence": 0.890625,
+   "fields_used": 5,
+   "correct": false,
+   "first_k": {
+    "n_fields": 5,
+    "call": "pass",
+    "confidence": 0.890625
+   },
+   "mean_p_bad_first5": 0.17059854567050933,
+   "mean_p_bad_last20": 0.17059854567050933
+  },
+  "220715": {
+   "n_fields": 7,
+   "bad_share": 0.2857142857142857,
+   "field_acc": 0.42857142857142855,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.85546875,
+   "fields_used": 7,
+   "correct": true,
+   "first_k": {
+    "n_fields": 6,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.18138384390622378,
+   "mean_p_bad_last20": 0.2097883750019329
+  },
+  "220716": {
+   "n_fields": 4,
+   "bad_share": 0.0,
+   "field_acc": 0.75,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.8125,
+   "fields_used": 4,
+   "correct": true,
+   "first_k": {
+    "n_fields": 4,
+    "call": "pass",
+    "confidence": 0.8125
+   },
+   "mean_p_bad_first5": 0.2540302462875843,
+   "mean_p_bad_last20": 0.2540302462875843
+  },
+  "220718": {
+   "n_fields": 4,
+   "bad_share": 1.0,
+   "field_acc": 0.75,
+   "truth": "fail",
+   "call": "fail",
+   "confidence": 0.8125,
+   "fields_used": 4,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "fail",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.66135816834867,
+   "mean_p_bad_last20": 0.66135816834867
+  },
+  "220721": {
+   "n_fields": 3,
+   "bad_share": 1.0,
+   "field_acc": 1.0,
+   "truth": "fail",
+   "call": "fail",
+   "confidence": 0.9375,
+   "fields_used": 3,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "fail",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.9352687994639078,
+   "mean_p_bad_last20": 0.9352687994639078
+  },
+  "230109": {
+   "n_fields": 53,
+   "bad_share": 0.1320754716981132,
+   "field_acc": 0.7924528301886793,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.98046875,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.06819783765822648,
+   "mean_p_bad_last20": 0.15054857451468706
+  },
+  "230119": {
+   "n_fields": 35,
+   "bad_share": 0.0,
+   "field_acc": 0.9714285714285714,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.98046875,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 6,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.13557087387889624,
+   "mean_p_bad_last20": 0.0867862194776535
+  },
+  "230123": {
+   "n_fields": 13,
+   "bad_share": 0.23076923076923078,
+   "field_acc": 0.6923076923076923,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.91015625,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 8,
+    "call": "pass",
+    "confidence": 0.91015625
+   },
+   "mean_p_bad_first5": 0.29935799837112426,
+   "mean_p_bad_last20": 0.23348061296229178
+  },
+  "230214": {
+   "n_fields": 24,
+   "bad_share": 0.125,
+   "field_acc": 0.6666666666666666,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.9164657592773438,
+   "fields_used": 18,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "fail",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.7821532607078552,
+   "mean_p_bad_last20": 0.20438960418105126
+  },
+  "230215": {
+   "n_fields": 12,
+   "bad_share": 0.4166666666666667,
+   "field_acc": 0.5833333333333334,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.998046875,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.10613673031330109,
+   "mean_p_bad_last20": 0.06343726262760659
+  },
+  "230314": {
+   "n_fields": 25,
+   "bad_share": 0.64,
+   "field_acc": 0.72,
+   "truth": "fail",
+   "call": "pass",
+   "confidence": 0.9053764343261719,
+   "fields_used": 20,
+   "correct": false,
+   "first_k": {
+    "n_fields": 20,
+    "call": "pass",
+    "confidence": 0.6681880950927734
+   },
+   "mean_p_bad_first5": 0.48592904955148697,
+   "mean_p_bad_last20": 0.39554451769217847
+  },
+  "230315": {
+   "n_fields": 47,
+   "bad_share": 0.46808510638297873,
+   "field_acc": 0.6382978723404256,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.91021728515625,
+   "fields_used": 13,
+   "correct": true,
+   "first_k": {
+    "n_fields": 6,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.18748095631599426,
+   "mean_p_bad_last20": 0.2336060255765915
+  },
+  "230316": {
+   "n_fields": 22,
+   "bad_share": 0.0,
+   "field_acc": 1.0,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.998046875,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.06444246359169484,
+   "mean_p_bad_last20": 0.05578380841761828
+  },
+  "230321": {
+   "n_fields": 8,
+   "bad_share": 0.0,
+   "field_acc": 1.0,
+   "truth": "pass",
+   "call": "pass",
+   "confidence": 0.998046875,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.044607277400791644,
+   "mean_p_bad_last20": 0.07511940889526159
+  },
+  "230403": {
+   "n_fields": 6,
+   "bad_share": 0.8333333333333334,
+   "field_acc": 0.16666666666666666,
+   "truth": "fail",
+   "call": "pass",
+   "confidence": 0.9921875,
+   "fields_used": 6,
+   "correct": false,
+   "first_k": {
+    "n_fields": 3,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.13800100460648537,
+   "mean_p_bad_last20": 0.13898215256631374
+  },
+  "230405": {
+   "n_fields": 69,
+   "bad_share": 1.0,
+   "field_acc": 0.8260869565217391,
+   "truth": "fail",
+   "call": "fail",
+   "confidence": 0.91021728515625,
+   "fields_used": 13,
+   "correct": true,
+   "first_k": {
+    "n_fields": 6,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.25514357425272466,
+   "mean_p_bad_last20": 0.9348032623529434
+  },
+  "230425": {
+   "n_fields": 107,
+   "bad_share": 0.48598130841121495,
+   "field_acc": 0.6728971962616822,
+   "truth": "pass",
+   "call": "fail",
+   "confidence": 0.9282684326171875,
+   "fields_used": 16,
+   "correct": false,
+   "first_k": {
+    "n_fields": 3,
+    "call": "fail",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.9236152291297912,
+   "mean_p_bad_last20": 0.9335470899939537
+  },
+  "230512": {
+   "n_fields": 44,
+   "bad_share": 0.6136363636363636,
+   "field_acc": 0.7954545454545454,
+   "truth": "fail",
+   "call": "fail",
+   "confidence": 0.808344841003418,
+   "fields_used": 20,
+   "correct": true,
+   "first_k": {
+    "n_fields": 6,
+    "call": "pass",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.23949063792824746,
+   "mean_p_bad_last20": 0.7513534274185076
+  },
+  "230523": {
+   "n_fields": 55,
+   "bad_share": 0.5454545454545454,
+   "field_acc": 0.5818181818181818,
+   "truth": "fail",
+   "call": "fail",
+   "confidence": 0.98046875,
+   "fields_used": 8,
+   "correct": true,
+   "first_k": {
+    "n_fields": 3,
+    "call": "fail",
+    "confidence": 0.9375
+   },
+   "mean_p_bad_first5": 0.9189843535423279,
+   "mean_p_bad_last20": 0.8362821124494075
+  },
+  "230529": {
+   "n_fields": 108,
+   "bad_share": 0.5925925925925926,
+   "field_acc": 0.7685185185185185,
+   "truth": "fail",
+   "call": "inconclusive",
+   "confidence": 0.5,
+   "fields_used": 20,
+   "correct": null,
+   "first_k": {
+    "n_fields": 8,
+    "call": "fail",
+    "confidence": 0.91015625
+   },
+   "mean_p_bad_first5": 0.5530741795897484,
+   "mean_p_bad_last20": 0.5143058693793137
+  }
+ }
+}

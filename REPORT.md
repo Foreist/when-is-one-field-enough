@@ -149,7 +149,7 @@ decisions about patient material. The second benchmark audited in §4.4 is likew
 ## 3. Methods
 
 All quantities below are defined once here and used unchanged throughout; the scripts that compute
-them are named in §7.
+them are listed in §10.
 
 **Sessions and fields.** A *session* is one acquisition date (`YYMMDD` in the filename) — one
 microscope run over one or more chips. A *field* is one image. We treat the field index `N` as the
@@ -200,7 +200,9 @@ fraction of the session's bad fields that the sampled set contains.
 set of 25 sessions (684 fields). These are the withheld half of each held-out session's fields (the
 controlled-leakage design sets the other half aside; it is never used for training), so a "test
 chip" is a random half of a session; §6.4 repeats the tool on all 1,377 fields of the same sessions. Where we also report the shipped split's number, it is labelled as
-such. Hyperparameters were fixed before the final evaluation; no test-set tuning was performed.
+such. Training hyperparameters were fixed before the final evaluation. One
+decision-rule setting was not: the `min_fields` guard was read off these chips, and §6.2(c)
+re-selects it without them.
 
 ---
 
@@ -334,7 +336,7 @@ measured **label sequences** at a fixed budget *k* (300 trials per session):
 *Table 3. Label-based policy simulation. `err` = |estimated − true bad fraction|. Random looks best
 for the call and adaptive best for localisation — and we do not believe this table.*
 
-This is exactly the practice criticised in §6.5, so we repeat the comparison with the deployed
+This is exactly the practice criticised in §6.7, so we repeat the comparison with the deployed
 model's per-field probabilities on the 25 session-disjoint test chips
 (`audit/03c_policy_model_in_loop.py`):
 
@@ -558,9 +560,10 @@ not for a measured gain.
 the value 8 was read from; §6.2(c) re-selects it without them).*
 
 **Capacity is not the bottleneck.** We trained a backbone with 2.8× the parameters (MobileNetV3-large, same
-384 px, same protocol). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from
+384 px, same split and schedule; batch 8 instead of 32 to fit memory). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from
 0.733 to 0.747, while AUC *fell* from 0.791 to 0.788 — i.e. a larger model buys nothing here
-(`audit/perfield_model.py --arch large`). Together with the session-level domain shift in §6.4 this
+(`audit/perfield_model.py --arch large`). Together with the session-level shift in §6.5 (almost every unseen session sits outside the
+training feature distribution) this
 suggests the ceiling is set by the labels and by chip-to-chip appearance, not by model capacity.
 We therefore ship the smaller model, which is cheaper to run; with the same stopping rule the larger
 model uses the same 9.5 fields and is not more accurate on the chips it calls (0.792 vs 0.826).
@@ -699,7 +702,8 @@ the *deployed* rule on the *same* 25 held-out chips with ground-truth field labe
 model's calls (`audit/label_vs_model_same_rule.py`, Figure 7). Without a minimum, labels give 21/24 = 0.875 with one confident-but-wrong chip and the
 model 17/24 = 0.708 with six; with the shipped 8-field minimum, labels give 0.875 (8.5 fields) and
 the model 19/23 = 0.826 (9.5 fields, three confident-but-wrong). Per-field errors (AUC 0.791) let
-an unguarded rule stop early on a wrong run of calls; the 8-field minimum closes most of that gap.
+an unguarded rule stop early on a wrong run of calls; the 8-field minimum closes most of that gap
+on these chips — the chips it was tuned on (§6.2(c)).
 
 ![Figure 7](figures/fig6_label_vs_model.png)
 *Figure 7. The same rule on the same 25 chips: ground-truth field labels versus model calls.*
@@ -834,6 +838,7 @@ python3 audit/recovery_test.py          # negative result (finding 5)
 python3 evaluate.py                     # deployed-tool numbers (§6.3)
 python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without the test chips
 python3 audit/10_ood_check.py          # OOD detectors on the 25 unseen chips (§6.5)
+python3 audit/11_per_chip_calls.py     # per-chip calls, Table 7 and the first-k failure (§6.2(a))
 python3 figures.py                      # every figure in this report
 python3 demo/app.py                     # interactive demo
 ```
