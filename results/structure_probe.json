@@ -406,6 +406,64 @@
    "p": 0.0
   }
  ],
+ "B": {
+  "n_rows_with_metadata": 2721,
+  "n_fields_all": 3072,
+  "bad_rate_by_cell_all_fields": {
+   "cell_type_A549": {
+    "bad_rate": 0.30709677419354836,
+    "n": 775
+   },
+   "cell_type_CACO": {
+    "bad_rate": 0.684971098265896,
+    "n": 346
+   },
+   "cell_type_HPMEC": {
+    "bad_rate": 0.454172366621067,
+    "n": 1462
+   },
+   "cell_type_HSAEC": {
+    "bad_rate": 0.3319672131147541,
+    "n": 244
+   },
+   "cell_type_HUVEC": {
+    "bad_rate": 0.8598130841121495,
+    "n": 107
+   },
+   "cell_type_NHBE": {
+    "bad_rate": 0.2391304347826087,
+    "n": 138
+   }
+  },
+  "session_bad_rate_range_by_cell": {
+   "cell_type_A549": [
+    0.0,
+    1.0
+   ],
+   "cell_type_CACO": [
+    0.0,
+    1.0
+   ],
+   "cell_type_HPMEC": [
+    0.0,
+    1.0
+   ],
+   "cell_type_HSAEC": [
+    0.0,
+    1.0
+   ],
+   "cell_type_HUVEC": [
+    0.0,
+    1.0
+   ],
+   "cell_type_NHBE": [
+    0.0,
+    1.0
+   ]
+  },
+  "logistic_n": 2213,
+  "logistic_in_sample_acc": 0.562132851333032
+ },
  "n_sessions_tested": 45,
  "n_significant": 23,
  "n_clustered": 36

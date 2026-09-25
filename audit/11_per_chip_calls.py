@@ -4,7 +4,8 @@
 
 For every chip, in imaging order: the shipped call (spread fields, min 8), the call when reading
 the first fields instead (min 1, the bug in §6.2(a)), per-field accuracy and the mean P(bad) over
-the first five and the last twenty fields.
+the first five and the last twenty fields; and, on chips with at least 20 fields, the mean-of-20
+call from the first 20 fields versus 20 spread fields (§4.3).
 
 Writes results/per_chip_calls.json
 """
@@ -17,7 +18,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from inference import TF, beta_p_bad, load_model, sequential_decision   # noqa: E402
+from inference import TF, beta_p_bad, load_model, sequential_decision, spread_order   # noqa: E402
 from leakage_experiment import index_images                              # noqa: E402
 from leakage_controlled import split_controlled                           # noqa: E402
 
@@ -61,10 +62,17 @@ def main():
                           truth=truth, call=call, confidence=max(d["p_bad"], 1 - d["p_bad"]),
                           fields_used=d["n_fields"], correct=call == truth if call != "inconclusive" else None,
                           first_k=first_k(p), mean_p_bad_first5=float(np.mean(p[:5])),
-                          mean_p_bad_last20=float(np.mean(p[-20:])))
+                          mean_p_bad_last20=float(np.mean(p[-20:])),
+                          # fixed budget of 20, averaged: first 20 fields vs 20 spread fields
+                          k20_first=(int(np.mean(p[:20]) > 0.5) == int(truth == "fail")) if len(p) >= 20 else None,
+                          k20_spread=(int(np.mean([p[i] for i in spread_order(len(p), 20)]) > 0.5)
+                                      == int(truth == "fail")) if len(p) >= 20 else None)
             print(s, call, truth, round(out[s]["confidence"], 3), flush=True)
+    k20 = [c for c in out.values() if c["k20_first"] is not None]
     wrong = sorted(s for s, c in out.items() if c["correct"] is False)
     (ROOT / "results" / "per_chip_calls.json").write_text(json.dumps(dict(
+        k20=dict(n_chips=len(k20), first_acc=float(np.mean([c["k20_first"] for c in k20])),
+                 spread_acc=float(np.mean([c["k20_spread"] for c in k20]))),
         wrong=wrong, inconclusive=sorted(s for s, c in out.items() if c["call"] == "inconclusive"),
         per_session=out), indent=1))
     print("wrong:", wrong)

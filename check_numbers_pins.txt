@@ -40,3 +40,13 @@
 0.89 per_chip_calls.json:per_session.220706.confidence .2f
 0.99 per_chip_calls.json:per_session.230403.confidence .2f
 0.93 per_chip_calls.json:per_session.230425.confidence .2f
+0.636 per_chip_calls.json:k20.first_acc .3f
+0.727 per_chip_calls.json:k20.spread_acc .3f
+0.562 structure_probe.json:B.logistic_in_sample_acc .3f
+0.089 run_image_groups.json:isolated_bad.lap .3f
+0.126 run_image_groups.json:good.lap .3f
+0.137 run_image_groups.json:isolated_bad.dark .3f
+0.094 run_image_groups.json:good.dark .3f
+0.150 run_image_groups.json:long_bad.lap .3f
+0.243 run_image_groups.json:long_bad.std .3f
+0.199 run_image_groups.json:good.std .3f

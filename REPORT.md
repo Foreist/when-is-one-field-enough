@@ -400,8 +400,9 @@ The dataset's own definition of `bad` mixes **technical artifacts** (bubbles, de
 walls) with **biological problems** (morphology/density off expectation) [1]. If these could be
 separated, the actionable output would be "re-image" (cheap, the chip survives) versus "discard"
 (expensive, re-imaging is useless). Two observations encouraged the attempt: isolated bad runs are
-blurrier and darker than good fields (Laplacian 0.089 vs 0.124; dark fraction 0.137 vs 0.091 —
-bubbles and defocus), whereas long bad runs have normal focus but higher contrast; and visually,
+blurrier and darker than good fields (single-field runs: mean absolute gradient 0.089 vs 0.126;
+dark fraction 0.137 vs 0.094 — bubbles and defocus), whereas long bad runs are sharper (0.150) and
+higher in contrast (s.d. 0.243 vs 0.199; `audit/04b_run_image_stats.py`); and visually,
 4/4 sampled isolated-bad fields showed bubbles or defocus.
 
 We constructed a target — a run "recovers" if the next five fields are majority `good` — and tried
@@ -827,18 +828,32 @@ curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_data
 python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
 rm ooc.zip                                # lands at ../data/OOC_image_dataset/ (or set OOC_DATA)
 
-python3 audit/leakage_controlled.py     # +7.9 pp / +8.9 pp (finding 1, 8 seeds)
-python3 audit/01b_leakage_ci.py         # paired 95% CIs over the 8 seeds (Table 2)
-python3 audit/block_structure.py        # ICC 0.321, effective N ≈ 181 (finding 2)
-python3 audit/structure_probe.py        # runs test (finding 3)
-python3 audit/adaptive_sampling.py      # policy comparison on labels (finding 4)
-python3 audit/03c_policy_model_in_loop.py   # ... with the model in the loop (Table 4)
-python3 audit/03d_policy_bootstrap.py   # paired bootstrap CIs over chips (Figure 4c)
-python3 audit/recovery_test.py          # negative result (finding 5)
-python3 evaluate.py                     # deployed-tool numbers (§6.3)
-python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without the test chips
-python3 audit/10_ood_check.py          # OOD detectors on the 25 unseen chips (§6.5)
-python3 audit/11_per_chip_calls.py     # per-chip calls, Table 7 and the first-k failure (§6.2(a))
+python3 audit/leakage_experiment.py     # published split: 57/59 sessions shared; shipped vs grouped (§4.1)
+python3 audit/leakage_controlled.py     # controlled A/B, +7.9 pp / +8.9 pp over 8 seeds (§4.1)
+python3 audit/01b_leakage_ci.py         # paired 95% CIs over the 8 seeds (§4.1)
+python3 audit/structure_probe.py        # runs test, Table 1; metadata model (§4.2, §4.7)
+python3 audit/02c_celltype_control.py   # runs test within same-cell-type stretches (§4.2)
+python3 audit/02d_redundancy.py         # consecutive vs random field correlation, distinct views (§4.2)
+python3 audit/block_structure.py        # ICC 0.321, design effect 17, effective N ≈ 181 (§4.2)
+python3 audit/label_sufficiency.py      # single-field agreement, Table 2 (§4.2)
+python3 audit/adaptive_sampling.py      # policy comparison on labels, Table 3 (§4.3)
+python3 audit/03c_policy_model_in_loop.py   # ... with the model in the loop, Table 4 (§4.3)
+python3 audit/03d_policy_bootstrap.py   # paired bootstrap CIs over chips, Figure 4c (§4.3)
+python3 audit/06_oct_leakage.py         # second benchmark, 40% of test files leak (§4.4)
+python3 audit/recovery_test.py          # re-image vs discard, negative result (§4.5)
+python3 audit/04b_run_image_stats.py    # focus/darkness of isolated vs long bad runs (§4.5)
+python3 audit/aggregation_experiment.py # mean / max / top-2 aggregation, Table 5 (§4.6)
+python3 audit/smoothing_test.py         # smoothing along acquisition order, negative (§4.6)
+python3 audit/perfield_model.py         # trains the shipped per-field model (§6.1; --arch large, --size 512)
+python3 evaluate.py                     # deployed-tool numbers, Figure 5 (§6.3)
+python3 audit/07_efficiency.py          # field efficiency, Table 6 (§6.4)
+python3 audit/08_full_sessions.py       # the tool on full sessions (§6.4)
+python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without the test chips (§6.2(c))
+python3 audit/10_ood_check.py           # OOD detectors on the 25 unseen chips (§6.5)
+python3 audit/11_per_chip_calls.py      # per-chip calls, Table 7; the first-k failure (§4.3, §6.2(a))
+python3 audit/05_lolo_cellline.py       # leave-one-cell-line-out, Table 8 (§6.6)
+python3 audit/label_vs_model_same_rule.py   # labels vs model, same rule and chips (§6.7)
+python3 audit/stopping_rule.py          # the original label-only stopping simulation (§3, §6.7)
 python3 figures.py                      # every figure in this report
 python3 demo/app.py                     # interactive demo
 ```

@@ -129,7 +129,7 @@ def main():
             pass
         if d is None or day is None:
             continue
-        rows.append(dict(y=1 if r["cls"] == "good" else 0, cell=r["cell"], day=day,
+        rows.append(dict(y=1 if r["cls"] == "good" else 0, cell=r["cell"], day=day, session=r["session"],
                          density=d, flow=f if f is not None else np.nan))
     print(f"\n[B] rows with density+day: {len(rows)}  with flow: {sum(1 for r in rows if not np.isnan(r['flow']))}")
     # binned failure rate by day and by density tercile
@@ -148,6 +148,20 @@ def main():
     for r in rows:
         by_cell[r["cell"]].append(r)
     print("   bad-rate by cell:", {k: (rate(v), len(v)) for k, v in sorted(by_cell.items())})
+    # per-cell bad rates over ALL fields (the metadata join above drops some), and the range of
+    # per-session bad rates within each cell line
+    cell_all = collections.defaultdict(list)
+    sess_rate = collections.defaultdict(lambda: collections.defaultdict(list))
+    for r in joined:
+        b = r["cls"] != "good"
+        cell_all[r["cell"]].append(b)
+        sess_rate[r["cell"]][r["session"]].append(b)
+    res_B = dict(n_rows_with_metadata=len(rows), n_fields_all=len(joined),
+                 bad_rate_by_cell_all_fields={c: dict(bad_rate=float(np.mean(v)), n=len(v))
+                                              for c, v in sorted(cell_all.items())},
+                 session_bad_rate_range_by_cell={c: [float(min(np.mean(v) for v in ss.values())),
+                                                     float(max(np.mean(v) for v in ss.values()))]
+                                                 for c, ss in sorted(sess_rate.items())})
     # logistic regression (no sklearn dependency on categoricals beyond one-hot)
     try:
         from sklearn.linear_model import LogisticRegression
@@ -173,10 +187,11 @@ def main():
         for n, w in sorted(zip(names, m.coef_[0]), key=lambda t: -abs(t[1]))[:6]:
             print(f"      {n:<18} {w:+.3f}")
         print("   n used:", len(yf), " in-sample acc:", round(m.score(sc.transform(Xf), yf), 3))
+        res_B.update(logistic_n=int(len(yf)), logistic_in_sample_acc=float(m.score(sc.transform(Xf), yf)))
     except Exception as e:
         print("   logistic skipped:", e)
 
-    json.dump(dict(A=res_A, n_sessions_tested=len(res_A), n_significant=n_sig, n_clustered=n_clustered),
+    json.dump(dict(A=res_A, B=res_B, n_sessions_tested=len(res_A), n_significant=n_sig, n_clustered=n_clustered),
               open(OUT / "structure_probe.json", "w"), ensure_ascii=False, indent=1)
     print("\nsaved", OUT / "structure_probe.json")
 

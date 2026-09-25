@@ -29,8 +29,8 @@ th { background: #f0f3f7; }
 img { max-width: 100%; display: block; margin: 3mm auto 1mm auto; page-break-inside: avoid; }
 em { color: #333; }
 code { background: #f4f4f4; padding: 0 1px; font-size: 9pt; }
-pre { background: #f7f7f7; border: 1px solid #ddd; padding: 2mm; font-size: 8.6pt; overflow-x: hidden;
-      white-space: pre-wrap; page-break-inside: avoid; }
+pre { background: #f7f7f7; border: 1px solid #ddd; padding: 2mm; font-size: 7.8pt; overflow-x: hidden;
+      white-space: pre-wrap; }
 hr { border: none; border-top: 1px solid #ddd; margin: 5mm 0; }
 """
 
