@@ -1,43 +1,67 @@
 {
  "k8": {
   "random - adaptive": {
-   "mean": 0.01790183333333333,
-   "lo": -0.04800833333333333,
-   "hi": 0.09966666666666664,
-   "significant": false
+   "mean": 0.013333333333333327,
+   "lo": -0.04777777777777777,
+   "hi": 0.08444444444444445,
+   "significant": false,
+   "bonf_lo": -0.06444444444444443,
+   "bonf_hi": 0.11666666666666664,
+   "bonf_significant": false,
+   "chips_differing": 6
   },
   "window - adaptive": {
-   "mean": 0.04885833333333334,
-   "lo": -0.06601666666666665,
-   "hi": 0.17434999999999992,
-   "significant": false
+   "mean": 0.042222222222222223,
+   "lo": -0.06666666666666665,
+   "hi": 0.15555555555555553,
+   "significant": false,
+   "bonf_lo": -0.10111111111111108,
+   "bonf_hi": 0.19777777777777775,
+   "bonf_significant": false,
+   "chips_differing": 8
   },
   "random - window": {
-   "mean": -0.030921833333333343,
-   "lo": -0.12200000000000004,
-   "hi": 0.05033333333333331,
-   "significant": false
+   "mean": -0.028888888888888895,
+   "lo": -0.11,
+   "hi": 0.046666666666666655,
+   "significant": false,
+   "bonf_lo": -0.1411111111111111,
+   "bonf_hi": 0.06888888888888887,
+   "bonf_significant": false,
+   "chips_differing": 7
   }
  },
  "n_chips_k8": 15,
  "k12": {
   "random - adaptive": {
-   "mean": -0.037700192307692316,
-   "lo": -0.08384615384615388,
-   "hi": 0.002692307692307695,
-   "significant": false
+   "mean": -0.03974358974358974,
+   "lo": -0.08076923076923077,
+   "hi": -0.002564102564102572,
+   "significant": true,
+   "bonf_lo": -0.09743589743589744,
+   "bonf_hi": 0.0,
+   "bonf_significant": false,
+   "chips_differing": 4
   },
   "window - adaptive": {
-   "mean": -0.02095673076923078,
-   "lo": -0.1203846153846154,
-   "hi": 0.07153846153846152,
-   "significant": false
+   "mean": -0.021794871794871787,
+   "lo": -0.1282051282051282,
+   "hi": 0.07179487179487179,
+   "significant": false,
+   "bonf_lo": -0.16794871794871793,
+   "bonf_hi": 0.09999999999999999,
+   "bonf_significant": false,
+   "chips_differing": 5
   },
   "random - window": {
-   "mean": -0.012863461538461532,
-   "lo": -0.10692307692307691,
-   "hi": 0.070057692307692,
-   "significant": false
+   "mean": -0.017948717948717954,
+   "lo": -0.1294871794871795,
+   "hi": 0.07948717948717948,
+   "significant": false,
+   "bonf_lo": -0.16794871794871793,
+   "bonf_hi": 0.11025641025641025,
+   "bonf_significant": false,
+   "chips_differing": 6
   }
  },
  "n_chips_k12": 13

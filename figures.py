@@ -116,15 +116,16 @@ def fig_sampling():
     ax[1].set_ylim(ax[0].get_ylim())
     # paired differences with bootstrap CIs (k=12)
     cis = load("policy_bootstrap.json")
-    labels = list(cis["k12"].keys()); vals = [cis["k12"][k]["mean"] for k in labels]
-    los = [cis["k12"][k]["lo"] for k in labels]; his = [cis["k12"][k]["hi"] for k in labels]
-    y = np.arange(len(labels))
-    ax[2].errorbar(vals, y, xerr=[np.array(vals) - np.array(los), np.array(his) - np.array(vals)],
-                   fmt="o", color="#333", capsize=4)
+    c12 = cis["k12"]; labels = list(c12.keys())
+    vals = np.array([c12[k]["mean"] for k in labels]); y = np.arange(len(labels))
+    for lo_k, hi_k, lw, cap in (("bonf_lo", "bonf_hi", 1, 3), ("lo", "hi", 3, 0)):
+        lo = np.array([c12[k][lo_k] for k in labels]); hi = np.array([c12[k][hi_k] for k in labels])
+        ax[2].errorbar(vals, y, xerr=[vals - lo, hi - vals], fmt="o", color="#333", lw=lw, capsize=cap)
     ax[2].axvline(0, color="k", ls="--", lw=1)
     ax[2].set_yticks(y); ax[2].set_yticklabels(labels, fontsize=8)
     ax[2].set_xlabel("paired accuracy difference (k=12)")
-    ax[2].set_title("(c) all differences include zero (n=13 chips)", fontsize=9, loc="left")
+    ax[2].set_title(f"(c) thick 95%, thin Bonferroni x6: all corrected\nintervals include zero (n={cis['n_chips_k12']} chips)",
+                    fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig4_sampling_policy.png", dpi=150); plt.close(fig)
 
 

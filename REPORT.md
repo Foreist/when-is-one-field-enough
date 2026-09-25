@@ -38,8 +38,8 @@ It is not, in three specific and measurable ways.
    its own criticism.** Failures occupy contiguous stretches of a chip (runs test significant in
    23/45 mixed sessions, surviving a cell-type control). A policy comparison simulated on the
    *labels* suggests random fields are best for the chip call; **with the model in the loop that
-   ranking disappears** — every paired difference over 13–15 chips has a bootstrap CI containing
-   zero (§4.3). What does survive is a concrete, reproducible failure: reading the **first** *k*
+   ranking disappears** — over 13–15 chips no paired difference survives a correction for the six
+   comparisons made (§4.3). What does survive is a concrete, reproducible failure: reading the **first** *k*
    fields called a 100%-bad chip *pass* with 0.94 confidence, because the start of a session can
    sit inside a good region. The shipped tool samples fields spread across the chip for that
    reason, not on the strength of a policy ranking.
@@ -339,14 +339,19 @@ model's per-field probabilities on the 25 session-disjoint test chips
 | 8 | 0.789 / 0.300 | 0.818 / 0.311 | 0.776 / 0.296 |
 | 12 | 0.800 / 0.393 | 0.818 / 0.389 | 0.840 / 0.397 |
 
-*Table 4. The same policies with the model in the loop. The ordering changes, and no difference is
-significant: a paired bootstrap over chips (2,000 resamples) gives 95% intervals of [−0.08, +0.00]
-for random − adaptive at k=12 (13 chips), [−0.12, +0.07] for window − adaptive and [−0.11, +0.07]
-for random − window — all contain zero (Figure 4c).*
+*Table 4. The same policies with the model in the loop. The ordering changes — adaptive, the
+label simulation's worst caller at k ≥ 8, is nominally best at k=12 — but nothing survives a
+multiple-comparison correction. A paired bootstrap over chips (10,000 resamples,
+`audit/03d_policy_bootstrap.py`) gives 95% intervals at k=12 (13 chips) of [−0.08, −0.00] for
+random − adaptive, [−0.13, +0.07] for window − adaptive and [−0.13, +0.08] for random − window. The
+first only just excludes zero and rests on the 4 of 13 chips where the two policies differ at all.
+With a Bonferroni correction for the six differences tested (three pairs × k = 8, 12) no interval
+excludes zero — that one's upper bound is exactly 0 (Figure 4c).*
 
 ![Figure 4](figures/fig4_sampling_policy.png)
 *Figure 4. Policy comparison. (a) simulated on ground-truth labels; (b) with the model in the loop;
-(c) paired bootstrap differences at k=12 — all intervals include zero, so no ranking is claimed.*
+(c) paired bootstrap differences at k=12 — thick bars 95%, thin bars Bonferroni-corrected for six
+comparisons; every corrected interval includes zero, so no ranking is claimed.*
 
 **We therefore report no policy ranking.** With only 13–15 chips large enough for these budgets the
 comparison is underpowered, and the label-based ranking is an artefact of scoring policies against
@@ -461,8 +466,8 @@ From the audit, three rules follow for anyone training or benchmarking on this d
    principle (§4.3) and we could not rank them with this benchmark's 59 sessions; a number is only
    interpretable together with the policy that produced it.
 
-As a worked example, `audit/01_split_audit.py` and `evaluate.py` reproduce every number in this
-report from the raw dataset.
+As a worked example, the scripts listed in §10 reproduce every number in this report from the raw
+dataset.
 
 ---
 
@@ -751,8 +756,8 @@ settle it, and would be a small, valuable addition to this benchmark.
    the full sessions the rule is 0.76 accurate with 6 of 25 confident-but-wrong (§6.4). No wet-lab validation was performed, and we make no
    biological or clinical claim — the claim is about *measurement validity*.
 5. **Sampling policies could not be ranked.** The label-based comparison (§4.3, Table 3) is
-   underpowered when repeated with the model in the loop (13–15 chips; all paired CIs include
-   zero). We report the policy we use and the failure that motivates it, not a ranking.
+   underpowered when repeated with the model in the loop (13–15 chips; no paired difference
+   survives a correction for six comparisons). We report the policy we use and the failure that motivates it, not a ranking.
 6. **Labels come from a four-rater majority**, so the ceiling of any model on this benchmark is the
    agreement among experts, which is not public. Our numbers are therefore a lower bound in that
    specific sense, while the leakage inflation is an upper-bound problem.
@@ -780,7 +785,9 @@ rm ooc.zip                                # lands at ../data/OOC_image_dataset/ 
 python3 audit/leakage_controlled.py     # +7.9 pp / +8.9 pp (finding 1, 8 seeds)
 python3 audit/block_structure.py        # ICC 0.321, effective N ≈ 181 (finding 2)
 python3 audit/structure_probe.py        # runs test (finding 3)
-python3 audit/adaptive_sampling.py      # policy comparison (finding 4)
+python3 audit/adaptive_sampling.py      # policy comparison on labels (finding 4)
+python3 audit/03c_policy_model_in_loop.py   # ... with the model in the loop (Table 4)
+python3 audit/03d_policy_bootstrap.py   # paired bootstrap CIs over chips (Figure 4c)
 python3 audit/recovery_test.py          # negative result (finding 5)
 python3 evaluate.py                     # deployed-tool numbers (§6.3)
 python3 figures.py                      # every figure in this report

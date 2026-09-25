@@ -15,7 +15,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 3 | `adaptive_sampling.py` | `adaptive_sampling.json` | random = best for the call, adaptive = best for localisation |
 | 3b | `stopping_rule.py` | `stopping_rule.json` | label-only stopping simulation (optimistic) |
 | 3c | `03c_policy_model_in_loop.py` | `policy_model_in_loop.json` | policy ranking does NOT survive the model in the loop |
-| 3d | (see 3c + bootstrap) | `policy_bootstrap.json` | paired CIs over chips (all include zero) |
+| 3d | `03d_policy_bootstrap.py` | `policy_bootstrap.json` | paired bootstrap CIs over chips — none survives a Bonferroni correction for 6 comparisons |
 | 3c | `aggregation_experiment.py` | `aggregation_results.json` | mean/max/top2 aggregation trade-off |
 | 3e | `smoothing_test.py` | `smoothing_test.json` | **negative result**: moving-average smoothing along acquisition order does not help (±0.007) |
 | 3f | `label_vs_model_same_rule.py` | `label_vs_model.json` | deployed rule on the same 25 chips, ground-truth labels vs model calls (REPORT §6.7) |
