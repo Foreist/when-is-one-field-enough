@@ -28,6 +28,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 5b | `qc_map.py` | `qc_maps_384.png` | per-chip QC maps |
 | 6 | `../evaluate.py` | `tool_evaluation.json` | deployed-tool numbers (section 3 of README) |
 | 6a | `09_inner_cv_minfields.py` | `inner_cv_oof.json`, `inner_cv_minfields.json` | re-selects the minimum-fields guard by 5-fold session-grouped CV on the 34 non-test sessions (test chips untouched) |
+| 6a' | `00_ood_reference.py` | `../model/train_image_stats.json`, `../model/train_feature_stats.json` | the OOD reference statistics on the 1,495 training fields (`--check` recomputes and compares) |
 | 6b | `10_ood_check.py` | `ood_check.json` | image-statistics and feature-space Mahalanobis alarms (training p99) on the 25 unseen chips: 0/25, 21/25 (median field) or 4/25 (mean feature); none flags 230405 |
 | 6c | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
 | 6e | `07_efficiency.py` | `efficiency.json` | field efficiency: all fields, fixed k, cap k, sequential rule by minimum (Table 6) |

@@ -869,7 +869,7 @@ python3 evaluate.py                     # deployed-tool numbers, Figure 5 (§6.3
 python3 audit/07_efficiency.py          # field efficiency, Table 6 (§6.4)
 python3 audit/08_full_sessions.py       # the tool on full sessions (§6.4)
 python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without the test chips (§6.2(c))
-python3 audit/10_ood_check.py           # OOD detectors on the 25 unseen chips (§6.5)
+python3 audit/00_ood_reference.py && python3 audit/10_ood_check.py   # OOD reference, detectors (§6.5)
 python3 audit/11_per_chip_calls.py      # per-chip calls, Table 7; the first-k failure (§4.3, §6.2(a))
 python3 audit/05_lolo_cellline.py       # leave-one-cell-line-out, Table 8 (§6.6)
 python3 audit/12_onnx_parity.py         # browser (ONNX) model vs PyTorch checkpoint (§6.8)
@@ -968,5 +968,3 @@ quality control in large-scale high-content screens. *J. Biomol. Screen.* 2012, 
 DOI 10.1177/1087057111420292.
 [15] Bukas, C., Subramanian, H., See, F., Steinchen, C., et al. MultiOrg: A Multi-rater
 Organoid-detection Dataset. *NeurIPS 2024 Datasets & Benchmarks*. DOI 10.52202/079017-3036.
-
-*Code licence MIT; derived artefacts CC-BY-SA; dataset images not redistributed beyond the 44 attributed demo example fields.*
