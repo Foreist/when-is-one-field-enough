@@ -84,13 +84,14 @@ def fig_label_structure():
     for i, v in enumerate([b["runlen_mean"], b["runlen_iid_expected"]]):
         ax[1].text(i, v + 0.05, f"{v:.2f}", ha="center", fontsize=9)
     ax[1].set_ylabel("mean run length (fields)")
-    ax[1].set_title("(b) runs of equal labels are 3x longer than chance", fontsize=9, loc="left")
+    ratio = b["runlen_mean"] / b["runlen_iid_expected"]
+    ax[1].set_title(f"(b) runs of equal labels are {ratio:.0f}x longer than chance", fontsize=9, loc="left")
     icc, deff, neff = b["icc_session"], b["deff_session"], b["n_eff_session"]
     ax[2].bar(["ICC", "design\neffect / 20", "effective N\n/ 1000"],
               [icc, deff / 20, neff / 1000], color=["#4a6fa5", "#c0392b", "#c0392b"])
     for i, v in enumerate([icc, deff / 20, neff / 1000]):
         ax[2].text(i, v + 0.01, f"{[icc, deff, neff][i]:.3g}", ha="center", fontsize=9)
-    ax[2].set_title("(c) 3,072 labels carry ~181\nindependent observations", fontsize=9, loc="left")
+    ax[2].set_title(f"(c) {b['n_images']:,} labels carry ~{neff:.0f}\nindependent observations", fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig3_label_structure.png", dpi=150); plt.close(fig)
 
 
@@ -124,7 +125,9 @@ def fig_sampling():
     ax[2].axvline(0, color="k", ls="--", lw=1)
     ax[2].set_yticks(y); ax[2].set_yticklabels(labels, fontsize=8)
     ax[2].set_xlabel("paired accuracy difference (k=12)")
-    ax[2].set_title(f"(c) thick 95%, thin Bonferroni x6: all corrected\nintervals include zero (n={cis['n_chips_k12']} chips)",
+    all_zero = all(c12[k]["bonf_lo"] <= 0 <= c12[k]["bonf_hi"] for k in labels)
+    ax[2].set_title(f"(c) thick 95%, thin Bonferroni x6: "
+                    f"{'all' if all_zero else 'not all'} corrected\nintervals include zero (n={cis['n_chips_k12']} chips)",
                     fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig4_sampling_policy.png", dpi=150); plt.close(fig)
 
@@ -171,7 +174,9 @@ def fig_efficiency():
                 [e["sequential"][k]["acc"] for k in keys], mk + "-", color=col,
                 label=f"sequential ({mode})")
     ax.axhline(e["all_fields_acc"], color="#4a6fa5", ls=":", lw=1)
-    ax.annotate("same accuracy,\n2.9x fewer fields", xy=(9.5, 0.80), xytext=(14, 0.70),
+    s8 = e["sequential"]["force_min8"]
+    ax.annotate(f"same accuracy,\n{e['mean_fields_per_chip'] / s8['fields']:.1f}x fewer fields",
+                xy=(s8["fields"], s8["acc"]), xytext=(14, 0.70),
                 arrowprops=dict(arrowstyle="->", color="k", lw=1), fontsize=9)
     ax.set_xlabel("fields used per chip"); ax.set_ylabel("chip-level accuracy")
     ax.set_ylim(0.6, 0.9); ax.legend(fontsize=8, loc="lower right")
