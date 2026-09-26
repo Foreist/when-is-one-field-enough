@@ -1,0 +1,79 @@
+{
+ "resamplers_vs_shipped": {
+  "nearest": {
+   "max_abs_diff": 0.9407301247119904,
+   "mean_abs_diff": 0.1767616146488581,
+   "flips": 38,
+   "n": 200
+  },
+  "bicubic": {
+   "max_abs_diff": 0.5693829953670502,
+   "mean_abs_diff": 0.06807900124578736,
+   "flips": 11,
+   "n": 200
+  },
+  "box": {
+   "max_abs_diff": 0.6495664454996586,
+   "mean_abs_diff": 0.0876586036349181,
+   "flips": 19,
+   "n": 200
+  },
+  "bilinear_no_antialias": {
+   "max_abs_diff": 0.9365299642086029,
+   "mean_abs_diff": 0.16298533533350565,
+   "flips": 35,
+   "n": 200
+  }
+ },
+ "bundled_examples": {
+  "bad_chip": {
+   "n": 12,
+   "max_abs_diff": 0.10082843899726868,
+   "flips": 1,
+   "original": {
+    "call": "fail",
+    "p_bad": 0.91015625,
+    "fields": 8
+   },
+   "stored": {
+    "call": "fail",
+    "p_bad": 0.927001953125,
+    "fields": 11
+   }
+  },
+  "borderline_chip": {
+   "n": 20,
+   "max_abs_diff": 0.2117876410484314,
+   "flips": 1,
+   "original": {
+    "call": "inconclusive",
+    "p_bad": 0.5,
+    "fields": 20
+   },
+   "stored": {
+    "call": "pass",
+    "p_bad": 0.33181190490722656,
+    "fields": 20
+   }
+  },
+  "good_chip": {
+   "n": 12,
+   "max_abs_diff": 0.036997437477111816,
+   "flips": 1,
+   "original": {
+    "call": "pass",
+    "p_bad": 0.01953125,
+    "fields": 8
+   },
+   "stored": {
+    "call": "pass",
+    "p_bad": 0.001953125,
+    "fields": 8
+   }
+  }
+ },
+ "bundled_example_size": [
+  1024,
+  768
+ ]
+}

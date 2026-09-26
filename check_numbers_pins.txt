@@ -79,3 +79,9 @@
 6.6 stopping_rule.json:naive.mean_fields .1f
 0.30 aggregation_results.json:runs.0.thr .2f
 0.25 aggregation_results.json:runs.1.thr .2f
+11 preprocessing_sensitivity.json:resamplers_vs_shipped.bicubic.flips d
+19 preprocessing_sensitivity.json:resamplers_vs_shipped.box.flips d
+35 preprocessing_sensitivity.json:resamplers_vs_shipped.bilinear_no_antialias.flips d
+0.33 preprocessing_sensitivity.json:bundled_examples.borderline_chip.stored.p_bad .2f
+1,024 preprocessing_sensitivity.json:bundled_example_size.0 ,d
+768 preprocessing_sensitivity.json:bundled_example_size.1 d

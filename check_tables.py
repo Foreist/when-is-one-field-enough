@@ -71,8 +71,15 @@ mr=[r for r in rows('| held-out cell line') if r[0].startswith('mean')][0]
 for i,k in [(2,'acc'),(3,'bal_acc'),(4,'auc')]: eq('T8 mean '+k,mr[i],np.mean([v[k] for v in lo.values()]),'.3f')
 # Table 7
 pc=R('per_chip_calls.json')['per_session']
-for r in rows('| chip (session) | fields'):
-    d=pc[r[0]]; eq('T7 n '+r[0],r[1],d['n_fields'],'d'); eq('T7 bs '+r[0],r[2],f"{100*d['bad_share']:.0f}%",'s'); eq('T7 acc '+r[0],r[3],d['field_acc'],'.3f')
+seen7 = set()
+for rr7 in rows('| chip | fields | bad share | field acc |'):       # two chips per row
+    for r in (rr7[0:4], rr7[5:9]):
+        if not r or not r[0]:
+            continue
+        seen7.add(r[0])
+        d=pc[r[0]]; eq('T7 n '+r[0],r[1],d['n_fields'],'d'); eq('T7 bs '+r[0],r[2],f"{100*d['bad_share']:.0f}%",'s'); eq('T7 acc '+r[0],r[3],d['field_acc'],'.3f')
+if seen7 != set(pc):
+    bad += 1; print('MISMATCH T7 chips', sorted(set(pc) ^ seen7))
 # inner CV table
 ic=R('inner_cv_minfields.json')
 rr=rows('| on 68 non-test chips')

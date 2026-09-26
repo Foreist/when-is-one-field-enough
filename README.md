@@ -120,8 +120,10 @@ the posterior confidence, the number of fields used and the per-field QC map. Th
 are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a mostly-good chip
 (pass, 8 of 12 fields), a 100%-bad chip (fail, 11 of 12) and a borderline chip whose majority is `bad`
 (59%) — the 20 bundled fields are 9 predicted bad and 11 good, so the tool exhausts its budget and
-returns *pass* at confidence 0.67, a wrong call made visibly unconfident. (On the full test half of
-that session it returns *inconclusive*.)
+returns *pass* at confidence 0.67, a wrong call made visibly unconfident. The bundled fields are
+stored at 1,024 × 768 to keep the repository small; the same 20 fields at full resolution give
+*inconclusive*, and so does the full test half of that session (`audit/13_preprocessing_sensitivity.py`).
+The model is sensitive to the resize method, so browser scores of uploads are approximate (REPORT §6.8).
 
 ### Input / output formats
 

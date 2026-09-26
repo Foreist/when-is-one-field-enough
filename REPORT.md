@@ -634,35 +634,23 @@ bad): the model is right on 82.6% of its fields individually, yet the per-field 
 the first third of the session are low (mean 0.255 over the first five fields versus 0.935 over the
 last twenty), so an unguarded rule stopped early with a confident *pass*.
 
-| chip (session) | fields | true bad share | per-field accuracy |
-|---|---|---|---|
-| 220706 | 5 | 100% | 0.200 |
-| 220718 | 4 | 100% | 0.750 |
-| 220721 | 3 | 100% | 1.000 |
-| 230405 | 69 | 100% | 0.826 |
-| 230403 | 6 | 83% | 0.167 |
-| 230314 | 25 | 64% | 0.720 |
-| 230512 | 44 | 61% | 0.795 |
-| 230529 | 108 | 59% | 0.769 |
-| 230523 | 55 | 55% | 0.582 |
-| 220606 | 10 | 50% | 0.200 |
-| 230425 | 107 | 49% | 0.673 |
-| 230315 | 47 | 47% | 0.638 |
-| 230215 | 12 | 42% | 0.583 |
-| 220506 | 7 | 29% | 0.857 |
-| 220715 | 7 | 29% | 0.429 |
-| 230123 | 13 | 23% | 0.692 |
-| 220515 | 6 | 17% | 0.833 |
-| 230109 | 53 | 13% | 0.792 |
-| 230214 | 24 | 12% | 0.667 |
-| 220502 | 4 | 0% | 1.000 |
-| 220620 | 6 | 0% | 1.000 |
-| 220716 | 4 | 0% | 0.750 |
-| 230119 | 35 | 0% | 0.971 |
-| 230316 | 22 | 0% | 1.000 |
-| 230321 | 8 | 0% | 1.000 |
+| chip | fields | bad share | field acc | | chip | fields | bad share | field acc |
+|---|---|---|---|---|---|---|---|---|
+| 220706 | 5 | 100% | 0.200 | | 220506 | 7 | 29% | 0.857 |
+| 220718 | 4 | 100% | 0.750 | | 220715 | 7 | 29% | 0.429 |
+| 220721 | 3 | 100% | 1.000 | | 230123 | 13 | 23% | 0.692 |
+| 230405 | 69 | 100% | 0.826 | | 220515 | 6 | 17% | 0.833 |
+| 230403 | 6 | 83% | 0.167 | | 230109 | 53 | 13% | 0.792 |
+| 230314 | 25 | 64% | 0.720 | | 230214 | 24 | 12% | 0.667 |
+| 230512 | 44 | 61% | 0.795 | | 220502 | 4 | 0% | 1.000 |
+| 230529 | 108 | 59% | 0.769 | | 220620 | 6 | 0% | 1.000 |
+| 230523 | 55 | 55% | 0.582 | | 220716 | 4 | 0% | 0.750 |
+| 220606 | 10 | 50% | 0.200 | | 230119 | 35 | 0% | 0.971 |
+| 230425 | 107 | 49% | 0.673 | | 230316 | 22 | 0% | 1.000 |
+| 230315 | 47 | 47% | 0.638 | | 230321 | 8 | 0% | 1.000 |
+| 230215 | 12 | 42% | 0.583 | |  |  |  |  |
 
-*Table 7. The 25 unseen test chips, sorted by the true share of bad fields. The deployed rule
+*Table 7. The 25 unseen test chips, sorted by the true share of bad fields (left column, then right). The deployed rule
 (spread fields, min 8, conf 0.9) makes four wrong calls — 220706 (100% bad, 5 fields) and 230403
 (83% bad, 6 fields) called *pass* with confidence 0.89 and 0.99, 230314 (64% bad) *pass* at 0.91,
 230425 (49% bad) *fail* at 0.93 — and returns *inconclusive* on 220606 and 230529. Chips with fewer
@@ -733,11 +721,13 @@ label-only simulation measures the policy, not the system.
 ### 6.8 Interactive demo
 
 A browser-side build of the tool (ONNX Runtime Web, no server) is available at
-**https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html**. The bundled example chips use the reference probabilities computed by the Python
-implementation, so the demo reproduces the numbers in this report exactly; user uploads are scored
-live in the browser by an ONNX export of the same checkpoint (largest difference in P(bad) over the
-44 example fields: 8.5e-06; `audit/12_onnx_parity.py`). The page is static, so it stays available throughout the judging period
-without any server running.
+**https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** (static page, no server). Examples
+use probabilities precomputed in Python; uploads are scored by an ONNX export of the checkpoint (max
+|ΔP| 8.5e-06 on identical inputs; `audit/12_onnx_parity.py`). Caveats: the model is sensitive to the
+resize method — bicubic, box or non-antialiased bilinear instead of the training resize flip 11, 19 and
+35 of 200 test field calls (`audit/13_preprocessing_sensitivity.py`) — so browser scores of uploads
+(canvas resize) are approximate; and the bundled examples are stored at 1,024 × 768, on which the
+borderline chip is called *pass* (P = 0.33) where its original fields give *inconclusive*.
 
 ---
 
@@ -872,7 +862,7 @@ python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without t
 python3 audit/00_ood_reference.py && python3 audit/10_ood_check.py   # OOD reference, detectors (§6.5)
 python3 audit/11_per_chip_calls.py      # per-chip calls, Table 7; the first-k failure (§4.3, §6.2(a))
 python3 audit/05_lolo_cellline.py       # leave-one-cell-line-out, Table 8 (§6.6)
-python3 audit/12_onnx_parity.py         # browser (ONNX) model vs PyTorch checkpoint (§6.8)
+python3 audit/12_onnx_parity.py && python3 audit/13_preprocessing_sensitivity.py   # demo checks (§6.8)
 python3 audit/label_vs_model_same_rule.py   # labels vs model, same rule and chips (§6.7)
 python3 audit/stopping_rule.py          # the original label-only stopping simulation (§3, §6.7)
 python3 figures.py                      # every figure in this report

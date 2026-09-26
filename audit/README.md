@@ -33,6 +33,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 6c | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
 | 6e | `07_efficiency.py` | `efficiency.json` | field efficiency: all fields, fixed k, cap k, sequential rule by minimum (Table 6) |
 | 6f | `12_onnx_parity.py` | `onnx_parity.json` | the browser (ONNX) model on the HF demo matches the PyTorch checkpoint: max |ΔP| 8.5e-06 over the 44 example fields |
+| 6g | `13_preprocessing_sensitivity.py` | `preprocessing_sensitivity.json` | P(bad) under other resize methods (bicubic / box / non-antialiased bilinear flip 11 / 19 / 35 of 200 field calls) and on the 1,024 × 768 bundled examples (borderline chip: *pass* instead of *inconclusive*) |
 | 6d | `11_per_chip_calls.py` | `per_chip_calls.json` | per-chip calls of the shipped rule (Table 7: four wrong, two inconclusive) and the first-*k* failure on 230405 (*pass* at 0.94 after 6 fields; spread order: *fail* at 0.91) |
 
 Note: `stopping_rule.py` simulates the sequential rule on **ground-truth labels**, which overstates
