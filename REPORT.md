@@ -615,8 +615,8 @@ saved)** and returns 6 *fail*, 2 *inconclusive* and 17 *pass*, worst first.
 
 ### 6.5 Where the tool fails
 
-Chip-level failures are not spread evenly; they cluster in a few sessions, and they are not flagged
-by the model's own confidence. The clearest case is session 230405 (69 fields, **100%** labelled
+The model's own confidence does not flag chip-level failures: all four wrong calls in Table 7 were
+made at confidence 0.89 or higher, three of them above the 0.9 stopping threshold. The clearest case is session 230405 (69 fields, **100%** labelled
 bad): the model is right on 82.6% of its fields individually, yet the per-field probabilities in
 the first third of the session are low (mean 0.255 over the first five fields versus 0.935 over the
 last twenty), so an unguarded rule stopped early with a confident *pass*.
