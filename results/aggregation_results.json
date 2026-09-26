@@ -95,7 +95,9 @@
     "available_T": 693,
     "pool": 1695,
     "train_size": 1495
-   }
+   },
+   "thr": 0.3,
+   "thr_source": "aggregation_run log (validation balanced-accuracy maximiser); recorded by the script from now on"
   },
   {
    "field_acc": 0.7038167938931298,
@@ -105,7 +107,9 @@
     "available_T": 669,
     "pool": 1748,
     "train_size": 1548
-   }
+   },
+   "thr": 0.25,
+   "thr_source": "aggregation_run log (validation balanced-accuracy maximiser); recorded by the script from now on"
   }
  ],
  "args": {

@@ -77,3 +77,5 @@
 78.8 label_sufficiency.json:sufficiency_curve.1.agree %.1f
 92.8 stopping_rule.json:naive.accuracy %.1f
 6.6 stopping_rule.json:naive.mean_fields .1f
+0.30 aggregation_results.json:runs.0.thr .2f
+0.25 aggregation_results.json:runs.1.thr .2f

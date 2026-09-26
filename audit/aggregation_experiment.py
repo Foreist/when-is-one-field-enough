@@ -115,7 +115,7 @@ def main():
     preds = []
     for seed in range(args.seeds):
         pred = train_predict(recs, args, seed, device)
-        preds.append({k: pred[k] for k in ("field_acc", "meta")})
+        preds.append({k: pred[k] for k in ("field_acc", "thr", "meta")})   # thr: chosen on validation
         for k in [1, 3, 5, 8, 12]:
             sim = simulate(pred, k, seed=seed)
             all_sim.setdefault(k, []).append(sim)
