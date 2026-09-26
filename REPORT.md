@@ -717,7 +717,8 @@ label-only simulation measures the policy, not the system.
 A browser-side build of the tool (ONNX Runtime Web, no server) is available at
 **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html**. The bundled example chips use the reference probabilities computed by the Python
 implementation, so the demo reproduces the numbers in this report exactly; user uploads are scored
-live in the browser. The page is static, so it stays available throughout the judging period
+live in the browser by an ONNX export of the same checkpoint (largest difference in P(bad) over the
+44 example fields: 8.5e-06; `audit/12_onnx_parity.py`). The page is static, so it stays available throughout the judging period
 without any server running.
 
 ---
@@ -852,6 +853,7 @@ python3 audit/09_inner_cv_minfields.py  # min-fields guard re-selected without t
 python3 audit/10_ood_check.py           # OOD detectors on the 25 unseen chips (§6.5)
 python3 audit/11_per_chip_calls.py      # per-chip calls, Table 7; the first-k failure (§4.3, §6.2(a))
 python3 audit/05_lolo_cellline.py       # leave-one-cell-line-out, Table 8 (§6.6)
+python3 audit/12_onnx_parity.py         # browser (ONNX) model vs PyTorch checkpoint (§6.8)
 python3 audit/label_vs_model_same_rule.py   # labels vs model, same rule and chips (§6.7)
 python3 audit/stopping_rule.py          # the original label-only stopping simulation (§3, §6.7)
 python3 figures.py                      # every figure in this report

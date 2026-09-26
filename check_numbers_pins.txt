@@ -70,3 +70,4 @@
 0.750 inner_cv_minfields.json:first_k_by_min_fields.8.force_acc .3f
 0.630 lolo_cellline.json:per_cell.cell_type_NHBE.auc .3f
 0.930 lolo_cellline.json:per_cell.cell_type_HUVEC.auc .3f
+8.5e-06 onnx_parity.json:max_abs_diff .1e

@@ -14,3 +14,5 @@
 101             # sum of per-cell-line test sessions in Table 7 (sessions mix cell lines)
 7861            # demo port
 127.0           # localhost
+1e-6            # p-value floor printed as "<1e-6" in Table 1
+3e-4            # AdamW learning rate (audit/perfield_model.py --lr default)

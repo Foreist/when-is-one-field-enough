@@ -15,7 +15,7 @@ CSS = """
 @page { size: A4; margin: 15mm 16mm; }
 body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
        font-size: 9.8pt; line-height: 1.45; color: #1a1a1a; }
-h2.refs ~ p { font-size: 8.6pt; line-height: 1.35; }
+h2.refs ~ p { font-size: 8.2pt; line-height: 1.3; }
 h1 { font-size: 19pt; margin: 0 0 4mm 0; line-height: 1.25; }
 h2 { font-size: 13.5pt; margin: 8mm 0 2mm 0; border-bottom: 1px solid #ccc; padding-bottom: 1mm;
      page-break-after: avoid; }

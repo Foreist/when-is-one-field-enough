@@ -13,7 +13,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DOCS = [HERE / "REPORT.md", HERE / "README.md", HERE / "audit" / "README.md"]
-NUM = re.compile(r"(?<![\w.])[−-]?\d[\d,]*(?:\.\d+)?(?![\w])")
+NUM = re.compile(r"(?<![\w.])[−-]?\d[\d,]*(?:\.\d+)?(?:e[−-]?\d+)?(?![\w])")
 
 
 def leaves(o):
@@ -48,6 +48,7 @@ def reps(v):
         for d in range(0, 4):
             out.add(f"{x:.{d}f}")
         out.add(f"{x:.3g}")
+        out.add(f"{x:.1e}")
     return out
 
 
