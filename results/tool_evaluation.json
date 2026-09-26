@@ -1,5 +1,5 @@
 {
- "data_root": "/home/dxodnd/wsl/competition/active/ai4s-ooc-2026/data/OOC_image_dataset",
+ "data_root": "OOC_image_dataset",
  "checkpoint": "perfield_mnv3s_384_s0.pt",
  "n_chips": 25,
  "n_fields": 684,

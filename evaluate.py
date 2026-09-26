@@ -141,7 +141,7 @@ def main():
     wilson = [round(float(ctr - half), 3), round(float(ctr + half), 3)]
 
     out = dict(
-        data_root=args.data_root, checkpoint=Path(args.checkpoint).name,
+        data_root=Path(args.data_root).name, checkpoint=Path(args.checkpoint).name,
         n_chips=len(chips), n_fields=int(len(P)),
         field_accuracy=field_acc, field_auc=auc,
         chip_all_fields_mean_acc=allfield_acc,

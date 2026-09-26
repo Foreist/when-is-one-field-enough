@@ -15,7 +15,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from leakage_experiment import index_images                   # noqa: E402
-from recovery_test import img_stats, STATS_CACHE               # noqa: E402
+from recovery_test import img_stats, load_stats_cache, rel        # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "results"
 
@@ -41,10 +41,10 @@ def main():
             elif j - i >= 5:
                 groups["long_bad"] += paths
             i = j
-    cache = json.loads(STATS_CACHE.read_text()) if STATS_CACHE.exists() else {}
+    cache = load_stats_cache()
     out = {}
     for g, ps in groups.items():
-        st = [cache[p] if p in cache else img_stats(p) for p in ps]
+        st = [cache[rel(p)] if rel(p) in cache else img_stats(p) for p in ps]
         out[g] = dict(n=len(st), **{k: float(np.mean([s[k] for s in st])) for k in ("lap", "dark", "std", "mean")})
         print(g, {k: round(x, 3) if isinstance(x, float) else x for k, x in out[g].items()}, flush=True)
     (OUT / "run_image_groups.json").write_text(json.dumps(out, indent=1))

@@ -24,6 +24,18 @@ STATS_CACHE = OUT / "run_image_stats.json"
 NEXT = 5
 
 
+def rel(path):
+    """Cache key: the path below the dataset folder (portable across machines)."""
+    parts = Path(path).parts
+    return "/".join(parts[parts.index("OOC_image_dataset") + 1:]) if "OOC_image_dataset" in parts else str(path)
+
+
+def load_stats_cache():
+    if not STATS_CACHE.exists():
+        return {}
+    return {rel(k): v for k, v in json.loads(STATS_CACHE.read_text()).items()}
+
+
 def img_stats(path):
     im = Image.open(path).convert("L").resize((256, 256))
     a = np.asarray(im, dtype=np.float32) / 255.0
@@ -62,26 +74,24 @@ def main():
                 i += 1
     print("runs:", len(runs), " recovery rate:", round(float(np.mean([r["recovery"] for r in runs])), 3))
 
-    # image stats (cached)
-    cache = {}
-    if STATS_CACHE.exists():
-        cache = json.loads(STATS_CACHE.read_text())
-    need = [p for r in runs for p in r["paths"] if p not in cache]
+    # image stats of every bad field (cached; keys are paths relative to the dataset folder)
+    cache = load_stats_cache()
+    need = [p for r in runs for p in r["paths"] if rel(p) not in cache]
     print("computing stats for", len(need), "images")
     for i, p in enumerate(need):
-        cache[p] = img_stats(p)
+        cache[rel(p)] = img_stats(p)
         if (i + 1) % 300 == 0:
             print("  ", i + 1, flush=True)
-    STATS_CACHE.write_text(json.dumps(cache))
+    STATS_CACHE.write_text(json.dumps(cache, sort_keys=True))
 
     # feature table
-    lap_all = np.array([cache[p]["lap"] for p in cache])
-    dark_all = np.array([cache[p]["dark"] for p in cache])
+    lap_all = np.array([v["lap"] for v in cache.values()])
+    dark_all = np.array([v["dark"] for v in cache.values()])
     lap_thr = float(np.percentile(lap_all, 25))       # blurry = bottom quartile
     dark_thr = float(np.percentile(dark_all, 75))     # bubble-ish = top quartile
     rows = []
     for r in runs:
-        st = [cache[p] for p in r["paths"]]
+        st = [cache[rel(p)] for p in r["paths"]]
         lap = float(np.mean([x["lap"] for x in st]))
         dark = float(np.mean([x["dark"] for x in st]))
         std = float(np.mean([x["std"] for x in st]))
