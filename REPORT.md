@@ -380,16 +380,21 @@ failure, not a measured ranking.
 To test whether the leakage we measure is a property of one dataset or of the field, we audited a
 second public organoid imaging benchmark: the **OCT organoid segmentation-and-tracking dataset**
 (zenodo.15783866, CC-BY-4.0; Branciforti et al., *Diagnostics* 2024 [5,6]). Its file names encode the acquisition group —
-`w<well>_d<day>_<slice>.png` in train/val and `d<day>_p<plate>_w<well>_<slice>.png` in test — and the
-same (well, day) means the same organoids imaged in the same session. Reading the archive's central
+`w<well>_d<day>_<slice>.png` in train/val and `d<day>_p<plate>_w<well>_<slice>.png` in test (all test
+images are plate 1; train/val names carry no plate). If train/val come from the same plate — the
+names give no other one — the same (well, day) means the same organoids imaged in the same session.
+Reading the archive's central
 directory over HTTP range requests (no 4.9 GB download; `audit/06_oct_leakage.py`):
 
-* train: 16,752 files in **8** (well, day) groups; val: 4,188 files in 2 groups; test: 20,940 files in 10 groups
+* train: 5,584 images in **8** (well, day) groups; val: 1,396 images in 2 groups; test: 6,980 images in 10 groups
+  (each image is stored three times — original, manual mask, automatic mask; we count originals)
 * **train ∩ test = 4 groups** — well 2 at days 5, 7, 11 and 13; val ∩ test = 1 group
-* **40.0% of test files (8,376 of 20,940) belong to a (well, day) group that also appears in training**
+* **40.0% of test images (2,792 of 6,980) belong to a (well, day) group that also appears in training**
 
-For a *tracking* benchmark this is more severe than for classification: the same organoid instances,
-imaged in the same session at the same timepoint, appear on both sides of the split. We report the
+For a *tracking* benchmark this is more severe than for classification: under that reading the same
+organoid instances, imaged in the same session at the same timepoint, appear on both sides of the
+split. The file names cannot rule out a second plate with the same well numbering; the paper's own
+split description would settle it. We report the
 structural overlap rather than a re-trained inflation number, because re-training their
 segmentation/tracking pipeline is out of scope here.
 

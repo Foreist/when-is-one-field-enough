@@ -3,9 +3,9 @@
  "title": "Dataset for \"Segmentation and Multi-Timepoint Tracking of 3D Cancer Organoids from Optical Coherence Tomography Images using Deep Neural Networks\"",
  "licence": "cc-by-4.0",
  "files_per_split": {
-  "train": 16752,
-  "val": 4188,
-  "test": 20940
+  "train": 5584,
+  "val": 1396,
+  "test": 6980
  },
  "groups_per_split": {
   "train": 8,
@@ -123,8 +123,8 @@
    "9"
   ]
  ],
- "test_files": 20940,
- "test_files_in_train_group": 8376,
+ "test_files": 6980,
+ "test_files_in_train_group": 2792,
  "frac_test_files_in_train_group": 0.4,
  "note": "the same (well, day) = the same organoids imaged in the same session; for a tracking benchmark the same instances therefore appear on both sides"
 }

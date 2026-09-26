@@ -63,6 +63,8 @@ def main():
     groups = collections.defaultdict(set)
     n_files = collections.Counter()
     leak_files = 0
+    # each image appears three times (images_original / manual / mask_auto): count originals only
+    names = [x for x in names if x.split("/")[-2].lower() == "images_original"]
     for x in names:
         parts = x.split("/")
         if len(parts) < 4:
