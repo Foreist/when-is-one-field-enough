@@ -118,7 +118,7 @@ def check_pins(docs):
         fname, path = src.split(":", 1)
         v = json.loads((HERE / "results" / fname).read_text())
         for k in path.split("."):
-            v = v[k]
+            v = v[int(k)] if isinstance(v, list) else v[k]
         if fmt.startswith("%"):
             v, fmt = 100 * v, fmt[1:]
         got = format(v, fmt)

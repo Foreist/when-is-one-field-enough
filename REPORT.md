@@ -100,7 +100,8 @@ the quality of the fields that were kept.
 We take one public OoC QC benchmark — the OOC Image Dataset [1,2] — and treat the benchmark itself
 as the object of study. We (i) audit its split and label structure, (ii) derive and validate a
 corrected evaluation protocol, (iii) measure how sampling and aggregation policies behave on the
-measured structure, and (iv) build and honestly evaluate a chip-level QC tool.
+measured structure, and (iv) build a chip-level QC tool and evaluate it on held-out sessions,
+reporting which of its settings were chosen on the test chips (§6.2(c)).
 
 ### 1.3 What we claim — and what we do not
 
@@ -108,8 +109,9 @@ We claim **measurement results** about a specific benchmark and a **protocol/too
 from them. We do *not* claim a new model architecture, biological or clinical validity, or
 generalisation beyond this dataset. Leakage and label clustering are known phenomena in machine
 learning [7–11]; our contribution is not their discovery but their **measured magnitude in
-this benchmark, the corrected protocol, and the field-sampling policy that the measured structure
-implies** — together with two negative results that bound the claims.
+this benchmark, the corrected protocol, and the field-sampling policy we adopted after one observed
+failure** — together with two negative results that bound the claims. The policy is not a measured
+optimum: a ranking of sampling policies did not survive the model in the loop (§4.3).
 
 ---
 
@@ -231,7 +233,7 @@ composition, so we hold everything else fixed:
 | **inflation** (paired, 8 seeds) | **+7.9 pp** [4.2, 11.5] | **+8.9 pp** [6.7, 11.0] |
 
 ![Figure 2](figures/fig2_leakage.png)
-*Figure 2. (a) controlled A/B (8 seeds; paired inflation +7.9 pp accuracy, +8.9 pp AUC; the gain is positive in every seed, 4.2–17.8 pp); (b) the shipped split versus a session-grouped split.*
+*Figure 2. (a) controlled A/B (8 seeds; paired inflation +7.9 pp accuracy, +8.9 pp AUC; both gains are positive in every seed: accuracy 4.2–17.8 pp, AUC 6.7–15.0 pp); (b) the shipped split versus a session-grouped split.*
 
 For reference, the shipped split yields **78.9% ± 0.07 / AUC 0.873** (seed-to-seed variation is
 tiny because all test sessions are seen in training), while a session-grouped split that keeps all
@@ -740,18 +742,19 @@ The corrected protocol (session-level splits, chip-level metrics, explicit sampl
 dataset-agnostic and applies to any group-structured imaging corpus.
 
 **Drug evaluation and toxicology.** QC is the gate in front of every downstream readout. A
-chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess —
-prevents failing chips from contaminating dose-response curves, and makes the provenance of each
-excluded chip auditable.
+chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess — can
+screen failing chips out before they reach dose-response curves (at the measured error rate: 3 of 23
+calls confident and wrong, so a human confirms), and makes the provenance of each excluded chip
+auditable.
 
 **Toward chip digital twins.** A digital twin needs a state estimate of the physical system at each
-time point. The tool's output is exactly that at the culture level: a pass/fail state with a posterior confidence
+time point. The tool's output is a first version of that at the culture level: a pass/fail state with a posterior confidence
 plus a spatial map of where the culture is degrading, and a measured cost (9.5 fields) for obtaining
 it. Feeding such state estimates into a model of the culture over time is the natural next step.
 
 **What we do not claim.** No wet-lab validation, no biological or clinical validity, one dataset for
 the tool, and 3 of 23 calls on unseen chips are confident (≥0.9) and wrong (§9). The contribution is a
-trustworthy *measurement and decision layer*, not a biological finding.
+*measurement and decision layer* whose error rate is stated, not a biological finding.
 
 ## 8. Discussion
 
@@ -907,7 +910,7 @@ in the loop (0.875 vs 0.708 without a minimum-field guard), a caution that gener
 benchmark.
 
 **Future work.** (i) Extend the model-in-the-loop versus label-only comparison to a second dataset
-and modality (we have begun with a patient-derived-organoid drug-response dataset); (ii) a
+and modality (a public patient-derived-organoid drug-response dataset is a candidate); (ii) a
 calibrated stopping rule that accounts for the measured design effect; (iii) prospective validation
 of the two-mode (transient vs persistent) hypothesis with actual re-imaging.
 
