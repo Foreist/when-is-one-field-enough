@@ -20,8 +20,8 @@ import torch
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
-from inference import (MODEL_CARD, TF, beta_p_bad, load_model,  # noqa: E402
-                       natural_key, spread_order)
+from inference import (MODEL_CARD, TF, load_model,  # noqa: E402
+                       natural_key, sequential_decision)
 
 MODEL = load_model(str(ROOT / "model" / "perfield_mnv3s_384_s0.pt"))
 EXAMPLES = sorted([p for p in (HERE / "examples").glob("*") if p.is_dir()])
@@ -36,19 +36,8 @@ def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
         for p in paths:
             x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
             probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
-    order = spread_order(len(probs), max_fields)
-    bad = good = 0
-    call, used, stopped = None, len(order), False
-    for i, idx in enumerate(order, 1):
-        bad += int(probs[idx] > 0.5)
-        good += int(probs[idx] <= 0.5)
-        pb = beta_p_bad(bad, good)
-        if i >= min_fields and (pb > conf or (1 - pb) > conf):
-            call, used, stopped, p_final = ("fail" if pb > 0.5 else "pass"), i, True, pb
-            break
-    if call is None:
-        p_final = beta_p_bad(bad, good)
-        call = "inconclusive" if 0.35 < p_final < 0.65 else ("fail" if p_final > 0.5 else "pass")
+    dec = sequential_decision(probs, thr_conf=conf, max_fields=max_fields, min_fields=min_fields)
+    call, used, stopped, p_final = dec["call"], dec["n_fields"], dec["stopped"], dec["p_bad"]
 
     fig, ax = plt.subplots(figsize=(11, 2.4))
     fig.subplots_adjust(left=0.075, right=0.985, top=0.84, bottom=0.18)
@@ -94,18 +83,8 @@ def run_plate(files):
             for p in sorted(paths, key=lambda q: natural_key(Path(q))):
                 x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
                 probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
-        order = spread_order(len(probs), 20)
-        bad = good = 0
-        call, used = None, len(order)
-        for i, idx in enumerate(order, 1):
-            bad += int(probs[idx] > 0.5); good += int(probs[idx] <= 0.5)
-            pb = beta_p_bad(bad, good)
-            if i >= 8 and (pb > 0.9 or 1 - pb > 0.9):
-                call, used, p_final = ("fail" if pb > 0.5 else "pass"), i, pb
-                break
-        if call is None:
-            p_final = beta_p_bad(bad, good)
-            call = "inconclusive" if 0.35 < p_final < 0.65 else ("fail" if p_final > 0.5 else "pass")
+        dec = sequential_decision(probs)                  # shipped settings: conf 0.9, min 8, max 20
+        call, used, p_final = dec["call"], dec["n_fields"], dec["p_bad"]
         tot_avail += len(paths); tot_used += used
         rows.append([chip, call, round(p_final, 3), round(max(p_final, 1 - p_final), 3),
                      f"{used}/{len(paths)}"])
