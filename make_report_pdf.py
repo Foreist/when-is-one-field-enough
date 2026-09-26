@@ -26,7 +26,7 @@ table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm 0; font-size: 
 tr { page-break-inside: avoid; }
 th, td { border: 1px solid #bbb; padding: 1.2mm 2mm; text-align: left; }
 th { background: #f0f3f7; }
-img { max-width: 90%; display: block; margin: 3mm auto 1mm auto; page-break-inside: avoid; }
+img { max-width: 86%; display: block; margin: 3mm auto 1mm auto; page-break-inside: avoid; }
 em { color: #333; }
 code { background: #f4f4f4; padding: 0 1px; font-size: 9pt; }
 pre { background: #f7f7f7; border: 1px solid #ddd; padding: 2mm; font-size: 7.8pt; overflow-x: hidden;
