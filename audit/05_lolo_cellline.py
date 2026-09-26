@@ -98,9 +98,12 @@ def main():
     except FileNotFoundError:
         pass
     done = [v for v in res.values() if not v.get("skipped")]
+    pairs = [(v["auc"], v["seen_line_auc"]) for v in done if v.get("seen_line_auc") is not None]
     summary = dict(per_cell=res,
                    mean_acc=float(np.mean([v["acc"] for v in done])),
                    mean_auc=float(np.mean([v["auc"] for v in done])),
+                   mean_auc_drop_vs_seen_line=float(np.mean([b - a for a, b in pairs])) if pairs else None,
+                   n_lines_with_seen_auc=len(pairs),
                    note="test = all fields of the held-out cell line; sessions containing it are "
                         "excluded from training")
     (OUT / "lolo_cellline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1))

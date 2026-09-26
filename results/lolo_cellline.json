@@ -75,5 +75,7 @@
  },
  "mean_acc": 0.6703666986307107,
  "mean_auc": 0.7191590029273116,
- "note": "test = all fields of the held-out cell line; sessions containing it are excluded from training"
+ "note": "test = all fields of the held-out cell line; sessions containing it are excluded from training",
+ "mean_auc_drop_vs_seen_line": 0.16415247183090004,
+ "n_lines_with_seen_auc": 5
 }

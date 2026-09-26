@@ -696,7 +696,9 @@ nothing (§6.3).*
 
 **Deploying on a new cell line costs about seven AUC points on average and up to 22 accuracy
 points** (Caco-2, against the pooled 0.734; against Caco-2's own 89 fields in the session-disjoint
-test set, 0.742 → 0.512), and the per-line variation dominates. This is the strictest evaluation we have;
+test set, 0.742 → 0.512), and the per-line variation dominates. Measured line by line in the same
+way, the AUC drop averages 16 points over the five lines whose test fields contain both labels — but
+those baselines rest on 13 to 344 fields each, so the pooled 7 points is the steadier estimate. This is the strictest evaluation we have;
 we keep the session-disjoint protocol as the headline because it matches how such a tool would be
 used (a new chip of a known cell line), but any deployment to an unseen line needs re-calibration
 on that line.
