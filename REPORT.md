@@ -225,7 +225,8 @@ composition, so we hold everything else fixed:
   200 validation fields are identical too and outside both training sets);
 * the **model and budget are identical** (MobileNetV3-small [4], ImageNet-initialised, 6 epochs, 224 px);
 * the only difference is whether the training set may use *the other images of the test sessions*
-  (leaky) or must come from disjoint sessions (disjoint).
+  (leaky; they make up 27–50% of its training fields, depending on the seed) or must come from
+  disjoint sessions (disjoint).
 
 | arm | accuracy | AUC |
 |---|---|---|
@@ -234,7 +235,7 @@ composition, so we hold everything else fixed:
 | **inflation** (paired, 8 seeds) | **+7.9 pp** [4.2, 11.5] | **+8.9 pp** [6.7, 11.0] |
 
 ![Figure 2](figures/fig2_leakage.png)
-*Figure 2. (a) controlled A/B (8 seeds; paired inflation +7.9 pp accuracy, +8.9 pp AUC; both gains are positive in every seed: accuracy 4.2–17.8 pp, AUC 6.7–15.0 pp); (b) the shipped split versus a session-grouped split.*
+*Figure 2. (a) controlled A/B (8 seeds; paired inflation +7.9 pp accuracy, +8.9 pp AUC; positive in every seed — accuracy 4.2–17.8 pp, AUC 6.7–15.0 pp — and the AUC gain grows with the leaked share, r = 0.74); (b) shipped vs session-grouped split.*
 
 For reference, the shipped split yields **78.9% ± 0.07 pp / AUC 0.873** (mean ± s.d. over three
 seeds; the variation is tiny because all test sessions are seen in training), while a

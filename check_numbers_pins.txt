@@ -89,3 +89,6 @@
 89 lolo_cellline.json:per_cell.cell_type_CACO.seen_line_n d
 16 lolo_cellline.json:mean_auc_drop_vs_seen_line %.0f
 0.797 perfield_metrics_small512_s0.json:metrics_test.auc .3f
+27 leakage_ci.json:leaky_share_of_training.min %.0f
+50 leakage_ci.json:leaky_share_of_training.max %.0f
+0.74 leakage_ci.json:leaky_share_of_training.pearson_r_auc .2f
