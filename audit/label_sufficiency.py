@@ -7,13 +7,13 @@ Label-only analysis (no model):
  - agreement of a single image with the full-session majority (= how field-dependent the call is)
 Stratified by cell line and by day bucket.
 """
-import collections, json, random, re
+import collections, json, os, random, re
 from pathlib import Path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / "data" / "OOC_image_dataset"
+DATA = Path(os.environ.get("OOC_DATA", ROOT / "data" / "OOC_image_dataset"))
 OUT = Path(__file__).resolve().parent.parent / "results"
 PAT = re.compile(r"^(\d{6})_(\d+)\.png$")
 

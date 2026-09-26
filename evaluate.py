@@ -11,7 +11,7 @@ Reproduces:
 
 Outputs results/tool_evaluation.json
 """
-import argparse, collections, json, math, sys
+import argparse, collections, json, math, os, sys
 from pathlib import Path
 
 import numpy as np
@@ -44,8 +44,8 @@ def load_test_chips(data_root=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data-root", default=str(HERE.parent / "data" / "OOC_image_dataset"),
-                    help="path to the extracted OOC_image_dataset folder")
+    ap.add_argument("--data-root", default=os.environ.get("OOC_DATA", str(HERE.parent / "data" / "OOC_image_dataset")),
+                    help="recorded in the output only; images are located via OOC_DATA (audit/leakage_experiment.py)")
     ap.add_argument("--checkpoint", default=str(HERE / "model" / "perfield_mnv3s_384_s0.pt"))
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--max-fields", type=int, default=20)

@@ -48,6 +48,7 @@ Download and extract to `../data/OOC_image_dataset/` (or set `OOC_DATA`):
 ```bash
 mkdir -p ../data
 curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
+curl -L -o ../data/OOC_datasheet.xlsx "https://zenodo.org/api/records/10203721/files/OOC_datasheet.xlsx/content"   # metadata (§4.7)
 python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
 rm ooc.zip
 ```

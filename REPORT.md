@@ -846,7 +846,7 @@ pip install -r requirements.txt          # torch, torchvision, numpy, Pillow, sc
 mkdir -p ../data
 curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
 python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
-rm ooc.zip                                # lands at ../data/OOC_image_dataset/ (or set OOC_DATA)
+rm ooc.zip   # -> ../data/OOC_image_dataset/ (or set OOC_DATA); also fetch OOC_datasheet.xlsx (README §1)
 
 python3 audit/leakage_experiment.py     # published split: 57/59 sessions shared; shipped vs grouped (§4.1)
 python3 audit/leakage_controlled.py     # controlled A/B, +7.9 pp / +8.9 pp over 8 seeds (§4.1)

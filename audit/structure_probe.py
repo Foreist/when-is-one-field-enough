@@ -6,15 +6,15 @@ B) metadata association: label ~ day + seeding density + flow rate + cell line (
    and per-cell-line bad rates over all fields
 (image statistics are in recovery_test.py and 04b_run_image_stats.py)
 """
-import collections, json, math, re
+import collections, json, os, math, re
 from pathlib import Path
 
 import numpy as np
 from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / "data" / "OOC_image_dataset"
-SHEET = ROOT / "data" / "OOC_datasheet.xlsx"
+DATA = Path(os.environ.get("OOC_DATA", ROOT / "data" / "OOC_image_dataset"))
+SHEET = DATA.parent / "OOC_datasheet.xlsx"            # downloaded next to the image folder
 OUT = Path(__file__).resolve().parent.parent / "results"
 PAT = re.compile(r"^(\d{6})_(\d+)\.png$")
 
