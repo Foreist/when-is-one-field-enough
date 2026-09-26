@@ -85,3 +85,5 @@
 0.33 preprocessing_sensitivity.json:bundled_examples.borderline_chip.stored.p_bad .2f
 1,024 preprocessing_sensitivity.json:bundled_example_size.0 ,d
 768 preprocessing_sensitivity.json:bundled_example_size.1 d
+0.742 lolo_cellline.json:per_cell.cell_type_CACO.seen_line_acc .3f
+89 lolo_cellline.json:per_cell.cell_type_CACO.seen_line_n d

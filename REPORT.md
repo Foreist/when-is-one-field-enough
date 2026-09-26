@@ -695,7 +695,8 @@ the effect of any modelling choice we tested — a backbone with 2.8× the param
 nothing (§6.3).*
 
 **Deploying on a new cell line costs about seven AUC points on average and up to 22 accuracy
-points** (Caco-2), and the per-line variation dominates. This is the strictest evaluation we have;
+points** (Caco-2, against the pooled 0.734; against Caco-2's own 89 fields in the session-disjoint
+test set, 0.742 → 0.512), and the per-line variation dominates. This is the strictest evaluation we have;
 we keep the session-disjoint protocol as the headline because it matches how such a tool would be
 used (a new chip of a known cell line), but any deployment to an unseen line needs re-calibration
 on that line.

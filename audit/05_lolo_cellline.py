@@ -78,6 +78,25 @@ def main():
         print(f"{cell:<20} test n={len(sp['test']):>4} ({res[cell]['n_sessions_test']} sessions)  "
               f"acc {m['acc']:.3f}  bal {m['bal_acc']:.3f}  auc {m['auc']:.3f}  ({res[cell]['secs']:.0f}s)",
               flush=True)
+    # the same cell line inside the session-disjoint test set (all six lines seen in training),
+    # from the shipped model's predictions -- the like-for-like baseline for each held-out line
+    try:
+        from sklearn.metrics import roc_auc_score
+        from leakage_controlled import split_controlled
+        pr = json.loads((OUT / "perfield_preds_384_s0.json").read_text())["test"]
+        test = split_controlled(recs, seed=1000, n_test_sessions=25)["disjoint"]["test"]
+        cell_of = {(r["session"], int(r["name"].split("_")[1].split(".")[0])): r["cell"] for r in test}
+        seen = collections.defaultdict(lambda: ([], []))
+        for pv, yv, s, i in zip(pr["p"], pr["y"], pr["session"], pr["idx"]):
+            seen[cell_of[(s, i)]][0].append(pv); seen[cell_of[(s, i)]][1].append(yv)
+        for cell, (pv, yv) in seen.items():
+            if cell in res and not res[cell].get("skipped"):
+                pv, yv = np.array(pv), np.array(yv)
+                res[cell]["seen_line_acc"] = float(((pv > 0.5) == (yv == 0)).mean())
+                res[cell]["seen_line_auc"] = float(roc_auc_score(yv == 0, pv)) if 0 < yv.mean() < 1 else None
+                res[cell]["seen_line_n"] = int(len(pv))
+    except FileNotFoundError:
+        pass
     done = [v for v in res.values() if not v.get("skipped")]
     summary = dict(per_cell=res,
                    mean_acc=float(np.mean([v["acc"] for v in done])),
