@@ -153,8 +153,14 @@ are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a 
 inference.py            chip-level tool (per-field P(bad) -> call + confidence + fields used)
 evaluate.py             session-disjoint evaluation of the tool (reproduces section 3)
 model/                  MobileNetV3-small checkpoint + OOD reference statistics
-audit/                  audit scripts (findings 1-5), each writing JSON into results/
-results/                raw outputs: leakage, block structure, sampling, tool evaluation, QC maps
+audit/                  audit scripts (every number in REPORT.md), each writing JSON into results/
+results/                one JSON per claim, plus the capacity/resolution checkpoints
+figures.py              every figure in REPORT.md, from results/*.json
+demo/                   Gradio demo (app.py) and the 44 bundled example fields
+check_numbers.py        fails if a number in REPORT/README has no source in results/*.json;
+check_tables.py         ... and cell by cell for the report's tables (called by check_numbers.py)
+make_report_pdf.py      REPORT.md -> report.pdf
+demo_video.mp4          narrated demo (4:41)
 ```
 
 ## 6. Licence and attribution

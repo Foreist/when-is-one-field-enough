@@ -9,3 +9,5 @@ openpyxl>=3.1
 gradio>=4.0          # demo/app.py
 markdown>=3.5        # make_report_pdf.py
 playwright>=1.40     # make_report_pdf.py (run: playwright install chromium)
+onnxruntime>=1.16    # audit/12_onnx_parity.py only
+huggingface_hub>=0.20 # audit/12_onnx_parity.py only (downloads the browser model)
