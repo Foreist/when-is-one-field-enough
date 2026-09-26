@@ -440,8 +440,9 @@ document the two-mode observation as an *open problem*, not a feature.
 ### 4.6 Aggregation rules are a sensitivity/specificity dial
 
 If several fields are read, their scores must be combined. We compare three rules on per-field
-probabilities from a session-disjoint model, at a fixed field threshold chosen on validation, with
-the chip reference defined as before:
+probabilities from a session-disjoint model (a lighter 224 px, 6-epoch model than the shipped one,
+with its field threshold chosen on validation rather than the tool's 0.5), with the chip reference
+defined as before:
 
 | budget k | mean: acc / sens / spec | max: acc / sens / spec | top-2: acc / sens / spec |
 |---|---|---|---|
@@ -451,7 +452,7 @@ the chip reference defined as before:
 | 8 | 0.742 / 0.645 / 0.787 | 0.627 / 0.878 / 0.507 | 0.660 / 0.787 / 0.598 |
 | 12 | 0.742 / 0.851 / 0.710 | 0.570 / 1.000 / 0.354 | 0.631 / 0.997 / 0.452 |
 
-*Table 5. Aggregation rules (a 224 px, 6-epoch model per seed; 2 seeds, each with its own split of 25 held-out sessions; 60 random k-field draws per chip, shared by all rules; chips with < k fields excluded; averaged over the two seeds). The field threshold, chosen on validation by balanced accuracy, is 0.30 and 0.25 for the two seeds.*
+*Table 5. Aggregation rules (2 seeds, each its own split of 25 held-out sessions; 60 random k-field draws per chip, shared by all rules; chips with < k fields excluded). Field thresholds, chosen on validation by balanced accuracy: 0.30 and 0.25.*
 
 `mean` maximises chip accuracy and keeps specificity high; `max` maximises sensitivity (it calls
 almost everything bad: specificity collapses to 0.35 at k=12) and `top-2` sits between. **The
