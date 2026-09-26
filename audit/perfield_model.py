@@ -134,8 +134,14 @@ def main():
         ps, ys = pt[m], yt[m]
         per_sess[s] = dict(n=int(m.sum()), bad_frac=float((ys == 0).mean()),
                            acc=float(((ps > 0.5) == (ys == 0)).mean()))
-    tag = f"{args.arch}{args.size}{'tta' if args.tta else ''}_s{args.seed}"
-    torch.save(model.state_dict(), OUT / f"perfield_{tag}.pt")
+    # the shipped configuration keeps the names the rest of the repo reads:
+    # results/perfield_{preds,metrics}_384_s0.json and model/perfield_mnv3s_384_s0.pt
+    arch_tag = "" if args.arch == "small" and args.size == 384 else args.arch
+    tag = f"{arch_tag}{args.size}{'tta' if args.tta else ''}_s{args.seed}"
+    if arch_tag == "" and not args.tta:
+        torch.save(model.state_dict(), OUT.parent / "model" / f"perfield_mnv3s_{args.size}_s{args.seed}.pt")
+    else:
+        torch.save(model.state_dict(), OUT / f"perfield_{tag}.pt")
     (OUT / f"perfield_preds_{tag}.json").write_text(json.dumps(dict(
         size=args.size, epochs=args.epochs, seed=args.seed, meta=sp["meta"],
         test=dict(p=[round(float(v), 5) for v in pt], y=[int(v) for v in yt],
