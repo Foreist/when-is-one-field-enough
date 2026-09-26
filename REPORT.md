@@ -856,7 +856,7 @@ python3 audit/label_sufficiency.py      # single-field agreement, Table 2 (§4.2
 python3 audit/adaptive_sampling.py      # policy comparison on labels, Table 3 (§4.3)
 python3 audit/03c_policy_model_in_loop.py   # ... with the model in the loop, Table 4 (§4.3)
 python3 audit/03d_policy_bootstrap.py   # paired bootstrap CIs over chips, Figure 4c (§4.3)
-python3 audit/06_oct_leakage.py         # second benchmark, 40% of test files leak (§4.4)
+python3 audit/06_oct_leakage.py         # second benchmark, 40% of test images leak (§4.4)
 python3 audit/recovery_test.py          # re-image vs discard, negative result (§4.5)
 python3 audit/04b_run_image_stats.py    # focus/darkness of isolated vs long bad runs (§4.5)
 python3 audit/aggregation_experiment.py # mean / max / top-2 aggregation, Table 5 (§4.6)

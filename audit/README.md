@@ -22,7 +22,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 3f | `label_vs_model_same_rule.py` | `label_vs_model.json` | deployed rule on the same 25 chips, ground-truth labels vs model calls (REPORT §6.7) |
 | 4 | `recovery_test.py` | `recovery_test.json` | **negative result**: re-image/discard is not predictable |
 | 4a | `04b_run_image_stats.py` | `run_image_groups.json` | focus and darkness of isolated vs long bad runs vs good fields (motivation in REPORT §4.5) |
-| 4b | `06_oct_leakage.py` | `oct_leakage.json` | second benchmark: 40% of test files share a (well, day) with training |
+| 4b | `06_oct_leakage.py` | `oct_leakage.json` | second benchmark: 40% of test images (2,792 of 6,980) share a (well, day) with training |
 | 5 | `perfield_model.py` | `perfield_*.pt/json` | trains the deployed per-field model (`--arch large`, `--size 512` for the capacity/resolution checks) |
 | 5b | `05_lolo_cellline.py` | `lolo_cellline.json` | leave-one-cell-line-out: unseen cell line costs ~7 AUC points |
 | 5b | `qc_map.py` | `qc_maps_384.png` | per-chip QC maps |
