@@ -116,8 +116,11 @@ many fields were spent. On the 25 test chips: **238 of 684 fields used (65% save
 
 Pick a bundled example chip or upload the fields of your own chip; the app shows the chip call,
 the posterior confidence, the number of fields used and the per-field QC map. Three example chips
-are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a mostly-good chip, a
-100%-bad chip and a borderline chip.
+are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a mostly-good chip
+(pass, 8 of 12 fields), a 100%-bad chip (fail, 11 of 12) and a borderline chip whose majority is `bad`
+(59%) — the 20 bundled fields are 9 predicted bad and 11 good, so the tool exhausts its budget and
+returns *pass* at confidence 0.67, a wrong call made visibly unconfident. (On the full test half of
+that session it returns *inconclusive*.)
 
 ### Input / output formats
 
