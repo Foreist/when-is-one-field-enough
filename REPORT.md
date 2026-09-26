@@ -285,9 +285,8 @@ is therefore not redundancy; **failures occupy contiguous regions of the chip**.
 
 **Effective sample size.** With a session-level intraclass correlation of **ICC = 0.321** and an ANOVA-adjusted mean
 cluster size of m ≈ 51 fields, the design effect is `1 + (m−1)·ICC = 17.0`, so for estimating a metric
-the benchmark carries the information of roughly **3,072 / 17 ≈ 181 independent labels** (a model
-may still exploit correlated fields in ways an estimator cannot, so this is a bound on
-*estimation*, not on learning). The mean lag-1 autocorrelation
+the benchmark carries the information of roughly **3,072 / 17 ≈ 181 independent labels** — an
+order of magnitude for estimating a metric (hundreds, not thousands), not a limit on learning. The mean lag-1 autocorrelation
 is 0.32 (53% of sessions above 0.3).
 
 ![Figure 3](figures/fig3_label_structure.png)
@@ -815,9 +814,9 @@ settle it, and would be a small, valuable addition to this benchmark.
 5. **Sampling policies could not be ranked.** The label-based comparison (§4.3, Table 3) is
    underpowered when repeated with the model in the loop (13–15 chips; no paired difference
    survives a correction for six comparisons). We report the policy we use and the failure that motivates it, not a ranking.
-6. **Labels come from a four-rater majority**, so the ceiling of any model on this benchmark is the
-   agreement among experts, which is not public. Our numbers are therefore a lower bound in that
-   specific sense, while the leakage inflation is an upper-bound problem.
+6. **Labels come from a four-rater majority**, and inter-rater agreement is not public, so we cannot
+   say how close any accuracy here is to the ceiling the labels allow; some of the measured error may
+   be label noise rather than model error.
 7. **Generalisation to a new cell line is untested in deployment.** Held-out cell lines cost
    ~7 AUC points on average (0.791 → 0.719) and the spread between lines dominates every modelling
    choice we tested (§6.6). The tool is validated for cell lines it has seen.
