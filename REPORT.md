@@ -228,16 +228,16 @@ composition, so we hold everything else fixed:
 
 | arm | accuracy | AUC |
 |---|---|---|
-| session-disjoint | **67.4%** (± 6.8) | **0.753** |
-| same sessions in training (leaky) | **75.2%** (± 3.3) | **0.842** |
+| session-disjoint (mean ± s.d. over seeds) | **67.4%** (± 6.8 pp) | **0.753** |
+| same sessions in training (leaky) | **75.2%** (± 3.3 pp) | **0.842** |
 | **inflation** (paired, 8 seeds) | **+7.9 pp** [4.2, 11.5] | **+8.9 pp** [6.7, 11.0] |
 
 ![Figure 2](figures/fig2_leakage.png)
 *Figure 2. (a) controlled A/B (8 seeds; paired inflation +7.9 pp accuracy, +8.9 pp AUC; both gains are positive in every seed: accuracy 4.2–17.8 pp, AUC 6.7–15.0 pp); (b) the shipped split versus a session-grouped split.*
 
-For reference, the shipped split yields **78.9% ± 0.07 / AUC 0.873** (seed-to-seed variation is
-tiny because all test sessions are seen in training), while a session-grouped split that keeps all
-six cell lines yields **56.0% ± 7.2 / AUC 0.684** — a 22.9 pp gap that mixes leakage with the small
+For reference, the shipped split yields **78.9% ± 0.07 pp / AUC 0.873** (mean ± s.d. over three
+seeds; the variation is tiny because all test sessions are seen in training), while a
+session-grouped split that keeps all six cell lines yields **56.0% ± 7.2 pp / AUC 0.684** — a 22.9 pp gap that mixes leakage with the small
 number of held-out sessions (six). We therefore treat the **controlled A/B as the headline number**
 and report the shipped/grouped pair only as context.
 
