@@ -136,10 +136,10 @@ def fig_tool():
     fixed = t["chip_fixed_k_spread"]
     fig, ax = plt.subplots(1, 3, figsize=(13, 3.2))
     ax[0].plot(mins, [seq[str(m)]["chip_acc_among_confident"] for m in mins], "o-",
-               color="#4a6fa5", label="sequential (spread fields)")
+               color="#4a6fa5", label="sequential, on the chips it calls")
     ax[0].plot([int(k) for k in fixed], [fixed[k] for k in fixed], "s--",
-               color="#95a5a6", label="fixed k")
-    ax[0].set_xlabel("minimum fields before a stop is allowed / fixed budget")
+               color="#95a5a6", label="cap of k spread fields, all 25 chips")
+    ax[0].set_xlabel("minimum fields before a stop is allowed / cap k")
     ax[0].set_ylabel("chip accuracy"); ax[0].legend(fontsize=8); ax[0].set_ylim(0.6, 0.9)
     ax[0].set_title("(a) chip-level accuracy", fontsize=9, loc="left")
     ax[1].plot(mins, [100 * seq[str(m)]["false_confident_rate"] for m in mins], "o-", color="#c0392b")

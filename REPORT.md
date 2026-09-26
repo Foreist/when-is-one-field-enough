@@ -558,7 +558,8 @@ not for a measured gain.
 
 ![Figure 5](figures/fig5_tool.png)
 *Figure 5. Tool behaviour versus the minimum-fields guard, swept on the 25 test chips (the sweep
-the value 8 was read from; §6.2(c) re-selects it without them).*
+the value 8 was read from; §6.2(c) re-selects it without them). In (a) the sequential curve is
+accuracy on the chips it calls (23–24 of 25); the grey curve is a cap of k spread fields on all 25.*
 
 **Capacity is not the bottleneck.** We trained a backbone with 2.8× the parameters (MobileNetV3-large, same
 384 px, same split and schedule; batch 8 instead of 32 to fit memory). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from

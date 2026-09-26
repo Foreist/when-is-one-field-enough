@@ -123,7 +123,7 @@ def main():
                           false_confident_rate=float(np.mean(wrong_conf)) if n_conf else float("nan"),
                           outcomes=dict(outcomes), n_chips=len(chips))
 
-    # ---- chip-level: fixed k, spread sampling ----
+    # ---- chip-level: cap of k spread fields (all fields if the chip has fewer) ----
     fixed = {}
     for k in [3, 5, 8, 12, 20]:
         acc = []
