@@ -3,8 +3,8 @@
 """Does the browser model (ONNX, on the Hugging Face demo) give the same P(bad) as the PyTorch checkpoint?
 
 Runs both on the 44 bundled example fields and reports the largest absolute difference in the
-softmax output. Needs onnxruntime and huggingface_hub (not in requirements.txt: only this check
-uses them).
+softmax output. Needs onnxruntime and huggingface_hub (listed in requirements.txt; only this
+check uses them).
 
 Writes results/onnx_parity.json
 """
