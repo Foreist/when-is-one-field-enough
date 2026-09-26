@@ -99,6 +99,18 @@ def main():
     bad += check_pins(docs)
     import subprocess
     bad += subprocess.call([sys.executable, str(HERE / "check_tables.py")])   # cell-by-cell table check
+    try:                                                   # the competition caps the report at 20 pages
+        import pypdf
+        pdf = HERE / "report.pdf"
+        n_pages = len(pypdf.PdfReader(str(pdf)).pages)
+        if n_pages > 20:
+            bad += 1
+            print(f"report.pdf has {n_pages} pages (limit 20)", file=sys.stderr)
+        if pdf.stat().st_mtime < (HERE / "REPORT.md").stat().st_mtime:
+            bad += 1
+            print("report.pdf is older than REPORT.md -- run make_report_pdf.py", file=sys.stderr)
+    except ImportError:
+        pass
     sys.exit(1 if bad else 0)
 
 
