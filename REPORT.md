@@ -416,7 +416,9 @@ dark fraction 0.137 vs 0.094 — bubbles and defocus), whereas long bad runs are
 higher in contrast (s.d. 0.243 vs 0.199; `audit/04b_run_image_stats.py`); and visually,
 4/4 sampled isolated-bad fields showed bubbles or defocus.
 
-We constructed a target — a run "recovers" if the next five fields are majority `good` — and tried
+We constructed a target — a run of `bad` fields "recovers" if at least three of the next five
+fields are `good`; runs followed by fewer than five fields, including the 30 of 250 that reach the
+end of the session, count as not recovering (base rate 62.4%) — and tried
 to predict it from features available at decision time (run length, whether the run reaches the end
 of the session, focus, darkness, artifact scores), with **session-grouped cross-validation**.
 
