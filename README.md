@@ -97,7 +97,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** |
 | plain cap of 12 spread fields (for comparison) | 9.0 fields, 0.800 — as frugal, but only at 12 (cap 8: 0.720, cap 20: 0.760); no confidence, no *inconclusive* |
 | **min-8 and cap-12 re-selected without the test chips** (5-fold CV, 34 other sessions) | min **1** (0.680 here) and cap **20** (0.760 here); on those 68 chips the rule matches read-everything (0.765–0.779 vs 0.765) with 5.3–9.9 of 24.9 fields (`audit/09_inner_cv_minfields.py`) |
-| held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution) |
+| held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution; line by line against each line's own test fields the AUC drop averages 16 points) |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 | **full held-out sessions** (all 1,377 fields; the rows above use the withheld half of each session) | read-everything 0.76 with 55.1 fields; shipped rule **0.76 with 9.0 fields**, no deferral, 6/25 confident-but-wrong (`audit/08_full_sessions.py`) |
 
