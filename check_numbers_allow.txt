@@ -16,3 +16,4 @@
 127.0           # localhost
 1e-6            # p-value floor printed as "<1e-6" in Table 1
 3e-4            # AdamW learning rate (audit/perfield_model.py --lr default)
+1e-5            # LOLO cosine floor (audit/05_lolo_cellline.py eta_min)

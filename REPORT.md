@@ -686,8 +686,9 @@ in any deployment decision.
 
 The session-disjoint protocol of §6.3 keeps all six cell lines in training. To measure a stricter
 setting we hold out one cell line entirely — test = all of its fields, train = the other five with
-any session containing the held-out line removed — and retrain the deployed configuration
-(`audit/05_lolo_cellline.py`):
+any session containing the held-out line removed — and retrain the deployed architecture and
+input size for 25 epochs (batch 16 and a cosine floor of 1e-5 instead of 32 and lr/30, no validation
+split, one seed; `audit/05_lolo_cellline.py`):
 
 | held-out cell line | test fields (sessions) | accuracy | balanced acc | AUC |
 |---|---|---|---|---|

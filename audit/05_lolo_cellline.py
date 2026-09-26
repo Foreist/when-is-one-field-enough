@@ -7,7 +7,8 @@ ask what happens on a *new* cell line. For each cell line X:
   test  = all fields of cell line X
   train = fields of the other five cell lines, excluding any session that also contains X
           (otherwise the same chip would appear on both sides)
-Model: the deployed configuration (MobileNetV3-small, 384 px, 25 epochs).
+Model: the deployed architecture and input size (MobileNetV3-small, 384 px, 25 epochs); batch 16 and
+a cosine floor of 1e-5 (the shipped model used 32 and lr/30); no model selection, so `val` is unused.
 
 Writes results/lolo_cellline.json
 """
