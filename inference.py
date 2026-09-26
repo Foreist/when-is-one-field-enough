@@ -157,7 +157,7 @@ def plate_triage(root, model, ref, args, out):
         rows.append(dict(chip=d.name, call=call, p_bad=round(dec["p_bad"], 3),
                          confidence=round(max(dec["p_bad"], 1 - dec["p_bad"]), 3),
                          fields_used=dec["n_fields"], fields_available=len(files),
-                         attention_rank=rank))
+                         attention_rank=rank, short_chip=len(files) < args.min_fields))
         tot_fields += len(files); tot_used += dec["n_fields"]
     rows.sort(key=lambda r: (r["attention_rank"], -r["p_bad"]))
     summary = dict(chips=len(rows), fields_available=tot_fields, fields_used=tot_used,
@@ -227,6 +227,9 @@ def main():
         chip_p_bad=round(dec["p_bad"], 4),
         confidence=round(max(dec["p_bad"], 1 - dec["p_bad"]), 4),
         stopped_early=dec["stopped"],
+        warning=(f"only {len(files)} field(s), fewer than the {args.min_fields}-field minimum: the guard "
+                 "never applies; 2 of the 10 such test chips were called wrong, both chips whose "
+                 "fields the model mostly misread (field accuracy 0.20 and 0.17; REPORT Table 7)") if len(files) < args.min_fields else None,
         mean_p_bad_all_fields=round(mean_bad, 4),
         image_statistics_distance=round(d, 3),
         reliability=dict(

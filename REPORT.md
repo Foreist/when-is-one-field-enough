@@ -652,8 +652,9 @@ last twenty), so an unguarded rule stopped early with a confident *pass*.
 *Table 7. The 25 unseen test chips, sorted by the true share of bad fields. The deployed rule
 (spread fields, min 8, conf 0.9) makes four wrong calls — 220706 (100% bad, 5 fields) and 230403
 (83% bad, 6 fields) called *pass* with confidence 0.89 and 0.99, 230314 (64% bad) *pass* at 0.91,
-230425 (49% bad) *fail* at 0.93 — and returns *inconclusive* on 220606 and 230529. Short chips
-cannot reach the min-8 guard, so they are the most exposed.*
+230425 (49% bad) *fail* at 0.93 — and returns *inconclusive* on 220606 and 230529. Chips with fewer
+than 8 fields never reach the min-8 guard; they account for 2 of the 4 wrong calls (2 of 10 such
+chips, versus 2 of 15 larger ones).*
 
 **Out-of-distribution detection failed.** We tested two standard detectors against the training
 fields: a Mahalanobis distance on four image statistics (mean, standard deviation, mean absolute
