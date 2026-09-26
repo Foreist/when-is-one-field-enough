@@ -21,14 +21,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 from inference import (MODEL_CARD, TF, beta_p_bad, load_model,  # noqa: E402
-                       spread_order)
+                       natural_key, spread_order)
 
 MODEL = load_model(str(ROOT / "model" / "perfield_mnv3s_384_s0.pt"))
 EXAMPLES = sorted([p for p in (HERE / "examples").glob("*") if p.is_dir()])
 
 
 def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
-    paths = sorted([Path(f) for f in files], key=lambda p: p.name)
+    paths = sorted([Path(f) for f in files], key=natural_key)
     if not paths:
         return None, "upload at least one image (one chip per run)", ""
     probs = []
@@ -70,7 +70,8 @@ def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
            f"- fields used: **{used} / {len(probs)}**{'  (early stop)' if stopped else '  (budget exhausted)'}\n"
            f"- model card: field acc {MODEL_CARD['field_accuracy']}, "
            f"chip acc among called chips {MODEL_CARD['chip_accuracy_among_confident']}, "
-           f"false-confident {MODEL_CARD['false_confident_rate']}")
+           f"false-confident {MODEL_CARD['false_confident_rate']} "
+           f"(min_fields 8 was tuned on the test chips; untuned: 0.680)")
     report = json.dumps(dict(call=call, p_bad=p_final, fields_used=used,
                              n_fields=len(probs), per_field=[round(p, 4) for p in probs],
                              model_card=MODEL_CARD), indent=1)
@@ -90,7 +91,7 @@ def run_plate(files):
     for chip, paths in sorted(groups.items()):
         probs = []
         with torch.no_grad():
-            for p in sorted(paths):
+            for p in sorted(paths, key=lambda q: natural_key(Path(q))):
                 x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
                 probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
         order = spread_order(len(probs), 20)

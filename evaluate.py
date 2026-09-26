@@ -134,6 +134,14 @@ def main():
             acc.append(int(int(np.mean([probs[i] for i in idx]) > 0.5) == ref_bad))
         fixed[k] = float(np.mean(acc))
 
+    # Wilson 95% interval for the shipped rule's accuracy on the chips it calls
+    m8 = seq[8]
+    n8, k8 = m8["n_confident"], round(m8["chip_acc_among_confident"] * m8["n_confident"])
+    z = 1.959963984540054
+    ctr = (k8 + z * z / 2) / (n8 + z * z)
+    half = z * np.sqrt(k8 * (n8 - k8) / n8 + z * z / 4) / (n8 + z * z)
+    wilson = [round(float(ctr - half), 3), round(float(ctr + half), 3)]
+
     out = dict(
         data_root=args.data_root, checkpoint=Path(args.checkpoint).name,
         n_chips=len(chips), n_fields=int(len(P)),
@@ -143,6 +151,8 @@ def main():
         chip_fixed_k_spread=fixed,
         note="sequential stopping uses a Beta(1,1) posterior on the bad fraction with "
              "evenly spread fields; min_fields guards against stopping on a lucky good region",
+        chip_acc_among_confident_wilson95=wilson,
+        note_ci=f"Wilson interval over {n8} confident calls ({len(chips) - n8} of {len(chips)} chips were inconclusive)",
     )
     (HERE / "results" / "tool_evaluation.json").write_text(json.dumps(out, indent=1))
     print(json.dumps(out, indent=1))

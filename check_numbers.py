@@ -96,6 +96,8 @@ def main():
                 print(f"{doc.name}:{ln}: {m.group(0)!r}  | {line.strip()[:110]}")
     print(f"\n{bad} unexplained numbers", file=sys.stderr)
     bad += check_pins(docs)
+    import subprocess
+    bad += subprocess.call([sys.executable, str(HERE / "check_tables.py")])   # cell-by-cell table check
     sys.exit(1 if bad else 0)
 
 

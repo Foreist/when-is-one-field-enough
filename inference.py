@@ -92,6 +92,8 @@ MODEL_CARD = {
     "protocol": "session-disjoint split (no chip appears in both train and test)",
     "settings": "spread-field sequential stopping, Beta(1,1) posterior, conf 0.90, min_fields 8",
     "measured_by": "evaluate.py",
+    "caveat": "min_fields 8 was chosen on these 25 test chips; re-selected without them it would be 1, "
+              "which scores 0.680 (results/inner_cv_minfields.json), so 0.826 / 0.13 are optimistic",
 }
 
 
