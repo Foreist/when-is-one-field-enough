@@ -191,7 +191,8 @@ number that was never tuned; none of the three was varied on the test chips. `mi
 replaces "the first `k` fields" after the failure described in §6.2.
 
 **Metrics.** *Field accuracy* is the fraction of fields whose predicted side of 0.5 matches the
-expert label. *Chip reference* is the session's majority label. *Chip accuracy among called
+expert label. *Chip reference* is the session's majority label (a tie counts as `good`; one test
+chip, 220606, is tied). *Chip accuracy among called
 chips* counts every chip that received a *pass* or *fail* — whether the rule stopped at confidence
 ≥ 0.9 or exhausted the budget outside the inconclusive band; *false-confident rate* is the fraction
 of called chips whose call was wrong with posterior confidence ≥ 0.9; *inconclusive rate* is the
