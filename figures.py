@@ -34,7 +34,7 @@ def fig_dataset():
     ax[0].set_title(f"(a) 59 sessions, {sizes.sum()} fields  (median {int(np.median(sizes))})", fontsize=9, loc="left")
     ax[1].bar(np.arange(len(badf)), badf[order], color="#c0392b", width=1.0)
     ax[1].set_xlabel("session (sorted)"); ax[1].set_ylabel("share of fields labelled bad")
-    ax[1].axhline(np.mean(badf), color="k", ls="--", lw=1, label=f"mean {np.mean(badf):.2f}")
+    ax[1].axhline(np.mean(badf), color="k", ls="--", lw=1, label=f"mean over sessions {np.mean(badf):.2f}")
     ax[1].legend(fontsize=8)
     ax[1].set_title("(b) expert 'bad' share varies from 0% to 100% per session", fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig1_dataset.png", dpi=150); plt.close(fig)
@@ -84,7 +84,7 @@ def fig_label_structure():
     for i, v in enumerate([b["runlen_mean"], b["runlen_iid_expected"]]):
         ax[1].text(i, v + 0.05, f"{v:.2f}", ha="center", fontsize=9)
     ax[1].set_ylabel("mean run length (fields)")
-    ax[1].set_title("(b) bad runs are 3x longer than chance", fontsize=9, loc="left")
+    ax[1].set_title("(b) runs of equal labels are 3x longer than chance", fontsize=9, loc="left")
     icc, deff, neff = b["icc_session"], b["deff_session"], b["n_eff_session"]
     ax[2].bar(["ICC", "design\neffect / 20", "effective N\n/ 1000"],
               [icc, deff / 20, neff / 1000], color=["#4a6fa5", "#c0392b", "#c0392b"])
