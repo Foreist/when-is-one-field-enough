@@ -100,7 +100,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 | **full held-out sessions** (all 1,377 fields; the rows above use the withheld half of each session) | read-everything 0.76 with 55.1 fields; shipped rule **0.76 with 9.0 fields**, no deferral, 6/25 confident-but-wrong (`audit/08_full_sessions.py`) |
 
-`evaluate.py` reproduces this table on the session-disjoint split.
+The rows come from `evaluate.py` (field metrics, the sequential rule), `audit/07_efficiency.py` (read-everything and cap rows), `audit/09_inner_cv_minfields.py` (re-selection), `audit/05_lolo_cellline.py`, `audit/perfield_model.py` (larger backbone / 512 px) and `audit/08_full_sessions.py`.
 
 ### Demo
 
@@ -154,7 +154,7 @@ that session it returns *inconclusive*.)
 
 ```
 inference.py            chip-level tool (per-field P(bad) -> call + confidence + fields used)
-evaluate.py             session-disjoint evaluation of the tool (reproduces section 3)
+evaluate.py             session-disjoint evaluation of the tool (field metrics, sequential rule)
 model/                  MobileNetV3-small checkpoint + OOD reference statistics
 audit/                  audit scripts (every number in REPORT.md), each writing JSON into results/
 results/                one JSON per claim, plus the capacity/resolution checkpoints

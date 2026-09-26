@@ -3,8 +3,8 @@
 
 1) intraclass correlation (ICC) of the binary label within sessions / cell-type runs
 2) lag-1 autocorrelation and run-length distribution
-3) field-sampling simulation: how many fields to call a chip, under the measured
-   block structure vs the i.i.d. assumption
+3) field-sampling simulation: agreement of a k-field random-sample majority with the session
+   majority (saved as sampling_sim; not used in the report, which uses label_sufficiency.py)
 """
 import collections, json, math
 from pathlib import Path

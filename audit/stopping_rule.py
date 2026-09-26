@@ -6,6 +6,7 @@ Naive rule : Beta(1,1) posterior on the bad fraction assuming i.i.d. fields;
 Corrected  : same, but with the empirical design-effect correction for random
              within-session sampling (n_eff = k / deff_emp), measured first.
 
+The report quotes only the naive rule (§6.7).
 Reported   : mean fields used, share of chips stopped early, and — crucially —
              the share of stops that are BOTH confident and WRONG (false confidence).
 """

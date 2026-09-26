@@ -3,11 +3,11 @@
 """Honest evaluation of the deployed tool on the SESSION-DISJOINT test chips.
 
 Reproduces:
-  1. split leakage: published split vs session-grouped, same model/budget
-  2. per-field accuracy / AUC on 25 unseen chips
-  3. chip-level decisions: all-field mean vs sequential stopping (with a
-     minimum-fields guard), including the FALSE-CONFIDENCE rate
-  4. (the controlled split-leakage inflation, +7.9 pp, is audit/leakage_controlled.py)
+  1. per-field accuracy / AUC on 25 unseen chips
+  2. chip-level decisions: all-field mean, a cap of k spread fields, and sequential stopping
+     for each minimum-fields guard, including the FALSE-CONFIDENCE rate and the Wilson
+     interval for the shipped setting
+(split leakage is audit/leakage_experiment.py and audit/leakage_controlled.py)
 
 Outputs results/tool_evaluation.json
 """

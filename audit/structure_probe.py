@@ -2,8 +2,9 @@
 """Look for hidden structure in the OOC Image Dataset beyond "binary QC".
 
 A) positional/acquisition structure: is the good/bad label autocorrelated within a session?
-B) metadata association: label ~ day + seeding density + flow rate + cell line (observational)
-C) image-statistics decomposition: focus/contrast/artifact proxies vs label
+B) metadata association: label ~ day + seeding density + flow rate + cell line (observational),
+   and per-cell-line bad rates over all fields
+(image statistics are in recovery_test.py and 04b_run_image_stats.py)
 """
 import collections, json, math, re
 from pathlib import Path

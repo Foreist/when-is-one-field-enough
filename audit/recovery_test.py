@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Can the decision rule (re-image vs discard) be validated with a constructed target?
 
-Target  : a bad run "recovers" if the NEXT 5 fields are majority good.
-          Runs that reach the session end get recovery = 0 (no recovery observed).
+Target  : a bad run "recovers" if at least 3 of the NEXT 5 fields are good.
+          Runs followed by fewer than 5 fields (including those that reach the session end)
+          get recovery = 0 (no recovery observed).
 Features: available at decision time from the run itself —
           run length, reaches-session-end, focus (laplacian), dark fraction,
           fraction of run images that look like bubbles/blur.

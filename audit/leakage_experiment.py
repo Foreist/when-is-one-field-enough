@@ -2,7 +2,8 @@
 """OOC Image Dataset — does the published (image-level) split leak sessions?
 
 A: published split as shipped in the zip  (train/val/test folders)
-B: session-grouped split rebuilt from all images (no session spans two splits)
+B: session-grouped split rebuilt from all images (no session spans two splits; all six cell
+   lines kept, six test sessions)
 
 Same model, same budget, 3 seeds. Report test acc/AUC gap.
 
