@@ -308,12 +308,13 @@ Agreement degrades with culture age and is cell-line dependent:
 | HUVEC | 107 | 0.991 |
 | NHBE | 138 | 0.826 |
 
-*Table 2. Single-field agreement with the session's majority label, by culture age and cell line. Late cultures are the hardest, and no cell line is uniformly easy.*
+*Table 2. Single-field agreement with the session's majority label, by culture age and cell line, counting every field once (74.1% over all 3,072 fields; the 78.8% in the text gives each session equal weight, see below). Late cultures are the hardest, and no cell line is uniformly easy.*
 
 **Consequence for labels, not just for statistics.** If the label were a property of the chip, a
-single field would predict the session's majority label almost perfectly. It does not: a single
-field agrees with the session majority **78.8%** of the time, three fields 84.1%, five 87.4%, and
-even ten fields only **91.0%**. Agreement is worse for late cultures (4+ days: 67.6% for a single
+single field would predict the session's majority label almost perfectly. It does not: a randomly
+drawn field agrees with the session majority **78.8%** of the time, three fields 84.1%, five 87.4%, and
+even ten fields only **91.0%** (up to 50 random draws per session, so each session weighs about
+equally; counting every field once instead gives 74.1% for one field). Agreement is worse for late cultures (4+ days: 67.6% for a single
 field) than for day 0–1 (80.5%). The "quality" of a chip is therefore **a property of a region and
 of the sampling**, not of an image.
 

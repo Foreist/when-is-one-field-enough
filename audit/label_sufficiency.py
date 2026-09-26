@@ -83,7 +83,15 @@ def main():
                 out[k][1] += 1
         return {k: dict(n=n, agree=round(a / n, 3)) for k, (a, n) in sorted(out.items())}
 
+    # field-weighted single-field agreement (every field counts once; ties -> 'bad' majority as in strat)
+    a_all = n_all = 0
+    for s, v in by_sess.items():
+        labels = [1 if r["cls"] == "good" else 0 for r in v]
+        fm = int(round(np.mean(labels)))
+        a_all += sum(int(y == fm) for y in labels); n_all += len(labels)
+
     res = dict(
+        single_field_agreement_field_weighted=a_all / n_all,
         n_images=len(recs), n_sessions=len(by_sess),
         sessions_mixed=len(mixed),
         minority_share_mean=float(minority.mean()),
