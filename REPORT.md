@@ -271,12 +271,14 @@ where 107.3 were expected, 215 fields).
 
 **This is not a cell-type artifact.** A session can contain several cell types imaged in contiguous
 blocks, which would create clustering for trivial reasons. Restricting the test to *maximal
-contiguous same-cell-type stretches*, **38 of 72 stretches remain significant** (57/72 clustered).
+contiguous same-cell-type stretches* (at least 8 fields and both labels present; 72 stretches from
+41 sessions), **38 of 72 remain significant** (57/72 clustered).
 
 **It is not duplicate frames either.** In the six largest sessions, downscaled correlation between
-consecutive fields is 0.58–0.74 (random pairs in the same sessions: 0.06–0.36; 12 sessions sampled,
-mean 0.54 vs 0.28), i.e. consecutive fields are spatially adjacent — but a greedy
-view-clustering at r > 0.95 finds **1,161 distinct views among 1,183 images (98%)**. The clustering
+consecutive fields is 0.58–0.74 (random pairs in the same sessions: 0.06–0.36; over the six largest
+and six smallest sessions, mean 0.54 vs 0.28), i.e. consecutive fields are spatially adjacent — but
+counting a new view whenever a field's correlation with the previous one falls below 0.95 gives
+**1,161 distinct views among 1,183 images (98%)**. The clustering
 is therefore not redundancy; **failures occupy contiguous regions of the chip**.
 
 **Effective sample size.** With a session-level intraclass correlation of **ICC = 0.321** and an ANOVA-adjusted mean
@@ -330,14 +332,15 @@ measured **label sequences** at a fixed budget *k* (300 trials per session):
 
 | budget k | random: acc / recall / err | window: acc / recall / err | adaptive: acc / recall / err |
 |---|---|---|---|
-| 2 | 0.822 / 0.095 / 0.182 | 0.812 / 0.096 / 0.222 | 0.808 / 0.105 / 0.206 |
-| 4 | 0.860 / 0.196 / 0.119 | 0.833 / 0.188 / 0.174 | 0.838 / 0.214 / 0.153 |
-| 8 | 0.907 / 0.351 / 0.074 | 0.886 / 0.328 / 0.129 | 0.851 / 0.391 / 0.120 |
-| 12 | 0.920 / 0.429 / 0.055 | 0.891 / 0.413 / 0.106 | 0.849 / 0.474 / 0.110 |
-| 20 | 0.922 / 0.402 / 0.046 | 0.876 / 0.380 / 0.107 | 0.789 / 0.482 / 0.137 |
+| 2 | 0.777 / 0.098 / 0.182 | 0.787 / 0.095 / 0.220 | 0.772 / 0.103 / 0.203 |
+| 4 | 0.835 / 0.197 / 0.119 | 0.819 / 0.186 / 0.173 | 0.803 / 0.214 / 0.154 |
+| 8 | 0.887 / 0.351 / 0.075 | 0.879 / 0.331 / 0.130 | 0.828 / 0.391 / 0.121 |
+| 12 | 0.916 / 0.430 / 0.055 | 0.890 / 0.413 / 0.107 | 0.830 / 0.475 / 0.109 |
+| 20 | 0.927 / 0.400 / 0.046 | 0.885 / 0.380 / 0.107 | 0.781 / 0.482 / 0.138 |
 
-*Table 3. Label-based policy simulation. `err` = |estimated − true bad fraction|. Random looks best
-for the call and adaptive best for localisation — and we do not believe this table.*
+*Table 3. Label-based policy simulation. `err` = |estimated − true bad fraction|; a tied vote (even
+k) is broken at random. Random looks best for the call from k = 4 and adaptive best for
+localisation — and we do not believe this table.*
 
 This is exactly the practice criticised in §6.7, so we repeat the comparison with the deployed
 model's per-field probabilities on the 25 session-disjoint test chips

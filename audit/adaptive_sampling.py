@@ -90,7 +90,10 @@ def run(seqs, k, trials=TRIALS, seed=0):
             for _ in range(trials):
                 idx = fn()
                 y = seq[idx]
-                est_bad = 1 if (1 - y.mean()) > 0.5 else 0
+                fb = 1 - y.mean()
+                # even k can tie; break ties at random (calling a tie 'good' favours the policies
+                # that tie most often, since 'good' is the majority class)
+                est_bad = 1 if fb > 0.5 else 0 if fb < 0.5 else rng.randint(0, 1)
                 hit = len(set(idx) & bad_idx)
                 out[pol]["chip_acc"].append(int(est_bad == true_bad))
                 out[pol]["any_bad"].append(int(hit > 0))
