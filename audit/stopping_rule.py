@@ -92,7 +92,8 @@ def run_rule(seqs, deff, kmax=KMAX, conf=0.9, trials=TRIALS, seed=2):
                         false_conf.append(0)
                     break
             else:
-                call = 1 if bad * 2 > (bad + good) else 0
+                # budget exhausted: majority of the fields read; a tie is broken at random
+                call = 1 if bad > good else 0 if bad < good else rng.randint(0, 1)
                 used.append(len(order)); stopped.append(0)
                 correct.append(int(call == true_bad)); false_conf.append(0)
     return dict(mean_fields=float(np.mean(used)), frac_early_stop=float(np.mean(stopped)),

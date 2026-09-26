@@ -75,3 +75,5 @@
 15.0 leakage_ci.json:auc.per_seed.2 %.1f
 74.1 label_sufficiency.json:single_field_agreement_field_weighted %.1f
 78.8 label_sufficiency.json:sufficiency_curve.1.agree %.1f
+92.8 stopping_rule.json:naive.accuracy %.1f
+6.6 stopping_rule.json:naive.mean_fields .1f

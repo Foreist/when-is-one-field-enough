@@ -710,7 +710,7 @@ on that line.
 ### 6.7 Label-only simulation overstates deployed performance
 
 A common practice — which we followed first — is to simulate a decision policy on **ground-truth
-labels**. Our first one (random order, no minimum, all 59 chips) gave 94.1% chip accuracy with 6.6
+labels**. Our first one (random order, no minimum, all 59 chips) gave 92.8% chip accuracy with 6.6
 fields — not comparable with the deployed 82.6%, since rule and chips differ. Like for like, we run
 the *deployed* rule on the *same* 25 held-out chips with ground-truth field labels and with the
 model's calls (`audit/label_vs_model_same_rule.py`, Figure 7). Without a minimum, labels give 21/24 = 0.875 with one confident-but-wrong chip and the
