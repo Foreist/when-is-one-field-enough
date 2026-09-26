@@ -11,16 +11,14 @@ Reproduces:
 
 Outputs results/tool_evaluation.json
 """
-import argparse, collections, json, math, os, sys
+import argparse, collections, json, os, sys
 from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
-from torchvision import transforms
 from torchvision.models import mobilenet_v3_small
-from scipy.stats import beta as B
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "audit"))

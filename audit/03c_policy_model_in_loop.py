@@ -27,7 +27,7 @@ from PIL import Image
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from inference import TF, load_model, spread_order          # noqa: E402
+from inference import TF, load_model          # noqa: E402
 from leakage_experiment import index_images                  # noqa: E402
 from leakage_controlled import split_controlled               # noqa: E402
 

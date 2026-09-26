@@ -6,12 +6,12 @@
 3) field-sampling simulation: agreement of a k-field random-sample majority with the session
    majority (saved as sampling_sim; not used in the report, which uses label_sufficiency.py)
 """
-import collections, json, math
+import collections, json
 from pathlib import Path
 
 import numpy as np
 
-from structure_probe import load, runs_test
+from structure_probe import load
 
 OUT = Path(__file__).resolve().parent.parent / "results"
 

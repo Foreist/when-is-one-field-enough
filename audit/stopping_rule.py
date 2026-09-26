@@ -10,7 +10,7 @@ The report quotes only the naive rule (§6.7).
 Reported   : mean fields used, share of chips stopped early, and — crucially —
              the share of stops that are BOTH confident and WRONG (false confidence).
 """
-import collections, json, math, random
+import collections, json, random
 from pathlib import Path
 
 import numpy as np

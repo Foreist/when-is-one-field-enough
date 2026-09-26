@@ -4,7 +4,7 @@
 
     python3 figures.py        ->  figures/*.png
 """
-import collections, json
+import json
 from pathlib import Path
 
 import numpy as np
