@@ -214,7 +214,6 @@ def main():
 
     ref = json.loads((HERE / "model" / "train_image_stats.json").read_text())
     d = ood_distance(np.mean(stats, axis=0), ref)
-    ood = d > ref["dist_p99"]
 
     dec = sequential_decision(probs, thr_conf=args.conf, max_fields=args.max_fields,
                               min_fields=args.min_fields)
@@ -232,6 +231,7 @@ def main():
                  "fields the model mostly misread (field accuracy 0.20 and 0.17; REPORT Table 7)") if len(files) < args.min_fields else None,
         mean_p_bad_all_fields=round(mean_bad, 4),
         image_statistics_distance=round(d, 3),
+        image_statistics_distance_train_p99=round(ref["dist_p99"], 3),   # diagnostic: flagged 0 of 25 test chips
         reliability=dict(
             model_card=MODEL_CARD,
             note="measured on 25 unseen chips: chip-level accuracy 0.80 and 13% of calls are "
