@@ -106,9 +106,17 @@ def main():
         if n_pages > 20:
             bad += 1
             print(f"report.pdf has {n_pages} pages (limit 20)", file=sys.stderr)
-        if pdf.stat().st_mtime < (HERE / "REPORT.md").stat().st_mtime:
-            bad += 1
-            print("report.pdf is older than REPORT.md -- run make_report_pdf.py", file=sys.stderr)
+        # stale PDF: REPORT.md has uncommitted edits, or was committed after report.pdf last changed
+        # (file mtimes are meaningless after a git checkout, so ask git)
+        def git(*a):
+            return subprocess.run(["git", "-C", str(HERE), *a], capture_output=True, text=True).stdout.strip()
+        if git("rev-parse", "--is-inside-work-tree") == "true":
+            dirty_md = bool(git("status", "--porcelain", "REPORT.md"))
+            dirty_pdf = bool(git("status", "--porcelain", "report.pdf"))
+            t_md, t_pdf = git("log", "-1", "--format=%ct", "--", "REPORT.md"), git("log", "-1", "--format=%ct", "--", "report.pdf")
+            if (dirty_md and not dirty_pdf) or (t_md and t_pdf and not dirty_pdf and int(t_md) > int(t_pdf)):
+                bad += 1
+                print("report.pdf is older than REPORT.md -- run make_report_pdf.py", file=sys.stderr)
     except ImportError:
         pass
     sys.exit(1 if bad else 0)
