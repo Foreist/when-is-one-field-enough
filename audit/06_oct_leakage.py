@@ -100,8 +100,9 @@ def main():
                test_files=int(n_files["test"]),
                test_files_in_train_group=int(leak_files),
                frac_test_files_in_train_group=leak_files / n_files["test"],
-               note="the same (well, day) = the same organoids imaged in the same session; for a "
-                    "tracking benchmark the same instances therefore appear on both sides")
+               note="test names carry plate 1, train/val names no plate; if they share the plate, the same "
+                    "(well, day) = the same organoids imaged in the same session, so for a tracking "
+                    "benchmark the same instances would appear on both sides")
     (OUT / "oct_leakage.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print(f"\ntrain ∩ test groups: {len(tr & te)}  {sorted(tr & te)}")
     print(f"val ∩ test groups:   {len(va & te)}  {sorted(va & te)}")
