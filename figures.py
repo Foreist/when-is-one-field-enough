@@ -85,7 +85,9 @@ def fig_label_structure():
         ax[1].text(i, v + 0.05, f"{v:.2f}", ha="center", fontsize=9)
     ax[1].set_ylabel("mean run length (fields)")
     ratio = b["runlen_mean"] / b["runlen_iid_expected"]
-    ax[1].set_title(f"(b) runs of equal labels are {ratio:.0f}x longer than chance", fontsize=9, loc="left")
+    ratio_mixed = b["runlen_mixed"] / b["runlen_mixed_permuted"]
+    ax[1].set_title(f"(b) runs are {ratio:.0f}x longer than i.i.d.\n({ratio_mixed:.1f}x within mixed sessions vs shuffled)",
+                    fontsize=9, loc="left")
     icc, deff, neff = b["icc_session"], b["deff_session"], b["n_eff_session"]
     ax[2].bar(["ICC", "design\neffect / 20", "effective N\n/ 1000"],
               [icc, deff / 20, neff / 1000], color=["#4a6fa5", "#c0392b", "#c0392b"])

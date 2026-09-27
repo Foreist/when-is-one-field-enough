@@ -293,7 +293,7 @@ order of magnitude for estimating a metric (hundreds, not thousands), not a limi
 is 0.32 (53% of sessions above 0.3).
 
 ![Figure 3](figures/fig3_label_structure.png)
-*Figure 3. (a) runs-test z per session; (b) observed versus i.i.d. run length; (c) ICC, design
+*Figure 3. (a) runs-test z per session; (b) observed versus i.i.d. run length, pooled over all sessions; (c) ICC, design
 effect and effective sample size.*
 
 Agreement degrades with culture age and is cell-line dependent:
