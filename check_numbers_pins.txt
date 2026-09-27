@@ -100,3 +100,6 @@
 2,213 structure_probe.json:B.logistic_n ,d
 16 per_chip_calls.json:truth_counts.passes d
 0.662 inner_cv_minfields.json:all_pass_acc .3f
+65.7 leakage_results.json:cellaware_grouped.majority_share %.1f
+55.6 leakage_results.json:published.majority_share %.1f
+53.0 leakage_ci.json:test_majority_share.mean %.1f

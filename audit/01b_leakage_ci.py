@@ -39,6 +39,12 @@ def main():
         m = split_controlled(recs, seed=1000 + s, n_test_sessions=d["n_test_sessions"])["meta"]
         share.append(m["available_T"] / m["train_size"])
     res["leaky_share_of_training"] = dict(min=min(share), max=max(share), per_seed=share)
+    maj = []                                     # chance floor: always the commoner label on each test set
+    for s in seeds:
+        t = split_controlled(recs, seed=1000 + s, n_test_sessions=d["n_test_sessions"])["disjoint"]["test"]
+        f = float(np.mean([r["cls"] != "good" for r in t]))
+        maj.append(max(f, 1 - f))
+    res["test_majority_share"] = dict(mean=float(np.mean(maj)), per_seed=maj)
     for key in ("acc", "auc"):                 # dose-response: more leaked fields -> larger gain?
         r = stats.pearsonr(share, res[key]["per_seed"])
         res["leaky_share_of_training"][f"pearson_r_{key}"] = float(r.statistic)

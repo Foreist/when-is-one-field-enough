@@ -264,6 +264,12 @@ def main():
                     auc_mean=float(np.mean([x["test_auc"] for x in r])))
 
     a, b = agg("published"), agg("cellaware-grouped")
+    # accuracy of always predicting the commoner label on each test set (the chance floor)
+    def majority(test):
+        f = float(np.mean([r["cls"] != "good" for r in test]))
+        return max(f, 1 - f)
+    a["majority_share"] = majority([r for r in recs if r["split"] == "test"])
+    b["majority_share"] = majority(build_cellaware_session_split(recs, seed=0)["test"])
     summary = dict(n_images=len(recs),
                    published=a, cellaware_grouped=b, random_grouped=agg("random-grouped"),
                    gap_acc=(a.get("acc_mean", float("nan")) - b.get("acc_mean", float("nan"))),

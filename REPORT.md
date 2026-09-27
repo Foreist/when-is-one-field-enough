@@ -28,7 +28,7 @@ It is not, in three specific and measurable ways.
    sessions*. Holding the test images and the training-set size fixed, and changing only whether
    the test sessions also contribute training images, moves accuracy by **+7.9 pp (95% CI
    4.2–11.5) and AUC by +8.9 pp (95% CI 6.7–11.0)** across eight seeds. The shipped split reports
-   78.9%; the same model on unseen sessions reports 56.0%.
+   78.9%; the same model on unseen sessions reports 56.0%, below always predicting the commoner label there (65.7%).
 2. **The 3,072 labels are not 3,072 independent observations.** Labels are strongly autocorrelated
    along the acquisition order (session ICC 0.321, mean run length 6.08 fields versus 2.03 under
    independence). The design effect is 17, so the benchmark carries the information of roughly
@@ -227,7 +227,7 @@ composition, so we hold everything else fixed:
   AdamW 3e-4 constant, weight decay 0.01, batch 64, flip augmentation — lighter than the shipped model's recipe);
 * the only difference is whether the training set may use *the other images of the test sessions*
   (leaky; they make up 27–50% of its training fields, depending on the seed) or must come from
-  disjoint sessions (disjoint).
+  disjoint sessions (disjoint). Always predicting the commoner label scores 53.0% on these test sets (mean over seeds).
 
 | arm | accuracy | AUC |
 |---|---|---|
@@ -240,7 +240,7 @@ composition, so we hold everything else fixed:
 
 For reference, the shipped split yields **78.9% ± 0.07 pp / AUC 0.873** (mean ± s.d. over three
 seeds; the variation is tiny because all test sessions are seen in training), while a
-session-grouped split that keeps all six cell lines yields **56.0% ± 7.2 pp / AUC 0.684** — a 22.9 pp gap that mixes leakage with the small
+session-grouped split that keeps all six cell lines yields **56.0% ± 7.2 pp / AUC 0.684** — below the 65.7% of always predicting its commoner label (55.6% on the shipped test set) — a 22.9 pp gap that mixes leakage with the small
 number of held-out sessions (six). We therefore treat the **controlled A/B as the headline number**
 and report the shipped/grouped pair only as context.
 
