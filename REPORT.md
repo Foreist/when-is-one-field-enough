@@ -252,7 +252,9 @@ not.
 
 **Runs test.** For each session we take the label sequence in field order and count runs (maximal
 contiguous blocks of equal label). Under independence the expected run length is
-`1 / (2 p (1-p))`; with `p ≈ 0.56` that is **2.03** fields. Observed: **6.08**. A Wald–Wolfowitz
+`1 / (2 p (1-p))`; with `p ≈ 0.56` that is **2.03** fields. Observed: **6.08** (that pools single-label
+sessions; within the 45 mixed sessions runs average 5.42 fields versus 2.50 with the same labels in
+random order). A Wald–Wolfowitz
 test is significant (p < 0.05) in **23 of the 45 mixed sessions**, and 36/45 have negative z
 (clustered) — against 19.0 and 2.1 expected if each session's labels were in random order
 (2,000 permutations per session). The most extreme session has z = −11.9 (21 runs
@@ -709,14 +711,12 @@ on that line.
 ### 6.7 Label-only simulation overstates deployed performance
 
 A common practice — which we followed first — is to simulate a decision policy on **ground-truth
-labels**. Our first one (random order, no minimum, all 59 chips) gave 92.8% chip accuracy with 6.6
-fields — not comparable with the deployed 82.6%, since rule and chips differ. Like for like, we run
-the *deployed* rule on the *same* 25 held-out chips with ground-truth field labels and with the
-model's calls (`audit/label_vs_model_same_rule.py`, Figure 7). Without a minimum, labels give 21/24 = 0.875 with one confident-but-wrong chip and the
-model 17/24 = 0.708 with six; with the shipped 8-field minimum, labels give 0.875 (8.5 fields) and
-the model 19/23 = 0.826 (9.5 fields, three confident-but-wrong). Per-field errors (AUC 0.791) let
-an unguarded rule stop early on a wrong run of calls; the 8-field minimum closes most of that gap
-on these chips — the chips it was tuned on (§6.2(c)).
+labels**. Our first one (random order, no minimum, all 59 chips) gave 92.8% with 6.6 fields; rule
+and chips differ from deployment, so we also run the *deployed* rule on the *same* 25 chips with
+label calls and with model calls (`audit/label_vs_model_same_rule.py`, Figure 7). Without a minimum,
+labels give 21/24 = 0.875 (one confident-but-wrong) and the model 17/24 = 0.708 (six); with the
+8-field minimum, 0.875 (8.5 fields) and 19/23 = 0.826 (9.5 fields, three) — a gap the minimum
+closes on the chips it was tuned on (§6.2(c)).
 
 ![Figure 7](figures/fig6_label_vs_model.png)
 *Figure 7. The same rule on the same 25 chips: ground-truth field labels versus model calls.*
@@ -769,12 +769,10 @@ the tool, and 3 of 23 calls on unseen chips are confident (≥0.9) and wrong (§
 
 ## 8. Discussion
 
-**For benchmark authors.** The three defects we measure are cheap to check and were not checked
-here: a session-level (or patient-level, or chip-level) split; a design-effect estimate for the
-label; and a per-image agreement statistic between a single sample and the group's consensus. We
-suggest reporting all three alongside the usual accuracy, because they change what the number
-means. In this benchmark the effective sample size is 6% of the nominal one, and a model trained on
-the shipped split is evaluated on chips it has already seen.
+**For benchmark authors.** Three checks are cheap and the published benchmark did not report them:
+a session-level (or patient- or chip-level) split, a design-effect estimate for the label, and the
+agreement of a single sample with its group's consensus. They change what an accuracy means: here
+the effective sample size is 6% of the nominal one, and the shipped split tests on seen chips.
 
 **For laboratories.** The practical consequence of clustered failures is that *which* fields are
 imaged matters: the same rule reads the same chip correctly or not depending on whether it looks at
@@ -784,11 +782,9 @@ sampling to avoid the specific failure we observed rather than as an optimised p
 (9.5 fields on average) is modest; its error rate (13% confident-but-wrong) is the number that
 matters in a deployment decision.
 
-**For method developers.** The largest single lesson is in Figure 7: without a minimum-field guard
-the same rule on the same chips is 0.875 accurate on labels and 0.708 with the model in the loop.
-Per-field errors interact with early stopping. QC papers
-that report policy numbers from label simulations should be read with this in mind, and we
-recommend model-in-the-loop evaluation as the default.
+**For method developers.** Per-field errors interact with early stopping (Figure 7: 0.875 on labels,
+0.708 with the model, same rule and chips, no minimum). Policy numbers from label simulations should
+be read with this in mind; model-in-the-loop evaluation should be the default.
 
 **Open problem.** The dataset's own definition of `bad` mixes technical artifacts with biological
 failure, which suggests the actionable output should be "re-image" versus "discard". We tried and

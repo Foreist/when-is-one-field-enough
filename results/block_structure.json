@@ -14,6 +14,8 @@
  "runlen_max": 138,
  "runlen_iid_expected": 2.0314110249847706,
  "good_frac": 0.5621744791666666,
+ "runlen_mixed": 5.419551934826884,
+ "runlen_mixed_permuted": 2.5015628892534325,
  "sampling_sim": {
   "1": {
    "n": 2360,

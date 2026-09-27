@@ -88,6 +88,27 @@ def main():
     p = np.mean([1 if r["cls"] == "good" else 0 for r in joined])
     exp_run = 1 / (2 * p * (1 - p))
     print(f"i.i.d. expected run length {exp_run:.2f}  (observed {rl.mean():.2f})")
+    # the like-for-like comparison: mixed sessions only, against the same sessions' labels in random
+    # order (the pooled figure above also counts single-label sessions, each one long run)
+    def run_lengths(l):
+        out, c = [], 1
+        for i in range(1, len(l)):
+            if l[i] == l[i - 1]:
+                c += 1
+            else:
+                out.append(c); c = 1
+        out.append(c)
+        return out
+    prng = np.random.default_rng(0)
+    mixed_runs, perm_runs = [], []
+    for v in by_sess.values():
+        labs = [1 if r["cls"] == "good" else 0 for r in sorted(v, key=lambda r: r["idx"])]
+        if 0 < sum(labs) < len(labs):
+            mixed_runs += run_lengths(labs)
+            for _ in range(200):
+                perm_runs += run_lengths(list(prng.permutation(labs)))
+    runlen_mixed, runlen_mixed_perm = float(np.mean(mixed_runs)), float(np.mean(perm_runs))
+    print(f"mixed sessions: run length {runlen_mixed:.2f} vs {runlen_mixed_perm:.2f} in random order")
 
     # ---- sampling simulation ----
     rng = np.random.default_rng(7)
@@ -122,6 +143,7 @@ def main():
                runlen_mean=float(rl.mean()), runlen_median=float(np.median(rl)),
                runlen_p90=float(np.percentile(rl, 90)), runlen_max=int(rl.max()),
                runlen_iid_expected=float(exp_run), good_frac=float(p),
+               runlen_mixed=runlen_mixed, runlen_mixed_permuted=runlen_mixed_perm,
                sampling_sim=sim, n_images=len(joined), n_sessions=len(by_sess))
     (OUT / "block_structure.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print("saved", OUT / "block_structure.json")
