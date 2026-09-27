@@ -131,6 +131,10 @@ def main():
         res[name] = a
         print(f"  CV AUC [{name:<22}] {a:.3f}")
 
+    # how much of 'all' is the definitional feature? (runs that reach the end cannot recover)
+    res["all but reaches_end"] = cv_auc([f for f in sets["all"] if f != "reaches_end"])
+    print(f"  CV AUC [all but reaches_end  ] {res['all but reaches_end']:.3f}")
+
     # permutation null for the full set
     rng = np.random.default_rng(0)
     null = []

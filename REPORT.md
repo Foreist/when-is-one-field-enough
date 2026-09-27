@@ -429,12 +429,13 @@ of the session, focus, darkness, artifact scores), with **session-grouped cross-
 | artifact signals only | 0.381 |
 | run length + artifacts | 0.539 |
 | all features | 0.613 |
+| all features except *reaches the end* | 0.539 |
 | permutation null | mean 0.479, p95 **0.564** |
 | simple rule (length ≤ 2 ⇒ recover) | accuracy 0.560 vs base rate **0.624** |
 
 **The decision rule is not supported.** The target is confounded by position (because failures are
 contiguous, the fields after a run are usually good, so "recovery" largely means "the run did not
-reach the end"), and — more fundamentally — **no re-imaging was ever performed in this dataset, so
+reach the end"; without that feature the model scores 0.539), and — more fundamentally — **no re-imaging was ever performed in this dataset, so
 the causal question cannot be observed**. We therefore ship `pass`/`fail`/`inconclusive` and
 document the two-mode observation as an *open problem*, not a feature.
 
@@ -833,14 +834,7 @@ settle it, and would be a small, valuable addition to this benchmark.
 ## 10. Reproducibility
 
 ```bash
-pip install -r requirements.txt          # torch, torchvision, numpy, Pillow, scipy, scikit-learn,
-                                         # matplotlib, openpyxl, gradio, markdown, playwright
-
-# data (not redistributed here) — the zip holds a top-level OOC_image_dataset/ folder
-mkdir -p ../data
-curl -L -o ooc.zip "https://zenodo.org/api/records/10203721/files/OOC_image_dataset.zip/content"
-python3 -c "import zipfile; zipfile.ZipFile('ooc.zip').extractall('../data')"   # unzip(1) fails on this zip64
-rm ooc.zip   # -> ../data/OOC_image_dataset/ (or set OOC_DATA); also fetch OOC_datasheet.xlsx (README §1)
+pip install -r requirements.txt   # then download the dataset and datasheet as in README §1
 
 python3 audit/leakage_experiment.py     # published split: 57/59 sessions shared; shipped vs grouped (§4.1)
 python3 audit/leakage_controlled.py     # controlled A/B, +7.9 pp / +8.9 pp over 8 seeds (§4.1)

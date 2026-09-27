@@ -52,7 +52,7 @@ for r in rows('| budget k | random: acc / recall |'):
 # recovery table
 rc=R('recovery_test.json')
 for r in rows('| feature set | CV AUC'):
-    k={'run length only':'length only','artifact signals only':'artifact signals only','run length + artifacts':'length + artifact','all features':'all'}.get(r[0])
+    k={'run length only':'length only','artifact signals only':'artifact signals only','run length + artifacts':'length + artifact','all features':'all','all features except *reaches the end*':'all but reaches_end'}.get(r[0])
     if k: eq('rec '+r[0],r[1],rc['cv_auc'][k],'.3f')
 # Table 5
 g=R('aggregation_results.json')['summary']
