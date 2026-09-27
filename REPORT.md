@@ -50,7 +50,7 @@ It is not, in three specific and measurable ways.
 
 We then built the tool the corrected protocol implies, and measured what it buys: on 25 unseen
 chips it reaches the same chip-level accuracy as reading **every** field (0.800) while using **9.5
-fields instead of 27.4** — a 2.9× reduction in microscope time — and defers 8% of chips to a human
+fields instead of 27.4** — 2.9× fewer fields to image and inspect — and defers 8% of chips to a human
 rather than guessing. Fields are sampled **spread across the
 chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
 chip called *pass* with 0.94 confidence), and a sequential stopping rule returns **pass / fail /
@@ -619,9 +619,10 @@ confidence, the pass / fail / inconclusive call and the option to defer, not a f
 ![Figure 6](figures/fig7_efficiency.png)
 *Figure 6. Accuracy against the number of fields used per chip.*
 
-For a lab imaging plates of chips this is the practical number: the decision costs roughly a third of
-the microscope time of the read-everything workflow, and a further 8% of chips are flagged
-"needs a human" instead of being guessed.
+For a lab imaging plates of chips this is the practical number: the decision needs roughly a third
+of the fields of the read-everything workflow (how much microscope time that saves depends on the
+per-field acquisition cost, which we did not measure), and 8% of chips are flagged "needs a human"
+instead of being guessed.
 
 **Full sessions.** On all fields of the same 25 held-out sessions (1,377 fields, 55.1 per chip,
 reference = full-session majority; `audit/08_full_sessions.py`) the saving grows and the accuracy
