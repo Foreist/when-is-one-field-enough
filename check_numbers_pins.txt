@@ -103,3 +103,5 @@
 65.7 leakage_results.json:cellaware_grouped.majority_share %.1f
 55.6 leakage_results.json:published.majority_share %.1f
 53.0 leakage_ci.json:test_majority_share.mean %.1f
+0.14 vs_all_pass.json:validation_min8.mcnemar_p .2f
+0.22 vs_all_pass.json:test_min8.mcnemar_p .2f

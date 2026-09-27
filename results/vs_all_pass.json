@@ -1,0 +1,34 @@
+{
+ "validation_min1": {
+  "n_chips": 68,
+  "rule_acc": 0.7794117647058824,
+  "all_pass_acc": 0.6617647058823529,
+  "only_rule_right": 14,
+  "only_all_pass_right": 6,
+  "mcnemar_p": 0.11531829833984375
+ },
+ "validation_min8": {
+  "n_chips": 68,
+  "rule_acc": 0.7647058823529411,
+  "all_pass_acc": 0.6617647058823529,
+  "only_rule_right": 12,
+  "only_all_pass_right": 5,
+  "mcnemar_p": 0.143463134765625
+ },
+ "test_min1": {
+  "n_chips": 25,
+  "rule_acc": 0.68,
+  "all_pass_acc": 0.64,
+  "only_rule_right": 4,
+  "only_all_pass_right": 3,
+  "mcnemar_p": 1.0
+ },
+ "test_min8": {
+  "n_chips": 25,
+  "rule_acc": 0.8,
+  "all_pass_acc": 0.64,
+  "only_rule_right": 5,
+  "only_all_pass_right": 1,
+  "mcnemar_p": 0.21875
+ }
+}

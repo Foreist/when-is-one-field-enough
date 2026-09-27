@@ -833,7 +833,8 @@ settle it, and would be a small, valuable addition to this benchmark.
 9. **The minimum-fields guard was tuned on the test chips.** The shipped value 8 comes from a sweep
    on the 25 test chips; re-selected on the 34 other sessions it would be 1 (test accuracy 0.680
    instead of 0.800 with every chip called). The headline 0.826 / 13% are therefore optimistic by an
-   unknown amount; the field saving is not (§6.2(c)).
+   unknown amount; the field saving is not (§6.2(c)). Nor is its margin over calling every chip *pass*
+   significant (paired McNemar: 12 vs 5 discordant validation chips, p = 0.14; test 5 vs 1, p = 0.22).
 
 ---
 
@@ -867,6 +868,7 @@ python3 audit/00_ood_reference.py && python3 audit/10_ood_check.py   # OOD refer
 python3 audit/11_per_chip_calls.py      # per-chip calls, Table 7; the first-k failure (§4.3, §6.2(a))
 python3 audit/05_lolo_cellline.py       # leave-one-cell-line-out, Table 8 (§6.6)
 python3 audit/12_onnx_parity.py && python3 audit/13_preprocessing_sensitivity.py   # demo checks (§6.8)
+python3 audit/14_vs_all_pass.py         # rule vs all-pass, paired (§9)
 python3 audit/label_vs_model_same_rule.py   # labels vs model, same rule and chips (§6.7)
 python3 audit/stopping_rule.py          # the original label-only stopping simulation (§3, §6.7)
 python3 figures.py                      # every figure in this report
@@ -918,16 +920,11 @@ acquisition order (ICC 0.321; effective N ≈ 181 of 3,072) and field-dependent 
 agrees with the session majority 78.8% of the time). Correcting the protocol — session-grouped
 splits, chip-level evaluation, explicit sampling policy — and sampling fields spread across the
 chip yields a tool that reaches 82.6% chip-level accuracy on the chips it calls with 9.5 fields on
-average, and says "inconclusive" when it cannot decide (the 8-field minimum behind that number was
-tuned on the test chips; re-selected without them the rule scores 0.680, §6.2(c)). Two negative results bound the claims: the
-re-image/discard distinction is not supported by this data, and no reliable OOD detector was found.
-Simulating the same stopping rule on ground-truth labels overstates its performance with the model
-in the loop (0.875 vs 0.708 without a minimum-field guard).
-
-**Future work.** (i) Extend the model-in-the-loop versus label-only comparison to a second dataset
-and modality; (ii) a
-calibrated stopping rule that accounts for the measured design effect; (iii) prospective validation
-of the two-mode (transient vs persistent) hypothesis with actual re-imaging.
+average, and says "inconclusive" when it cannot decide — but its 8-field minimum was tuned on the
+test chips (0.680 without them, §6.2(c)) and its margin over calling every chip *pass* is not
+significant (§9). The firm results are the audit; the tool's field saving is the practical one.
+Label-only simulation overstates the rule (0.875 vs 0.708 with the model), and neither a
+re-image/discard split nor a reliable OOD detector was supported.
 
 ---
 
