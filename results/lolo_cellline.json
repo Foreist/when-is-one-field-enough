@@ -10,7 +10,8 @@
    "secs": 1326.2,
    "seen_line_acc": 0.7272727272727273,
    "seen_line_auc": 0.7660317460317461,
-   "seen_line_n": 165
+   "seen_line_n": 165,
+   "majority_share": 0.6929032258064516
   },
   "cell_type_CACO": {
    "n_train": 2272,
@@ -22,7 +23,8 @@
    "secs": 1729.7,
    "seen_line_acc": 0.7415730337078652,
    "seen_line_auc": 0.9166666666666667,
-   "seen_line_n": 89
+   "seen_line_n": 89,
+   "majority_share": 0.684971098265896
   },
   "cell_type_HPMEC": {
    "n_train": 636,
@@ -34,7 +36,8 @@
    "secs": 529.5,
    "seen_line_acc": 0.7005813953488372,
    "seen_line_auc": 0.7512489955630087,
-   "seen_line_n": 344
+   "seen_line_n": 344,
+   "majority_share": 0.5458276333789329
   },
   "cell_type_HUVEC": {
    "n_train": 2734,
@@ -46,7 +49,8 @@
    "secs": 1582.4,
    "seen_line_acc": 1.0,
    "seen_line_auc": null,
-   "seen_line_n": 23
+   "seen_line_n": 23,
+   "majority_share": 0.8598130841121495
   },
   "cell_type_NHBE": {
    "n_train": 2426,
@@ -58,7 +62,8 @@
    "secs": 1422.3,
    "seen_line_acc": 1.0,
    "seen_line_auc": 1.0,
-   "seen_line_n": 13
+   "seen_line_n": 13,
+   "majority_share": 0.7608695652173914
   },
   "cell_type_HSAEC": {
    "n_train": 2643,
@@ -70,12 +75,14 @@
    "secs": 1455.8,
    "seen_line_acc": 0.78,
    "seen_line_auc": 0.7720588235294117,
-   "seen_line_n": 50
+   "seen_line_n": 50,
+   "majority_share": 0.6680327868852459
   }
  },
  "mean_acc": 0.6703666986307107,
  "mean_auc": 0.7191590029273116,
  "note": "test = all fields of the held-out cell line; sessions containing it are excluded from training",
  "mean_auc_drop_vs_seen_line": 0.16415247183090004,
- "n_lines_with_seen_auc": 5
+ "n_lines_with_seen_auc": 5,
+ "n_lines_below_majority": 2
 }

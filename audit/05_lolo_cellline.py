@@ -71,7 +71,9 @@ def main():
             sched.step()
         p, y = predict(model, loaders["test"], device)
         m = metrics(p, y)
+        bad_share = float(np.mean([r["cls"] != "good" for r in sp["test"]]))
         res[cell] = dict(n_train=len(sp["train"]), n_test=len(sp["test"]),
+                         majority_share=max(bad_share, 1 - bad_share),   # always predicting the commoner label
                          n_sessions_test=len({r["session"] for r in sp["test"]}),
                          acc=m["acc"], bal_acc=m["bal_acc"], auc=m["auc"],
                          secs=round(time.time() - t0, 1))
@@ -104,6 +106,7 @@ def main():
                    mean_auc=float(np.mean([v["auc"] for v in done])),
                    mean_auc_drop_vs_seen_line=float(np.mean([b - a for a, b in pairs])) if pairs else None,
                    n_lines_with_seen_auc=len(pairs),
+                   n_lines_below_majority=sum(v["acc"] < v["majority_share"] for v in done),
                    note="test = all fields of the held-out cell line; sessions containing it are "
                         "excluded from training")
     (OUT / "lolo_cellline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1))

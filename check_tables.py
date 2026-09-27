@@ -66,7 +66,7 @@ for r in rows('| held-out cell line'):
     if r[0].startswith('mean') or r[0].startswith('in-dist'): continue
     d=lo['cell_type_'+r[0]]; n,s=r[1].replace(')','').split(' (')
     eq('T8 n '+r[0],n,d['n_test'],'d'); eq('T8 s '+r[0],s,d['n_sessions_test'],'d')
-    eq('T8 acc '+r[0],r[2],d['acc'],'.3f'); eq('T8 bal '+r[0],r[3],d['bal_acc'],'.3f'); eq('T8 auc '+r[0],r[4],d['auc'],'.3f')
+    eq('T8 acc '+r[0],r[2].split(' (')[0],d['acc'],'.3f'); eq('T8 maj '+r[0],r[2].split(' (')[1].rstrip(')'),d['majority_share'],'.3f'); eq('T8 bal '+r[0],r[3],d['bal_acc'],'.3f'); eq('T8 auc '+r[0],r[4],d['auc'],'.3f')
 mr=[r for r in rows('| held-out cell line') if r[0].startswith('mean')][0]
 for i,k in [(2,'acc'),(3,'bal_acc'),(4,'auc')]: eq('T8 mean '+k,mr[i],np.mean([v[k] for v in lo.values()]),'.3f')
 # Table 7

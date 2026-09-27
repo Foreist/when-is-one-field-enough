@@ -106,7 +106,8 @@ def main():
         pages = pypdf.PdfReader(str(pdf)).pages
         ref_page = next((i for i, pg in enumerate(pages) if "\nReferences\n" in "\n" + pg.extract_text() + "\n"
                          and "[1] Mov" in pg.extract_text()), len(pages) - 1)
-        body = ref_page + 1                        # the page on which References starts counts as body
+        # the page on which References starts counts as body, unless References is at its top
+        body = ref_page if pages[ref_page].extract_text().lstrip().startswith("References") else ref_page + 1
         if body > 20 or body < 15:
             bad += 1
             print(f"report.pdf body is {body} pages (references start on page {ref_page + 1}); "

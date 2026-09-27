@@ -691,20 +691,20 @@ any session containing the held-out line removed — and retrain the deployed ar
 input size for 25 epochs (batch 16 and a cosine floor of 1e-5 instead of 32 and lr/30, no validation
 split, one seed; `audit/05_lolo_cellline.py`):
 
-| held-out cell line | test fields (sessions) | accuracy | balanced acc | AUC |
+| held-out cell line | test fields (sessions) | accuracy (majority label) | balanced acc | AUC |
 |---|---|---|---|---|
-| A549 | 775 (24) | 0.712 | 0.661 | 0.678 |
-| CACO | 346 (17) | 0.512 | 0.611 | 0.666 |
-| HPMEC | 1462 (29) | 0.589 | 0.605 | 0.659 |
-| HUVEC | 107 (4) | 0.879 | 0.874 | 0.930 |
-| NHBE | 138 (6) | 0.601 | 0.499 | 0.630 |
-| HSAEC | 244 (21) | 0.730 | 0.723 | 0.753 |
+| A549 | 775 (24) | 0.712 (0.693) | 0.661 | 0.678 |
+| CACO | 346 (17) | 0.512 (0.685) | 0.611 | 0.666 |
+| HPMEC | 1462 (29) | 0.589 (0.546) | 0.605 | 0.659 |
+| HUVEC | 107 (4) | 0.879 (0.860) | 0.874 | 0.930 |
+| NHBE | 138 (6) | 0.601 (0.761) | 0.499 | 0.630 |
+| HSAEC | 244 (21) | 0.730 (0.668) | 0.723 | 0.753 |
 | **mean of the six** | 3,072 (101) | **0.670** | 0.662 | **0.719** |
 | in-distribution (all lines seen, §6.3) | 684 (25) | 0.734 | 0.733 | 0.791 |
 
 *Table 8. Leave-one-cell-line-out. The spread between cell lines (AUC 0.630–0.930) is larger than
 the effect of either modelling change we tested — 2.8× the parameters or 512 px inputs moved AUC by
-at most 0.006 (§6.3).*
+at most 0.006 (§6.3). Brackets: always predicting the line's commoner label — Caco-2 and NHBE fall below it.*
 
 **Deploying on a new cell line costs about seven AUC points on average and up to 22 accuracy
 points** (Caco-2, against the pooled 0.734; against Caco-2's own 89 fields in the session-disjoint
