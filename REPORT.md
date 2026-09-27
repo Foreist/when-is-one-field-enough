@@ -581,13 +581,14 @@ not for a measured gain.
 the value 8 was read from; §6.2(c) re-selects it without them). In (a) the sequential curve is
 accuracy on the chips it calls (23–24 of 25); the grey curve is a cap of k spread fields on all 25.*
 
-**Capacity is not the bottleneck.** We trained a backbone with 2.8× the parameters (MobileNetV3-large, same
+**More capacity or resolution did not help (one seed each).** We trained a backbone with 2.8× the parameters (MobileNetV3-large, same
 384 px, same split and schedule; batch 8 instead of 32 to fit memory). Test field accuracy moved from 0.734 to 0.746 and balanced accuracy from
 0.733 to 0.747, while AUC *fell* from 0.791 to 0.788 — i.e. a larger model buys nothing here
 (`audit/perfield_model.py --arch large`). Higher resolution does not either: the small backbone at
 512 px (batch 12) gives accuracy 0.734 and AUC 0.797 (`--size 512`). Together with the session-level shift in §6.5 (almost every unseen session sits outside the
 training feature distribution) this
-suggests the ceiling is set by the labels and by chip-to-chip appearance, not by model capacity.
+suggests the labels and chip-to-chip appearance limit this benchmark more than model capacity does
+(not a proven ceiling: other architectures and training recipes were not tried).
 We therefore ship the smaller model, which is cheaper to run; with the same stopping rule the larger
 model uses the same 9.5 fields and is not more accurate on the chips it calls (0.792 vs 0.826).
 
