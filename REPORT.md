@@ -554,6 +554,8 @@ called, ties to fewer fields.
 | confident-but-wrong chips | 11 | 10 | 8 | — |
 | fields per chip | 5.3 | 8.1 | 9.9 | 24.9 |
 
+*On these 68 chips, calling every chip pass scores 0.662.*
+
 The criterion selects **min 1**, whose test result is **0.680** with every chip called (0.708 on the
 24 it calls, 6.8 fields). The guard's accuracy gain on the test chips (0.680 → 0.800) is therefore
 not reproduced on independent chips and should be read as optimistic; on those chips the guard only

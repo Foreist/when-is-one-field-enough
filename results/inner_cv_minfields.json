@@ -110,5 +110,6 @@
    "false_confident": 8,
    "mean_fields": 9.911764705882353
   }
- }
+ },
+ "all_pass_acc": 0.6617647058823529
 }

@@ -162,7 +162,8 @@ def finish(chips, oof, res, first, spread_order):
     out = dict(n_chips=len(chips), n_sessions=len(oof), criterion=(
         "max force-mode chip accuracy, ties -> fewer mean fields; conf 0.9, max 20"),
         by_min_fields=res, selected_min_fields=best, shipped_min_fields=8,
-        by_cap=cap, selected_cap=best_cap, all_fields=dict(force_acc=all_acc, mean_fields=all_fields), first_k_by_min_fields=first)
+        by_cap=cap, selected_cap=best_cap, all_fields=dict(force_acc=all_acc, mean_fields=all_fields),
+        all_pass_acc=1 - float(np.mean([int((np.array(c["y"]) == 0).mean() > 0.5) for c in chips_from(oof)])), first_k_by_min_fields=first)
     (OUT / "inner_cv_minfields.json").write_text(json.dumps(out, indent=1))
     print("selected min_fields =", best, " selected cap =", best_cap)
     return out
