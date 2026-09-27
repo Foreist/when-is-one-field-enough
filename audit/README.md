@@ -11,7 +11,8 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 2 | `structure_probe.py` | `structure_probe.json` | runs test: failures are contiguous; metadata model (in-sample 0.562) and per-cell-line bad rates |
 | 2a | `02c_celltype_control.py` | `celltype_control.json` | runs test survives a cell-type control |
 | 2b | `02d_redundancy.py` | `redundancy.json` | consecutive fields are correlated but not duplicates |
-| 2b | `block_structure.py` | `block_structure.json` | ICC 0.321, design effect 17, effective N ≈ 181 |
+| 2b | `block_structure.py` | `block_structure.json` | ICC 0.321, design effect 17 (ANOVA m0), effective N ≈ 181 |
+| 2c | `15_effective_n.py` | `effective_n.json` | effective N under three cluster-size conventions: 80 (Kish, pooled per-field metric), 167, 181 |
 | 2c | `label_sufficiency.py` | `label_sufficiency.json` | m-field majority vs session majority |
 | 3 | `adaptive_sampling.py` | `adaptive_sampling.json` | label-only: random = best for the call, adaptive = best for localisation (does not survive 3c) |
 | 3b | `stopping_rule.py` | `stopping_rule.json` | label-only stopping simulation (optimistic) |

@@ -9,7 +9,8 @@ It returns:
     calibrated: stated confidence averages 0.93 while 82.6% of calls are correct)
   * how many fields were needed (sequential stopping rule; on 25 held-out chips:
     9.5 fields on average, 82.6% accurate on the 23 chips it calls -- with
-    min_fields 8 chosen on those chips; untuned it would be 1, scoring 0.680)
+    min_fields 8 chosen on those chips; untuned it would be 1: 0.708 on the
+    24 chips it calls, 0.680 with every chip called)
   * an image-statistics distance to the training chips, as a diagnostic only
     (it is not a reliable out-of-distribution detector; see README limitations)
   * a QC map PNG (field index vs P(bad))
@@ -73,12 +74,13 @@ def beta_p_bad(bad, good, a0=1.0, b0=1.0):
 
 
 def spread_order(n, max_fields):
-    """Pick fields SPREAD across the chip instead of the first k.
+    """Evenly spaced grid of at most max_fields fields, visited in acquisition order.
 
     Rationale (measured): QC failures occupy contiguous stretches of the
     acquisition order, so reading the first k fields can land entirely inside a
     good region and stop early with a wrong confident call (observed on a
-    100%-bad chip). Evenly spaced sampling covers the chip.
+    100%-bad chip). The rule reads a prefix of this grid; when n <= max_fields the
+    grid is every field in order, i.e. identical to reading the first fields.
     """
     if n <= max_fields:
         return list(range(n))
@@ -97,7 +99,9 @@ MODEL_CARD = {
                    "whether the rule stopped at confidence 0.9 or exhausted its budget outside 0.35-0.65; "
                    "false_confident_rate = wrong calls with confidence >= 0.9, of those 23",
     "caveat": "min_fields 8 was chosen on these 25 test chips; re-selected without them it would be 1, "
-              "which scores 0.680 (results/inner_cv_minfields.json), so 0.826 / 0.13 are optimistic",
+              "which scores 0.708 on the 24 chips it calls and 0.680 with every chip called "
+              "(results/inner_cv_minfields.json: selected_min_fields; results/efficiency.json: sequential.*_min1), "
+              "so 0.826 / 0.13 are optimistic",
 }
 
 

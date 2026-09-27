@@ -60,7 +60,7 @@ The zip contains a top-level `OOC_image_dataset/` folder, so this lands at `../d
 | # | Finding | Measurement | Script |
 |---|---|---|---|
 | 1 | **The published split leaks sessions** | train∩test = **57/59 sessions**. Controlled A/B (same test images, same training size, 8 seeds): **+7.9 pp accuracy (95% CI 4.2–11.5) / +8.9 pp AUC (6.7–11.0)** inflation | `audit/leakage_controlled.py` |
-| 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17 → **effective N ≈ 181**; lag-1 autocorrelation 0.32; run length 6.08 vs 2.03 under i.i.d. | `audit/block_structure.py` |
+| 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17–38 → **effective N ≈ 80–180** (80 for a metric pooled over fields); lag-1 autocorrelation 0.32; in mixed sessions runs of 5.42 fields vs 2.50 shuffled | `audit/block_structure.py`, `audit/15_effective_n.py` |
 | 3 | **Failures occupy contiguous stretches of the chip** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views) | `audit/structure_probe.py` |
 | 4 | **Which fields are read matters — but no policy ranking is claimed** | label-based simulation suggests random > scan > adaptive (0.887 / 0.879 / 0.828 at k=8); with the model in the loop the ordering changes and **no paired difference survives a multiple-comparison correction** (13–15 chips). The tool uses spread sampling because reading the *first* k fields called a 100%-bad chip *pass* with 0.94 confidence | `audit/adaptive_sampling.py`, `audit/03c_policy_model_in_loop.py`, `audit/03d_policy_bootstrap.py` |
 | 4b | **The leakage is not unique to this benchmark** | a second organoid benchmark (OCT organoid tracking, zenodo.15783866) has **40.0% of test images in a (well, day) group that also appears in training** | `audit/06_oct_leakage.py` |
@@ -81,8 +81,8 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 
 * **per-field P(bad)** (continuous, not a hard label)
 * **chip call**: `pass` / `fail` / **`inconclusive`** with a posterior confidence
-* **how many fields were used** (fields are sampled *spread across the chip*, not the first k —
-  reading the first k can land inside a good region and stop early with a wrong confident call)
+* **how many fields were used** (fields are read from an *evenly spaced grid* — every field in order on chips of ≤ 20
+  fields; on a long chip reading the first k can land inside a good region and stop early with a wrong confident call)
 * **model card** with the measured performance, so the number is never read out of context
 
 ### Measured performance (25 unseen chips, 684 fields, session-disjoint)
@@ -96,7 +96,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | inconclusive (budget exhausted near P=0.5) | 8% |
 | **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** |
 | plain cap of 12 spread fields (for comparison) | 9.0 fields, 0.800 — as frugal, but only at 12 (cap 8: 0.720, cap 20: 0.760); no confidence, no *inconclusive* |
-| **min-8 and cap-12 re-selected without the test chips** (5-fold CV, 34 other sessions) | min **1** (0.680 here) and cap **20** (0.760 here); on those 68 chips the rule matches read-everything (0.765–0.779 vs 0.765) with 5.3–9.9 of 24.9 fields (`audit/09_inner_cv_minfields.py`) |
+| **min-8 and cap-12 re-selected without the test chips** (5-fold CV, 34 other sessions) | min **1** (0.708 on the 24 chips it calls here, 0.680 with every chip called) and cap **20** (0.760 here); on those 68 chips the rule matches read-everything (0.765–0.779 vs 0.765) with 5.3–9.9 of 24.9 fields (`audit/09_inner_cv_minfields.py`) |
 | held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution; line by line against each line's own test fields the AUC drop averages 16 points) |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 | **full held-out sessions** (all 1,377 fields; the rows above use the withheld half of each session) | read-everything 0.76 with 55.1 fields; shipped rule **0.76 with 9.0 fields**, no deferral, 6/25 confident-but-wrong (`audit/08_full_sessions.py`) |
@@ -159,7 +159,7 @@ The model is sensitive to the resize method, so browser scores of uploads are ap
 inference.py            chip-level tool (per-field P(bad) -> call + confidence + fields used)
 evaluate.py             session-disjoint evaluation of the tool (field metrics, sequential rule)
 model/                  MobileNetV3-small checkpoint + OOD reference statistics
-audit/                  audit scripts (every number in REPORT.md), each writing JSON into results/
+audit/                  audit scripts, each writing JSON into results/
 results/                one JSON per claim, plus the capacity/resolution checkpoints
 figures.py              every figure in REPORT.md, from results/*.json
 demo/                   Gradio demo (app.py) and the 44 bundled example fields

@@ -1,0 +1,15 @@
+{
+ "n_fields": 3072,
+ "n_sessions": 59,
+ "session_size_min": 6,
+ "session_size_max": 229,
+ "icc_session": 0.3205363148502798,
+ "m0_anova": 50.94622171336207,
+ "deff_anova": 17.009577848696104,
+ "n_eff_anova": 180.60412946906197,
+ "m_kish": 117.119140625,
+ "deff_kish": 38.220401419518915,
+ "n_eff_kish": 80.37592191355554,
+ "n_eff_inverse_variance": 166.6898662477534,
+ "note": "n_eff_kish applies to a pooled per-field metric (fields weighted equally); n_eff_anova is the value block_structure.py reports; the range is 80-181."
+}

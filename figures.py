@@ -88,12 +88,15 @@ def fig_label_structure():
     ratio_mixed = b["runlen_mixed"] / b["runlen_mixed_permuted"]
     ax[1].set_title(f"(b) runs are {ratio:.0f}x longer than i.i.d.\n({ratio_mixed:.1f}x within mixed sessions vs shuffled)",
                     fontsize=9, loc="left")
-    icc, deff, neff = b["icc_session"], b["deff_session"], b["n_eff_session"]
-    ax[2].bar(["ICC", "design\neffect / 20", "effective N\n/ 1000"],
-              [icc, deff / 20, neff / 1000], color=["#4a6fa5", "#c0392b", "#c0392b"])
-    for i, v in enumerate([icc, deff / 20, neff / 1000]):
-        ax[2].text(i, v + 0.01, f"{[icc, deff, neff][i]:.3g}", ha="center", fontsize=9)
-    ax[2].set_title(f"(c) {b['n_images']:,} labels carry ~{neff:.0f}\nindependent observations", fontsize=9, loc="left")
+    e = load("effective_n.json")          # effective N under three cluster-size conventions
+    names = ["Kish m~\n(pooled metric)", "inverse-\nvariance", "ANOVA m0"]
+    vals = [e["n_eff_kish"], e["n_eff_inverse_variance"], e["n_eff_anova"]]
+    ax[2].bar(names, vals, color=["#c0392b", "#c0392b", "#c0392b"])
+    for i, v in enumerate(vals):
+        ax[2].text(i, v + 3, f"{v:.0f}", ha="center", fontsize=9)
+    ax[2].set_ylabel("effective N (labels)")
+    ax[2].set_title(f"(c) ICC {e['icc_session']:.3f}: {e['n_fields']:,} labels carry\n"
+                    f"~{min(vals):.0f}-{max(vals):.0f} independent observations", fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig3_label_structure.png", dpi=150); plt.close(fig)
 
 

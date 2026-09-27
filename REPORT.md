@@ -22,7 +22,7 @@ exists for automating this: the **OOC Image Dataset** (3,072 brightfield fields,
 sessions, six cell lines, labels from four expert cell biologists by majority vote). Before
 building on it we asked a simple question: *is this benchmark measuring what it claims to measure?*
 
-It is not, in three specific and measurable ways.
+It is not. Four measured findings:
 
 1. **The published split leaks sessions.** Training and test images come from the *same 57 of 59
    sessions*. Holding the test images and the training-set size fixed, and changing only whether
@@ -30,9 +30,9 @@ It is not, in three specific and measurable ways.
    4.2–11.5) and AUC by +8.9 pp (95% CI 6.7–11.0)** across eight seeds. The shipped split reports
    78.9%; the same model on unseen sessions reports 56.0%, below always predicting the commoner label there (65.7%).
 2. **The 3,072 labels are not 3,072 independent observations.** Labels are strongly autocorrelated
-   along the acquisition order (session ICC 0.321, mean run length 6.08 fields versus 2.03 under
-   independence). The design effect is 17, so the benchmark carries the information of roughly
-   **181 independent labels** — and a single field agrees with the session's majority label only
+   along the acquisition order (session ICC 0.321; in mixed sessions runs average 5.42 fields versus
+   2.50 with the labels shuffled). The design effect is 17–38 depending on how sessions of unequal size
+   are weighted, so the benchmark carries roughly **80–180 independent labels** — and a single field agrees with the session's majority label only
    **78.8%** of the time (91.0% even with ten fields).
 3. **The failure mode is spatial, not per-image — and our own policy comparison did not survive
    its own criticism.** Failures occupy contiguous stretches of a chip (runs test significant in
@@ -41,7 +41,7 @@ It is not, in three specific and measurable ways.
    ranking disappears** — over 13–15 chips no paired difference survives a correction for the six
    comparisons made (§4.3). What does survive is a concrete, reproducible failure: reading the **first** *k*
    fields called a 100%-bad chip *pass* with 0.94 confidence, because the start of a session can
-   sit inside a good region. The shipped tool samples fields spread across the chip for that
+   sit inside a good region. The shipped tool reads an evenly spaced grid of fields for that
    reason, not on the strength of a policy ranking.
 
 4. **The leakage is not unique to this benchmark.** Auditing a second public organoid imaging
@@ -50,17 +50,17 @@ It is not, in three specific and measurable ways.
 
 We then built the tool the corrected protocol implies, and measured what it buys: on 25 unseen
 chips it reaches the same chip-level accuracy as reading **every** field (0.800) while using **9.5
-fields instead of 27.4** — 2.9× fewer fields to image and inspect — and defers 8% of chips to a human
-rather than guessing. Fields are sampled **spread across the
-chip** (reading the first *k* can sit inside a good region and stop early — we observed a 100%-bad
+fields instead of 27.4** — 2.9× fewer fields to inspect — and defers 8% of chips to a human
+rather than guessing. Fields are read from an **evenly spaced grid**
+(every field in turn on chips of ≤ 20 fields; reading the first *k* of a long chip can sit inside a good region and stop early — we observed a 100%-bad
 chip called *pass* with 0.94 confidence), and a sequential stopping rule returns **pass / fail /
 inconclusive** with a posterior confidence. On 25 unseen chips: **82.6% chip-level accuracy on the
 chips it calls (23 of 25), 13% of calls confident-but-wrong, 8% inconclusive, 9.5 fields on average**. A plain cap
 of 12 spread fields per chip does as well on field count (9.0 on average, 0.800); the saving comes
 from not reading every field, and what the sequential rule adds is a posterior confidence and the
 option to defer. The 8-field minimum behind these numbers was tuned on the same 25 chips; re-selected
-by cross-validation on the other 34 sessions it would be 1, which scores 0.680 here (§6.2(c)). On those
-independent chips the rule still matches reading every field with a fifth to two-fifths of the fields.
+by cross-validation on the other 34 sessions it would be 1, which scores 0.680 here with every chip called (0.708 on the 24 it calls; §6.2(c)). On those
+out-of-fold chips the rule still matches reading every field with a fifth to two-fifths of the fields.
 
 We also report two things we could not do, because they define the honest boundary of this work:
 the **re-image vs discard** distinction is *not* supported by the data (a constructed recovery
@@ -167,7 +167,7 @@ skipped. The i.i.d. expected run length is `1 / (2p(1−p))` with `p` the observ
 **Intraclass correlation and design effect.** For clusters (sessions) with sizes `n_i`, ICC(1) is
 estimated by one-way ANOVA, `ICC = (MSB − MSW) / (MSB + (m₀ − 1)·MSW)` with
 `m₀ = (N − Σn_i²/N)/(k − 1)`; the design effect is `1 + (m₀ − 1)·ICC` and the effective sample size
-is `N / design effect`. This is the standard cluster-sampling treatment of "images within a chip".
+is `N / design effect`; for a metric pooled over fields we also use Kish's `m̃ = Σn_i²/N`.
 
 **Controlled leakage A/B.** Test images are fixed by choosing 20 sessions and withholding half of
 each session's fields as the test set. The other half of those sessions' fields are *available* but
@@ -187,12 +187,12 @@ number that was never tuned; none of the three was varied on the test chips. `mi
 §6.2 reports how it was re-selected without them.
 
 **Spread-field order.** With `n` available fields and a budget of `k`, the rule inspects indices
-`round(i·(n−1)/(k−1))` for `i = 0…k−1`, i.e. fields spaced evenly across the acquisition order. This
-replaces "the first `k` fields" after the failure described in §6.2.
+`round(i·(n−1)/(k−1))` for `i = 0…k−1`, fields spaced evenly across the acquisition order and read in that order;
+when `n ≤ k` this is every field, so it differs from "the first `k`" only on chips larger than the budget.
 
 **Metrics.** *Field accuracy* is the fraction of fields whose predicted side of 0.5 matches the
-expert label. *Chip reference* is the session's majority label (a tie counts as `good`; one test
-chip, 220606, is tied). *Chip accuracy among called
+expert label. *Chip reference* is the majority label of the chip's own fields (for a test chip, the withheld
+half of its session; a tie counts as `good`; one test chip, 220606, is tied). *Chip accuracy among called
 chips* counts every chip that received a *pass* or *fail* — whether the rule stopped at confidence
 ≥ 0.9 or exhausted the budget outside the inconclusive band; *false-confident rate* is the fraction
 of called chips whose call was wrong with posterior confidence ≥ 0.9; *inconclusive rate* is the
@@ -287,15 +287,14 @@ counting a new view whenever a field's correlation with the previous one falls b
 **1,161 distinct views among 1,183 images (98%)**. The clustering
 is therefore not redundancy; **failures occupy contiguous regions of the chip**.
 
-**Effective sample size.** With a session-level intraclass correlation of **ICC = 0.321** and an ANOVA-adjusted mean
-cluster size of m ≈ 51 fields, the design effect is `1 + (m−1)·ICC = 17.0`, so for estimating a metric
-the benchmark carries the information of roughly **3,072 / 17 ≈ 181 independent labels** — an
-order of magnitude for estimating a metric (hundreds, not thousands), not a limit on learning. The mean lag-1 autocorrelation
+**Effective sample size.** With **ICC = 0.321**, the design effect `1 + (m−1)·ICC` is 17.0 with the ANOVA
+m ≈ 51 (≈ 181 labels) and 38.2 with Kish's m̃ ≈ 117, the one for a metric pooled over fields (≈ 80;
+inverse-variance weighting gives ≈ 167): roughly **80–180 independent labels** — an order of magnitude for estimating a metric (hundreds, not thousands), not a limit on learning. The mean lag-1 autocorrelation
 is 0.32 (53% of sessions above 0.3).
 
 ![Figure 3](figures/fig3_label_structure.png)
-*Figure 3. (a) runs-test z per session; (b) observed versus i.i.d. run length, pooled over all sessions; (c) ICC, design
-effect and effective sample size.*
+*Figure 3. (a) runs-test z per session; (b) observed versus i.i.d. run length, pooled over all sessions; (c) effective sample
+size under three cluster-size conventions (§3).*
 
 Agreement degrades with culture age and is cell-line dependent:
 
@@ -491,7 +490,7 @@ From the audit, three rules follow for anyone training or benchmarking on this d
    sessions and the confidence interval on chip-level accuracy is correspondingly wide.
 2. **Evaluate at the chip level.** Report (i) per-field accuracy/AUC *and* (ii) chip-level accuracy
    with the number of fields used, because per-field numbers do not answer the lab's question and
-   are far less certain than their count suggests under within-session correlation (effective N ≈ 181,
+   are far less certain than their count suggests under within-session correlation (effective N ≈ 80–180,
    not 3,072).
 3. **State the sampling policy.** Which fields were used, and how many. Policies differ in
    principle (§4.3) and we could not rank them with this benchmark's 59 sessions; a number is only
@@ -513,8 +512,8 @@ dataset.
   split (1,495 train / 200 val / 684 test fields from 25 unseen sessions);
 * a **chip call** — `pass`, `fail`, or `inconclusive` — from a Beta(1,1) posterior on the bad
   fraction, stopping when `P(chip bad) > 0.9` or `< 0.1`;
-* **how many fields were needed**, with fields chosen **spread across the chip** rather than the
-  first *k*;
+* **how many fields were needed**, with fields read from an **evenly spaced grid** (every field in
+  order on chips of ≤ 20 fields);
 * a **QC map** (field index vs P(bad)) and a `chip_report.json`.
 
 **Model and training.** MobileNetV3-small [4], ImageNet-initialised, classifier head replaced with a
@@ -522,7 +521,7 @@ dataset.
 decay 0.02), cosine schedule to lr/30, label smoothing 0.05, batch 32, 25 epochs
 (≈14 s/epoch on one RTX 3090, ≈6 min total), RandomResizedCrop(0.7–1.0) + horizontal/vertical
 flips. Label smoothing and the modest capacity are deliberate: the labels are four-rater
-majorities, and 3,072 fields with an effective N of ~181 do not support a large model. The
+majorities, and 3,072 fields with an effective N of ~80–180 do not support a large model. The
 checkpoint is shipped in `model/`.
 
 ### 6.2 Two bugs found during deployment, and how their fixes were chosen
@@ -539,7 +538,7 @@ at 0.91).
 **(b) The Beta posterior is overconfident on few fields.** With three `good` fields and no `bad`
 one, `P(chip bad) = 0.0625` — "94% confident" — which is indefensible when the per-field model is
 imperfect. Requiring a minimum of eight fields before a stop is allowed cut the false-confident
-rate from 25% to 13%.
+rate from 25% to 13% — but it cannot act on the 10 chips with fewer than eight fields (Table 7).
 
 **(c) The value 8 was read off the test chips, and it does not survive re-selection.** Both fixes
 above were found *on* the 25 test chips, and the minimum of eight was chosen from a sweep on them
@@ -564,7 +563,7 @@ trims confident errors (11 → 8 of 68 at min 12) for one chip of accuracy. What
 the efficiency claim: at every minimum the rule matches reading every field (0.765–0.779 versus
 0.765) with 5.3–9.9 fields instead of 24.9, and in the deferring mode it is 0.806 on the 62 of 68
 chips it calls at min 8 (0.800 on 65 at min 1) — close to the 0.826 measured on the test chips. We keep min 8 in the tool for the a-priori reason in (b)
-— three agreeing fields cannot justify 94% — and report the test-chip numbers at 8 below with this
+— three agreeing fields cannot justify 94% (a reason that holds only on chips of eight or more fields) — and report the test-chip numbers at 8 below with this
 caveat. The same re-selection picks the plain cap of Table 6 as **20**, not 12 (0.765 on the 68
 chips, 0.760 on the test chips with 12.6 fields), and reading the first fields instead of spread
 ones is no better there (0.750 vs 0.765 at min 8): the spread order is kept for the failure in (a),
@@ -681,7 +680,7 @@ three flags session 230405**, the worst failure. We therefore do not present an 
 safety feature; the distance is exposed as a diagnostic only.
 
 **What this means in practice.** The tool is usable as a *screening* aid with a human in the loop,
-not as an autonomous gate. Its measured error rate (13% confident-but-wrong) is the number to quote
+not as an autonomous gate. Its measured error rate — 4 of 23 calls wrong (17%), 3 of them at ≥ 0.9 confidence (13%) — is the number to quote
 in any deployment decision.
 
 ### 6.6 Generalisation to a cell line the model has never seen
@@ -754,42 +753,34 @@ saved) — so a human starts with the chips that most need attention (passes are
 3 of 23 calls are confident and wrong), and the imaging budget follows the risk.
 
 **Data assetisation and standardisation.** The audit's most transferable result is that a chip
-imaging dataset's *information content* is not its file count: 3,072 fields carry roughly **181
+imaging dataset's *information content* is not its file count: 3,072 fields carry roughly **80–180
 independent labels**, and a published split that leaks acquisition groups can inflate accuracy by
 **7.9 pp**. Organisations building chip data assets, or training models on them, can use the same
 measurements to judge what their data is worth and when a reported number can be believed. The
 corrected protocol (session-level splits, chip-level metrics, explicit sampling policy) does not
 depend on this dataset; we have checked the split defect in two benchmarks, not more.
 
-**Drug evaluation and toxicology.** QC is the gate in front of every downstream readout. A
-chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess — can
-screen failing chips out before they reach dose-response curves (at the measured error rate: 3 of 23
-calls confident and wrong, so a human confirms), and makes the provenance of each excluded chip
-auditable.
+**Drug evaluation and toxicology.** QC gates every downstream readout: a chip-level layer with an
+*inconclusive* outcome can screen failing chips out before dose-response curves (a human confirms, given
+3 of 23 confident wrong calls) and makes each exclusion auditable.
 
-**Toward chip digital twins.** A digital twin needs a state estimate of the physical system at each
-time point. The tool's output is a first version of that at the culture level: a pass/fail state with a posterior confidence
-plus a spatial map of where the culture is degrading, and a measured cost (9.5 fields) for obtaining
-it. Feeding such state estimates into a model of the culture over time is the natural next step.
+**Toward chip digital twins.** The tool's output — a pass/fail state with a posterior confidence, a map
+of where the culture degrades, and its cost (9.5 fields) — is a first culture-level state estimate for a twin.
 
-**What we do not claim.** No wet-lab validation, no biological or clinical validity, one dataset for
-the tool, and 3 of 23 calls on unseen chips are confident (≥0.9) and wrong (§9). The contribution is a
-*measurement and decision layer* whose error rate is stated, not a biological finding.
+**What we do not claim.** No wet-lab validation, no biological or clinical validity, one dataset for the
+tool (§9). The contribution is a *measurement and decision layer* whose error rate is stated.
 
 ## 8. Discussion
 
 **For benchmark authors.** Three checks are cheap and the published benchmark did not report them:
 a session-level (or patient- or chip-level) split, a design-effect estimate for the label, and the
 agreement of a single sample with its group's consensus. They change what an accuracy means: here
-the effective sample size is 6% of the nominal one, and the shipped split tests on seen chips.
+the effective sample size is 3–6% of the nominal one, and the shipped split tests on seen chips.
 
-**For laboratories.** The practical consequence of clustered failures is that *which* fields are
-imaged matters: the same rule reads the same chip correctly or not depending on whether it looks at
-the beginning of the acquisition order or across the whole chip. We could not establish a general
-ranking between random, scan and adaptive sampling with 59 sessions (§4.3), so the tool uses spread
-sampling to avoid the specific failure we observed rather than as an optimised policy. Its cost
-(9.5 fields on average) is modest; its error rate (13% confident-but-wrong) is the number that
-matters in a deployment decision.
+**For laboratories.** With clustered failures, *which* fields are read matters: the same rule calls a
+long chip right or wrong depending on whether it reads the start or the whole acquisition order. We
+could not rank sampling policies with 59 sessions (§4.3); the evenly spaced grid avoids the one failure
+we observed. Its cost is 9.5 fields; its error rate (4 of 23 calls wrong, 3 confidently) is what matters.
 
 **For method developers.** Per-field errors interact with early stopping (Figure 7: 0.875 on labels,
 0.708 with the model, same rule and chips, no minimum). Policy numbers from label simulations should
@@ -803,15 +794,11 @@ settle it, and would be a small, valuable addition to this benchmark.
 
 ## 9. Limitations
 
-1. **13% confident-but-wrong** on unseen chips: 4 of 23 calls are wrong, 3 of them with ≥0.9
-   confidence. The stated confidence is a posterior under an independence assumption, not a
-   calibrated probability: it averages 0.93 over the 23 calls, while 0.826 of them are correct.
-   This is a research prototype, not a
-   validated instrument; a chip should not be discarded on its output alone.
-2. **No reliable out-of-distribution detector.** We tested image-statistics distance and
-   feature-space Mahalanobis distance against the training chips; both failed to flag the worst
-   case (the 100%-bad chip called *pass* with 0.94 confidence). The tool exposes the distance as a
-   diagnostic only.
+1. **4 of 23 calls wrong on unseen chips, 3 of them at ≥0.9 confidence (13%).** The confidence is a
+   posterior under an independence assumption, not a calibrated probability (mean 0.93 over the 23
+   calls; 0.826 correct). A research prototype: no chip should be discarded on its output alone.
+2. **No reliable out-of-distribution detector.** Image-statistics and feature-space distances both
+   missed the worst case (§6.5); the tool exposes the distance as a diagnostic only.
 3. **The re-image/discard recommendation is not validated** (§4.5) and is not part of the tool's
    output.
 4. **One dataset, 25 test chips.** Chip-level metrics carry wide confidence intervals; we report
@@ -819,8 +806,8 @@ settle it, and would be a small, valuable addition to this benchmark.
    the full sessions the rule is 0.76 accurate with 6 of 25 confident-but-wrong (§6.4). No wet-lab validation was performed, and we make no
    biological or clinical claim — the claim is about *measurement validity*.
 5. **Sampling policies could not be ranked.** The label-based comparison (§4.3, Table 3) is
-   underpowered when repeated with the model in the loop (13–15 chips; no paired difference
-   survives a correction for six comparisons). We report the policy we use and the failure that motivates it, not a ranking.
+   underpowered with the model in the loop (13–15 chips; no paired difference survives a correction
+   for six comparisons). We report the policy we use and why, not a ranking.
 6. **Labels come from a four-rater majority**, and inter-rater agreement is not public, so we cannot
    say how close any accuracy here is to the ceiling the labels allow; some of the measured error may
    be label noise rather than model error.
@@ -849,7 +836,8 @@ python3 audit/01b_leakage_ci.py         # paired 95% CIs over the 8 seeds (§4.1
 python3 audit/structure_probe.py        # runs test, Table 1; metadata model (§4.2, §4.7)
 python3 audit/02c_celltype_control.py   # runs test within same-cell-type stretches (§4.2)
 python3 audit/02d_redundancy.py         # consecutive vs random field correlation, distinct views (§4.2)
-python3 audit/block_structure.py        # ICC 0.321, design effect 17, effective N ≈ 181 (§4.2)
+python3 audit/block_structure.py        # ICC 0.321, design effect 17 (ANOVA m0) (§4.2)
+python3 audit/15_effective_n.py        # effective N 80 (Kish) – 181 (ANOVA m0) (§4.2)
 python3 audit/label_sufficiency.py      # single-field agreement, Table 2 (§4.2)
 python3 audit/adaptive_sampling.py      # policy comparison on labels, Table 3 (§4.3)
 python3 audit/03c_policy_model_in_loop.py   # ... with the model in the loop, Table 4 (§4.3)
@@ -883,23 +871,21 @@ Every number in this report is written to `results/*.json` by the script that pr
 Pillow 12.3, Matplotlib 3.10, Gradio 6.20, ONNX Runtime 1.23 (Python) and ONNX Runtime Web 1.20 (browser),
 on one RTX 3090; the tool runs on CPU. The demo video's narration is synthesised with edge-tts
 (Microsoft neural voice en-US-AriaNeural). An AI coding assistant (Claude) was used for code, analysis
-scripts and drafting; every number was checked against the results files by `check_numbers.py`.
+scripts and drafting; headline numbers are pinned to result keys and every report table is checked cell by cell
+(`check_numbers.py`, `check_tables.py`).
 
 ---
 
 ## 11. Related work
 
-**Leakage in benchmarks.** Split leakage is a known and actively studied class of problem: Ramos et
-al. audit leakage across seven visual datasets and measure its effect on downstream evaluation [7];
-whole-slide-image multimodal benchmarks have been shown to leak at patient *and* institution level,
-with a measurable accuracy gap between leaked and audit-clean cases [8]; OCT classification was shown to be inflated by improper splitting
-[9]. Tooling exists for near-duplicate detection and grouped splitting [10,11]. Our finding is a
-new instance of this class, with the magnitude measured in an OoC QC benchmark by a controlled A/B.
+**Leakage in benchmarks.** Split leakage is a known class of problem: Ramos et al. audit it across seven
+visual datasets [7]; whole-slide-image benchmarks leak at patient and institution level, with a
+measurable accuracy gap [8]; OCT classification was inflated by improper splitting [9]; tooling exists
+for near-duplicate detection and grouped splitting [10,11]. Ours is a new instance, with the magnitude
+measured in an OoC QC benchmark by a controlled A/B.
 
-**Clustered labels and effective sample size.** Treating images as correlated clusters when
-computing power or sample size is standard in imaging study design [12], and effective sample size
-under autocorrelation is textbook. We apply these tools to field-level QC labels and quantify the
-consequence for a benchmark (≈181 independent labels).
+**Clustered labels and effective sample size.** Treating images as correlated clusters is standard in
+imaging study design [12]; we apply it to field-level QC labels (≈80–180 independent labels).
 
 **Microscopy QC.** Automated QC for high-throughput microscopy has its own benchmarks and methods
 (e.g. AutoQC-Bench, 2025 [13]); classical QC metrics for microscopy images are long established
@@ -914,17 +900,15 @@ chip-level QC protocol; the field-dependence we measure is a property of this la
 
 ## 12. Conclusion
 
-A public benchmark for organ-on-a-chip quality control reports per-image accuracy on a split that
-leaks sessions (+7.9 pp measured by controlled A/B, 8 seeds), with labels that are clustered along the
-acquisition order (ICC 0.321; effective N ≈ 181 of 3,072) and field-dependent (a single field
-agrees with the session majority 78.8% of the time). Correcting the protocol — session-grouped
-splits, chip-level evaluation, explicit sampling policy — and sampling fields spread across the
-chip yields a tool that reaches 82.6% chip-level accuracy on the chips it calls with 9.5 fields on
-average, and says "inconclusive" when it cannot decide — but its 8-field minimum was tuned on the
-test chips (0.680 without them, §6.2(c)) and its margin over calling every chip *pass* is not
-significant (§9). The firm results are the audit; the tool's field saving is the practical one.
-Label-only simulation overstates the rule (0.875 vs 0.708 with the model), and neither a
-re-image/discard split nor a reliable OOD detector was supported.
+A public OoC QC benchmark reports per-image accuracy on a split that leaks sessions (+7.9 pp in a
+controlled A/B, 8 seeds), with labels clustered along the acquisition order (ICC 0.321; effective N
+≈ 80–180 of 3,072) and field-dependent (one field agrees with the session majority 78.8% of the time).
+A session-grouped, chip-level protocol yields a tool that matches reading every field with 9.5 fields
+and says "inconclusive" when it cannot decide (82.6% on the chips it calls) — but its 8-field minimum
+was tuned on the test chips (0.680 with every chip called without them, §6.2(c)) and its margin over
+calling every chip *pass* is not significant (§9). The firm results are the audit; the tool's field
+saving is the practical one. Label-only simulation overstates the rule (0.875 vs 0.708 with the model);
+neither a re-image/discard split nor a reliable OOD detector was supported.
 
 ---
 

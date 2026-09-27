@@ -60,7 +60,7 @@ def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
            f"- model card: field acc {MODEL_CARD['field_accuracy']}, "
            f"chip acc among called chips {MODEL_CARD['chip_accuracy_among_confident']}, "
            f"false-confident {MODEL_CARD['false_confident_rate']} "
-           f"(min_fields 8 was tuned on the test chips; untuned: 0.680)")
+           f"(min_fields 8 was tuned on the test chips; untuned min 1: 0.708 on 24 calls, 0.680 with every chip called)")
     report = json.dumps(dict(call=call, p_bad=p_final, fields_used=used,
                              n_fields=len(probs), per_field=[round(p, 4) for p in probs],
                              model_card=MODEL_CARD), indent=1)
@@ -101,7 +101,7 @@ with gr.Blocks(title="Organ-on-a-chip QC") as demo:
         "Feed in the brightfield fields of **one chip** (filenames in acquisition order). "
         "The tool reports a chip call, a posterior confidence, how many fields it needed, and a "
         "per-field QC map.\n\n"
-        "**It is a research prototype**: 13% of calls are confident but wrong on unseen chips, and we "
+        "**It is a research prototype**: 4 of 23 calls are wrong on unseen chips (3 of them confidently), and we "
         "could not build a reliable OOD detector — see the repository README."
     )
     with gr.Tab("single chip"):
