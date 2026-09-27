@@ -752,10 +752,10 @@ saved) — so a human starts with the chips that most need attention (passes are
 **Data assetisation and standardisation.** The audit's most transferable result is that a chip
 imaging dataset's *information content* is not its file count: 3,072 fields carry roughly **181
 independent labels**, and a published split that leaks acquisition groups can inflate accuracy by
-**7.9 pp**. Any organisation building chip data assets — or training models on them — needs exactly
-this kind of measurement to know what its data is worth and when a reported number can be believed.
-The corrected protocol (session-level splits, chip-level metrics, explicit sampling policy) is
-dataset-agnostic and applies to any group-structured imaging corpus.
+**7.9 pp**. Organisations building chip data assets, or training models on them, can use the same
+measurements to judge what their data is worth and when a reported number can be believed. The
+corrected protocol (session-level splits, chip-level metrics, explicit sampling policy) does not
+depend on this dataset; we have checked the split defect in two benchmarks, not more.
 
 **Drug evaluation and toxicology.** QC is the gate in front of every downstream readout. A
 chip-level QC layer — with an explicit *inconclusive* outcome instead of a guess — can
