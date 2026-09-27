@@ -112,7 +112,7 @@ def fig_sampling():
     for p in pol:
         ax[1].plot(mk, [m[str(k)][p]["chip_acc"] for k in mk], "o-", color=col[p], label=p)
         ax[1].plot(mk, [m[str(k)][p]["bad_recall"] for k in mk], "o--", color=col[p], alpha=.6)
-    ax[1].set_title("(b) with the model in the loop (25 unseen chips)", fontsize=9, loc="left")
+    ax[1].set_title("(b) with the model in the loop (unseen chips with >= k fields)", fontsize=9, loc="left")
     ax[1].set_xlabel("fields sampled (budget)"); ax[1].legend(fontsize=8)
     ax[1].set_ylim(ax[0].get_ylim())
     # paired differences with bootstrap CIs (k=12)

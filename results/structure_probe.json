@@ -466,5 +466,7 @@
  },
  "n_sessions_tested": 45,
  "n_significant": 23,
- "n_clustered": 36
+ "n_clustered": 36,
+ "expected_clustered_if_random": 18.994500000000002,
+ "expected_significant_if_random": 2.1375
 }

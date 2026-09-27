@@ -92,3 +92,5 @@
 27 leakage_ci.json:leaky_share_of_training.min %.0f
 50 leakage_ci.json:leaky_share_of_training.max %.0f
 0.74 leakage_ci.json:leaky_share_of_training.pearson_r_auc .2f
+19.0 structure_probe.json:expected_clustered_if_random .1f
+2.1 structure_probe.json:expected_significant_if_random .1f

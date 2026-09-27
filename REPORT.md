@@ -254,7 +254,8 @@ not.
 contiguous blocks of equal label). Under independence the expected run length is
 `1 / (2 p (1-p))`; with `p ≈ 0.56` that is **2.03** fields. Observed: **6.08**. A Wald–Wolfowitz
 test is significant (p < 0.05) in **23 of the 45 mixed sessions**, and 36/45 have negative z
-(clustered) — against 22.5 expected by chance. The most extreme session has z = −11.9 (21 runs
+(clustered) — against 19.0 and 2.1 expected if each session's labels were in random order
+(2,000 permutations per session). The most extreme session has z = −11.9 (21 runs
 where 107.3 were expected, 215 fields).
 
 | session | fields | good share | runs | expected runs | z | p |
@@ -353,7 +354,7 @@ model's per-field probabilities on the 25 session-disjoint test chips
 | 8 | 0.789 / 0.300 | 0.818 / 0.311 | 0.776 / 0.296 |
 | 12 | 0.800 / 0.393 | 0.818 / 0.389 | 0.840 / 0.397 |
 
-*Table 4. The same policies with the model in the loop. The ordering changes — adaptive, the
+*Table 4. The same policies with the model in the loop (chips with at least k fields: 24, 15 and 13 at k = 4, 8, 12). The ordering changes — adaptive, the
 label simulation's worst caller at k ≥ 8, is nominally best at k=12 — but nothing survives a
 multiple-comparison correction. A paired bootstrap over chips (10,000 resamples,
 `audit/03d_policy_bootstrap.py`) gives 95% intervals at k=12 (13 chips) of [−0.08, −0.00] for

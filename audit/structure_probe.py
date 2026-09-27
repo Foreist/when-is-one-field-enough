@@ -115,6 +115,17 @@ def main():
                               runs=rt[0], expected=round(rt[1], 1), z=round(rt[2], 2), p=round(rt[3], 4)))
     n_sig = sum(1 for r in res_A if r["p"] < 0.05)
     n_clustered = sum(1 for r in res_A if r["z"] < 0)
+    # how many negative z to expect if labels were in random order (z is skewed in small sessions,
+    # so this is not simply half): 2,000 permutations of each session's labels
+    prng = np.random.default_rng(0)
+    exp_clustered, exp_sig = 0.0, 0.0
+    for s, v in sorted(by_sess.items()):
+        labs = [1 if r["cls"] == "good" else 0 for r in sorted(v, key=lambda r: r["idx"])]
+        if len(set(labs)) < 2:
+            continue
+        zs = [runs_test(list(prng.permutation(labs))) for _ in range(2000)]
+        exp_clustered += np.mean([z is not None and z[2] < 0 for z in zs])
+        exp_sig += np.mean([z is not None and z[3] < 0.05 for z in zs])
     print(f"\n[A] sessions tested {len(res_A)}  p<0.05 {n_sig}  clustered(z<0) {n_clustered}")
     for r in sorted(res_A, key=lambda x: x["p"])[:6]:
         print("   ", r)
@@ -192,7 +203,8 @@ def main():
     except Exception as e:
         print("   logistic skipped:", e)
 
-    json.dump(dict(A=res_A, B=res_B, n_sessions_tested=len(res_A), n_significant=n_sig, n_clustered=n_clustered),
+    json.dump(dict(A=res_A, B=res_B, n_sessions_tested=len(res_A), n_significant=n_sig, n_clustered=n_clustered,
+                   expected_clustered_if_random=float(exp_clustered), expected_significant_if_random=float(exp_sig)),
               open(OUT / "structure_probe.json", "w"), ensure_ascii=False, indent=1)
     print("\nsaved", OUT / "structure_probe.json")
 
