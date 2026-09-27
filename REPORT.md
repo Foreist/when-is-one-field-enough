@@ -335,15 +335,15 @@ measured **label sequences** at a fixed budget *k* (300 trials per session):
 * **adaptive** — start at a random field; if it was `bad`, expand to an unsampled neighbour; if
   `good`, jump elsewhere.
 
-| budget k | random: acc / recall / err | window: acc / recall / err | adaptive: acc / recall / err |
-|---|---|---|---|
-| 2 | 0.777 / 0.098 / 0.182 | 0.787 / 0.095 / 0.220 | 0.772 / 0.103 / 0.203 |
-| 4 | 0.835 / 0.197 / 0.119 | 0.819 / 0.186 / 0.173 | 0.803 / 0.214 / 0.154 |
-| 8 | 0.887 / 0.351 / 0.075 | 0.879 / 0.331 / 0.130 | 0.828 / 0.391 / 0.121 |
-| 12 | 0.916 / 0.430 / 0.055 | 0.890 / 0.413 / 0.107 | 0.830 / 0.475 / 0.109 |
-| 20 | 0.927 / 0.400 / 0.046 | 0.885 / 0.380 / 0.107 | 0.781 / 0.482 / 0.138 |
+| budget k | random: acc / recall / err | window: acc / recall / err | adaptive: acc / recall / err | commoner label |
+|---|---|---|---|---|
+| 2 | 0.777 / 0.098 / 0.182 | 0.787 / 0.095 / 0.220 | 0.772 / 0.103 / 0.203 | 0.661 |
+| 4 | 0.835 / 0.197 / 0.119 | 0.819 / 0.186 / 0.173 | 0.803 / 0.214 / 0.154 | 0.661 |
+| 8 | 0.887 / 0.351 / 0.075 | 0.879 / 0.331 / 0.130 | 0.828 / 0.391 / 0.121 | 0.661 |
+| 12 | 0.916 / 0.430 / 0.055 | 0.890 / 0.413 / 0.107 | 0.830 / 0.475 / 0.109 | 0.694 |
+| 20 | 0.927 / 0.400 / 0.046 | 0.885 / 0.380 / 0.107 | 0.781 / 0.482 / 0.138 | 0.697 |
 
-*Table 3. Label-based policy simulation. `err` = |estimated − true bad fraction|; a tied vote (even
+*Table 3. Label-based policy simulation. `err` = |estimated − true bad fraction|; last column = calling every chip (≥ k fields) its commoner label; a tied vote (even
 k) is broken at random. Random looks best for the call from k = 4 and adaptive best for
 localisation — and we do not believe this table.*
 
@@ -351,13 +351,13 @@ This is exactly the practice criticised in §6.7, so we repeat the comparison wi
 model's per-field probabilities on the 25 session-disjoint test chips
 (`audit/03c_policy_model_in_loop.py`):
 
-| budget k | random: acc / recall | window: acc / recall | adaptive: acc / recall |
-|---|---|---|---|
-| 4 | 0.791 / 0.335 | 0.785 / 0.321 | 0.772 / 0.323 |
-| 8 | 0.789 / 0.300 | 0.818 / 0.311 | 0.776 / 0.296 |
-| 12 | 0.800 / 0.393 | 0.818 / 0.389 | 0.840 / 0.397 |
+| budget k | random: acc / recall | window: acc / recall | adaptive: acc / recall | commoner label |
+|---|---|---|---|---|
+| 4 | 0.791 / 0.335 | 0.785 / 0.321 | 0.772 / 0.323 | 0.667 |
+| 8 | 0.789 / 0.300 | 0.818 / 0.311 | 0.776 / 0.296 | 0.667 |
+| 12 | 0.800 / 0.393 | 0.818 / 0.389 | 0.840 / 0.397 | 0.615 |
 
-*Table 4. The same policies with the model in the loop (chips with at least k fields: 24, 15 and 13 at k = 4, 8, 12). The ordering changes — adaptive, the
+*Table 4. The same policies with the model in the loop (chips with at least k fields: 24, 15 and 13 at k = 4, 8, 12; last column as in Table 3). The ordering changes — adaptive, the
 label simulation's worst caller at k ≥ 8, is nominally best at k=12 — but nothing survives a
 multiple-comparison correction. A paired bootstrap over chips (10,000 resamples,
 `audit/03d_policy_bootstrap.py`) gives 95% intervals at k=12 (13 chips) of [−0.08, −0.00] for
@@ -450,20 +450,21 @@ probabilities from a session-disjoint model (a lighter 224 px, 6-epoch model tha
 with its field threshold chosen on validation rather than the tool's 0.5), with the chip reference
 defined as before:
 
-| budget k | mean: acc / sens / spec | max: acc / sens / spec | top-2: acc / sens / spec |
-|---|---|---|---|
-| 1 | 0.704 / 0.456 / 0.832 | 0.704 / 0.456 / 0.832 | 0.704 / 0.456 / 0.832 |
-| 3 | 0.691 / 0.475 / 0.803 | 0.699 / 0.691 / 0.704 | 0.709 / 0.610 / 0.760 |
-| 5 | 0.678 / 0.493 / 0.767 | 0.626 / 0.686 / 0.598 | 0.627 / 0.574 / 0.653 |
-| 8 | 0.742 / 0.645 / 0.787 | 0.627 / 0.878 / 0.507 | 0.660 / 0.787 / 0.598 |
-| 12 | 0.742 / 0.851 / 0.710 | 0.570 / 1.000 / 0.354 | 0.631 / 0.997 / 0.452 |
+| budget k | mean: acc / sens / spec | max: acc / sens / spec | top-2: acc / sens / spec | commoner label |
+|---|---|---|---|---|
+| 1 | 0.704 / 0.456 / 0.832 | 0.704 / 0.456 / 0.832 | 0.704 / 0.456 / 0.832 | 0.660 |
+| 3 | 0.691 / 0.475 / 0.803 | 0.699 / 0.691 / 0.704 | 0.709 / 0.610 / 0.760 | 0.660 |
+| 5 | 0.678 / 0.493 / 0.767 | 0.626 / 0.686 / 0.598 | 0.627 / 0.574 / 0.653 | 0.683 |
+| 8 | 0.742 / 0.645 / 0.787 | 0.627 / 0.878 / 0.507 | 0.660 / 0.787 / 0.598 | 0.686 |
+| 12 | 0.742 / 0.851 / 0.710 | 0.570 / 1.000 / 0.354 | 0.631 / 0.997 / 0.452 | 0.671 |
 
-*Table 5. Aggregation rules (2 seeds, each its own split of 25 held-out sessions; 60 random k-field draws per chip, shared by all rules; chips with < k fields excluded). Field thresholds, chosen on validation by balanced accuracy: 0.30 and 0.25.*
+*Table 5. Aggregation rules (2 seeds, each its own split of 25 held-out sessions; 60 random k-field draws per chip, shared by all rules; chips with < k fields excluded; last column as in Table 3). Field thresholds, chosen on validation by balanced accuracy: 0.30 and 0.25.*
 
 `mean` maximises chip accuracy and keeps specificity high; `max` maximises sensitivity (it calls
 almost everything bad: specificity collapses to 0.35 at k=12) and `top-2` sits between. **The
 aggregation rule moves the operating point more than the per-field model does** — at k=12, accuracy
-ranges from 0.570 to 0.742 and sensitivity from 0.851 to 1.000 depending only on the rule. A QC
+ranges from 0.570 to 0.742 and sensitivity from 0.851 to 1.000 depending only on the rule. From k = 5,
+`max` and `top-2` fall below the commoner-label floor (last column); `mean` clears it only at k ≥ 8. A QC
 deployment must therefore state its aggregation rule; "accuracy" without it is not a specification.
 
 We also tested a rule that exploits the measured autocorrelation — smoothing the per-field scores
@@ -921,11 +922,10 @@ average, and says "inconclusive" when it cannot decide (the 8-field minimum behi
 tuned on the test chips; re-selected without them the rule scores 0.680, §6.2(c)). Two negative results bound the claims: the
 re-image/discard distinction is not supported by this data, and no reliable OOD detector was found.
 Simulating the same stopping rule on ground-truth labels overstates its performance with the model
-in the loop (0.875 vs 0.708 without a minimum-field guard), a caution that generalises beyond this
-benchmark.
+in the loop (0.875 vs 0.708 without a minimum-field guard).
 
 **Future work.** (i) Extend the model-in-the-loop versus label-only comparison to a second dataset
-and modality (a public patient-derived-organoid drug-response dataset is a candidate); (ii) a
+and modality; (ii) a
 calibrated stopping rule that accounts for the measured design effect; (iii) prospective validation
 of the two-mode (transient vs persistent) hypothesis with actual re-imaging.
 

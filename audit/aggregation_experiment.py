@@ -73,11 +73,13 @@ def simulate(pred, k, rules=("mean", "max", "top2"), trials=60, seed=0):
     for pi, yi, s in zip(pred["p"], pred["y"], pred["sessions"]):
         by_sess[s].append((pi, yi))
     res = {r: dict(acc=[], sens=[], spec=[]) for r in rules}
+    refs = []
     for s, v in by_sess.items():
         if len(v) < k:
             continue
         y = np.array([t[1] for t in v])              # y=1 good, 0 bad
         ref_bad = 1 if y.mean() < 0.5 else 0         # chip reference = majority bad
+        refs.append(ref_bad)
         for _ in range(trials):
             idx = rng.sample(range(len(v)), k)
             sc = np.array([v[i][0] for i in idx])    # P(bad) per sampled field
@@ -97,6 +99,7 @@ def simulate(pred, k, rules=("mean", "max", "top2"), trials=60, seed=0):
         out[r] = dict(acc=float(np.mean(res[r]["acc"])),
                       sens=float(np.mean(res[r]["sens"])) if res[r]["sens"] else float("nan"),
                       spec=float(np.mean(res[r]["spec"])) if res[r]["spec"] else float("nan"))
+    out["majority_share"] = float(max(np.mean(refs), 1 - np.mean(refs)))
     return out
 
 
@@ -127,7 +130,9 @@ def main():
         summary[str(k)] = {r: dict(acc=float(np.mean([s[r]["acc"] for s in sims])),
                                    sens=float(np.mean([s[r]["sens"] for s in sims])),
                                    spec=float(np.mean([s[r]["spec"] for s in sims]))
-                                   ) for r in sims[0]}
+                                   ) for r in sims[0] if r != "majority_share"}
+        # chance floor: calling every chip the commoner reference label (mean over seeds)
+        summary[str(k)]["majority_share"] = float(np.mean([s["majority_share"] for s in sims]))
     (OUT / "aggregation_results.json").write_text(json.dumps(
         dict(summary=summary, runs=preds, args=vars(args)), ensure_ascii=False, indent=1))
     print(json.dumps(summary, ensure_ascii=False, indent=1))

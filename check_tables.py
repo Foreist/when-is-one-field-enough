@@ -43,12 +43,14 @@ for r in rows('| budget k | random: acc / recall / err'):
     for p,c in zip(['random','window','adaptive'],r[1:]):
         x=[s.strip() for s in c.split('/')]; d=a[r[0]][p]
         for s,key in zip(x,['chip_acc','bad_recall','frac_err']): eq(f'T3 {r[0]} {p} {key}',s,d[key],'.3f')
+    eq(f'T3 {r[0]} maj',r[4],a[r[0]]['majority_share'],'.3f')
 # Table 4
 m=R('policy_model_in_loop.json')
 for r in rows('| budget k | random: acc / recall |'):
     for p,c in zip(['random','window','adaptive'],r[1:]):
         x=[s.strip() for s in c.split('/')]; d=m[r[0]][p]
         eq(f'T4 {r[0]} {p} acc',x[0],d['chip_acc'],'.3f'); eq(f'T4 {r[0]} {p} rec',x[1],d['bad_recall'],'.3f')
+    eq(f'T4 {r[0]} maj',r[4],m[r[0]]['majority_share'],'.3f')
 # recovery table
 rc=R('recovery_test.json')
 for r in rows('| feature set | CV AUC'):
@@ -60,6 +62,7 @@ for r in rows('| budget k | mean: acc / sens / spec'):
     for p,c in zip(['mean','max','top2'],r[1:]):
         x=[s.strip() for s in c.split('/')]; d=g[r[0]][p]
         for s,key in zip(x,['acc','sens','spec']): eq(f'T5 {r[0]} {p} {key}',s,d[key],'.3f')
+    eq(f'T5 {r[0]} maj',r[4],g[r[0]]['majority_share'],'.3f')
 # Table 8
 lo=R('lolo_cellline.json')['per_cell']
 for r in rows('| held-out cell line'):

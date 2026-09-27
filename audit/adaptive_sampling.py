@@ -107,6 +107,9 @@ def run(seqs, k, trials=TRIALS, seed=0):
                         bad_recall=float(np.nanmean(d["bad_recall"])),
                         bad_prec=float(np.mean(d["bad_prec"])),
                         frac_err=float(np.mean(d["frac_err"])), n=len(d["chip_acc"]))
+    # chance floor: calling every chip the commoner reference label
+    refs = [1 if (seq == 0).sum() * 2 > len(seq) else 0 for seq in seqs.values() if len(seq) >= k]
+    res["majority_share"] = float(max(np.mean(refs), 1 - np.mean(refs)))
     return res
 
 

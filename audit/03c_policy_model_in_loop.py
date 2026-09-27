@@ -111,6 +111,9 @@ def main():
                     if sum(c["bad"]):
                         rec[pol].append(sum(c["bad"][i] for i in idx) / sum(c["bad"]))
         res[k] = {p: dict(chip_acc=float(np.mean(acc[p])), bad_recall=float(np.mean(rec[p]))) for p in acc}
+        # chance floor: calling every chip the commoner reference label
+        refs = [int(np.mean(c["bad"]) > 0.5) for c in chips.values() if len(c["p"]) >= k]
+        res[k]["majority_share"] = float(max(np.mean(refs), 1 - np.mean(refs)))
         print(f"k={k}: " + "  ".join(f"{p} acc {res[k][p]['chip_acc']:.3f} / recall {res[k][p]['bad_recall']:.3f}"
                                      for p in ("random", "window", "adaptive")))
     (OUT / "policy_model_in_loop.json").write_text(json.dumps(res, indent=1))
