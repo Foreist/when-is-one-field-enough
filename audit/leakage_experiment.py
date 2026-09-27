@@ -158,9 +158,8 @@ def evaluate(model, loader, device, sessions=None):
     y = np.concatenate(ys); p = np.concatenate(ps)
     acc = float(((p > 0.5) == y).mean())
     # AUC
-    order = np.argsort(p)
-    ranks = np.empty_like(order, dtype=float)
-    ranks[order] = np.arange(1, len(p) + 1)
+    from scipy.stats import rankdata
+    ranks = rankdata(p)                                  # average ranks: ties count half
     npos, nneg = int(y.sum()), int((1 - y).sum())
     auc = float((ranks[y == 1].sum() - npos * (npos + 1) / 2) / (npos * nneg)) if npos and nneg else float("nan")
     per_sess = {}

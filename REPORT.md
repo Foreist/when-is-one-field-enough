@@ -223,7 +223,8 @@ composition, so we hold everything else fixed:
 * the **test images** are identical in both arms (20 sessions, 494–712 fields depending on the seed);
 * the **training-set size is identical** in the two arms (1,440–1,876 fields depending on the seed; the
   200 validation fields are identical too and outside both training sets);
-* the **model and budget are identical** (MobileNetV3-small [4], ImageNet-initialised, 6 epochs, 224 px);
+* the **model and budget are identical** (MobileNetV3-small [4], ImageNet-initialised, 6 epochs, 224 px,
+  AdamW 3e-4 constant, weight decay 0.01, batch 64, flip augmentation — lighter than the shipped model's recipe);
 * the only difference is whether the training set may use *the other images of the test sessions*
   (leaky; they make up 27–50% of its training fields, depending on the seed) or must come from
   disjoint sessions (disjoint).

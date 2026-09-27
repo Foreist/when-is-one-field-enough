@@ -77,7 +77,8 @@ def metrics(p, y, thr=0.5):
     tnr = float((~pred_bad[y == 1]).mean()) if (y == 1).any() else float("nan")
     # AUC (score = P(bad), positive class = bad)
     yy = (y == 0).astype(int)
-    order = np.argsort(p); ranks = np.empty_like(order, dtype=float); ranks[order] = np.arange(1, len(p) + 1)
+    from scipy.stats import rankdata
+    ranks = rankdata(p)                                  # average ranks: ties count half
     npos, nneg = int(yy.sum()), int((1 - yy).sum())
     auc = float((ranks[yy == 1].sum() - npos * (npos + 1) / 2) / (npos * nneg)) if npos and nneg else float("nan")
     return dict(acc=acc, bal_acc=float(np.nanmean([tpr, tnr])), auc=auc,

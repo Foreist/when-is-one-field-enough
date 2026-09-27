@@ -70,7 +70,8 @@ def main():
     Y = np.concatenate([np.array(c["y"]) for c in chips.values()])
     field_acc = float(((P > 0.5) == (Y == 0)).mean())
     yy = (Y == 0).astype(int)
-    order = np.argsort(P); ranks = np.empty_like(order, float); ranks[order] = np.arange(1, len(P) + 1)
+    from scipy.stats import rankdata
+    ranks = rankdata(P)                                  # average ranks: ties count half
     npos, nneg = int(yy.sum()), int((1 - yy).sum())
     auc = float((ranks[yy == 1].sum() - npos * (npos + 1) / 2) / (npos * nneg))
 
