@@ -10,7 +10,7 @@ and an explicit "inconclusive" outcome.
 | | |
 |---|---|
 | Technical report (20 pages + references, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
-| Demo video (4:41, narrated) | [plays in the browser](https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html) · file: [`demo_video.mp4`](demo_video.mp4) |
+| Demo video (4:53, narrated) | [plays in the browser](https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html) · file: [`demo_video.mp4`](demo_video.mp4) |
 | **Interactive demo** (permanent, no server, no login) | **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** |
 | Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it; `python3 check_numbers.py` fails if a number in REPORT/README has no source |
 
@@ -166,7 +166,7 @@ demo/                   Gradio demo (app.py) and the 44 bundled example fields
 check_numbers.py        fails if a number in REPORT/README has no source in results/*.json;
 check_tables.py         ... and cell by cell for the report's tables (called by check_numbers.py)
 make_report_pdf.py      REPORT.md -> report.pdf
-demo_video.mp4          narrated demo (4:41)
+demo_video.mp4          narrated demo (4:53)
 ```
 
 ## 6. Licence and attribution
