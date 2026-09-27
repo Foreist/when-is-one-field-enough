@@ -868,6 +868,13 @@ python3 demo/app.py                     # interactive demo
 Every number in this report is written to `results/*.json` by the script that produced it;
 `python3 check_numbers.py` fails if a number in REPORT/README cannot be traced to one of them.
 
+**External models, libraries and tools.** ImageNet-pretrained MobileNetV3 weights from torchvision
+(BSD-3-Clause). Tested with PyTorch 2.13, torchvision 0.28, NumPy 2.2, SciPy 1.15, scikit-learn 1.7,
+Pillow 12.3, Matplotlib 3.10, Gradio 6.20, ONNX Runtime 1.23 (Python) and ONNX Runtime Web 1.20 (browser),
+on one RTX 3090; the tool runs on CPU. The demo video's narration is synthesised with edge-tts
+(Microsoft neural voice en-US-AriaNeural). An AI coding assistant (Claude) was used for code, analysis
+scripts and drafting; every number was checked against the results files by `check_numbers.py`.
+
 ---
 
 ## 11. Related work
