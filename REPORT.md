@@ -46,7 +46,7 @@ It is not, in three specific and measurable ways.
 
 4. **The leakage is not unique to this benchmark.** Auditing a second public organoid imaging
    benchmark (OCT organoid tracking, zenodo.15783866) shows the same defect: **40.0% of its test
-   files belong to a (well, day) acquisition group that also appears in training** (§4.4).
+   images belong to a (well, day) acquisition group that also appears in training** (§4.4).
 
 We then built the tool the corrected protocol implies, and measured what it buys: on 25 unseen
 chips it reaches the same chip-level accuracy as reading **every** field (0.800) while using **9.5
@@ -64,7 +64,7 @@ independent chips the rule still matches reading every field with a fifth to two
 
 We also report two things we could not do, because they define the honest boundary of this work:
 the **re-image vs discard** distinction is *not* supported by the data (a constructed recovery
-target is not predictable; CV AUC 0.613 against a permutation null of 0.564), and **no reliable
+target is not predictable; CV AUC 0.613 against a permutation-null 95th percentile of 0.564), and **no reliable
 out-of-distribution detector** was found (image statistics and feature-space distance both missed
 the worst failure). Finally, simulating a stopping rule on ground-truth labels **overstates** it:
 on the same 25 chips, without a minimum-field guard, labels give 0.875 and the model 0.708.

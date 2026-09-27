@@ -64,7 +64,7 @@ The zip contains a top-level `OOC_image_dataset/` folder, so this lands at `../d
 | 3 | **Failures occupy contiguous stretches of the chip** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views) | `audit/structure_probe.py` |
 | 4 | **Which fields are read matters — but no policy ranking is claimed** | label-based simulation suggests random > scan > adaptive (0.887 / 0.879 / 0.828 at k=8); with the model in the loop the ordering changes and **no paired difference survives a multiple-comparison correction** (13–15 chips). The tool uses spread sampling because reading the *first* k fields called a 100%-bad chip *pass* with 0.94 confidence | `audit/adaptive_sampling.py`, `audit/03c_policy_model_in_loop.py`, `audit/03d_policy_bootstrap.py` |
 | 4b | **The leakage is not unique to this benchmark** | a second organoid benchmark (OCT organoid tracking, zenodo.15783866) has **40.0% of test images in a (well, day) group that also appears in training** | `audit/06_oct_leakage.py` |
-| 5 | **A re-image/discard rule is NOT supported** | recovery target CV AUC 0.613 vs permutation null p95 0.564; simple rules worse than the base rate → reported as an open problem | `audit/recovery_test.py` |
+| 5 | **A re-image/discard rule is NOT supported** | recovery target CV AUC 0.613 vs permutation null p95 0.564; a simple rule (run length ≤ 2 ⇒ recovers) scores 0.560, below the 0.624 base rate → reported as an open problem | `audit/recovery_test.py` |
 
 Known prior art we build on (leakage in benchmarks is a known class of problem):
 *Data Leakage in Visual Datasets* (Ramos et al., arXiv 2508.17416); *Auditing Data Leakage in
