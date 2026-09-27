@@ -102,10 +102,15 @@ def main():
     try:                                                   # the competition caps the report at 20 pages
         import pypdf
         pdf = HERE / "report.pdf"
-        n_pages = len(pypdf.PdfReader(str(pdf)).pages)
-        if n_pages > 20:
+        # the competition asks for 15-20 pages *excluding references and appendices*
+        pages = pypdf.PdfReader(str(pdf)).pages
+        ref_page = next((i for i, pg in enumerate(pages) if "\nReferences\n" in "\n" + pg.extract_text() + "\n"
+                         and "[1] Mov" in pg.extract_text()), len(pages) - 1)
+        body = ref_page + 1                        # the page on which References starts counts as body
+        if body > 20 or body < 15:
             bad += 1
-            print(f"report.pdf has {n_pages} pages (limit 20)", file=sys.stderr)
+            print(f"report.pdf body is {body} pages (references start on page {ref_page + 1}); "
+                  f"the rules ask for 15-20 excluding references", file=sys.stderr)
         # stale PDF: REPORT.md has uncommitted edits, or was committed after report.pdf last changed
         # (file mtimes are meaningless after a git checkout, so ask git)
         def git(*a):
