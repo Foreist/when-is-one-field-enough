@@ -489,7 +489,8 @@ From the audit, three rules follow for anyone training or benchmarking on this d
    sessions and the confidence interval on chip-level accuracy is correspondingly wide.
 2. **Evaluate at the chip level.** Report (i) per-field accuracy/AUC *and* (ii) chip-level accuracy
    with the number of fields used, because per-field numbers do not answer the lab's question and
-   are inflated by within-session correlation (effective N ≈ 181, not 3,072).
+   are far less certain than their count suggests under within-session correlation (effective N ≈ 181,
+   not 3,072).
 3. **State the sampling policy.** Which fields were used, and how many. Policies differ in
    principle (§4.3) and we could not rank them with this benchmark's 59 sessions; a number is only
    interpretable together with the policy that produced it.
@@ -745,7 +746,8 @@ borderline chip is called *pass* (P = 0.33) where its original fields give *inco
 **Laboratory automation.** The daily QC pass is the most repetitive imaging task in a chip lab: every
 chip is looked at, most are fine, and the decision is made by eye. The tool returns a ranked plate
 triage — on 25 test chips it flags 6 failures and defers 2, while spending 238 of 684 fields (65%
-saved) — so a human looks only where it matters, and the imaging budget follows the risk.
+saved) — so a human starts with the chips that most need attention (passes are not guaranteed:
+3 of 23 calls are confident and wrong), and the imaging budget follows the risk.
 
 **Data assetisation and standardisation.** The audit's most transferable result is that a chip
 imaging dataset's *information content* is not its file count: 3,072 fields carry roughly **181
