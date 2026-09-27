@@ -1,4 +1,8 @@
 {
+ "truth_counts": {
+  "passes": 16,
+  "fails": 9
+ },
  "k20": {
   "n_chips": 11,
   "first_acc": 0.6363636363636364,

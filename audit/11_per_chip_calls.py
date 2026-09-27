@@ -71,6 +71,8 @@ def main():
     k20 = [c for c in out.values() if c["k20_first"] is not None]
     wrong = sorted(s for s, c in out.items() if c["correct"] is False)
     (ROOT / "results" / "per_chip_calls.json").write_text(json.dumps(dict(
+        truth_counts=dict(passes=sum(c["truth"] == "pass" for c in out.values()),
+                          fails=sum(c["truth"] == "fail" for c in out.values())),
         k20=dict(n_chips=len(k20), first_acc=float(np.mean([c["k20_first"] for c in k20])),
                  spread_acc=float(np.mean([c["k20_spread"] for c in k20]))),
         wrong=wrong, inconclusive=sorted(s for s, c in out.items() if c["call"] == "inconclusive"),

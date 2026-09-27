@@ -571,8 +571,8 @@ not for a measured gain.
 
 | metric | value |
 |---|---|
-| per-field accuracy / AUC | 0.734 / 0.791 |
-| chip accuracy, all fields, mean | 0.80 |
+| per-field accuracy / AUC | 0.734 / 0.791 (always predicting `good`: 0.525) |
+| chip accuracy, all fields, mean | 0.80 (calling every chip *pass*: 0.64, 16 of 25) |
 | **chip accuracy among called chips** (spread fields, min 8 — tuned on these chips, §6.2(c)) | **0.826** (95% Wilson CI 0.63–0.93, n=23) |
 | **false-confident calls** (conf ≥ 0.9 and wrong, of 23 calls) | **13%** (3/23) |
 | inconclusive (budget exhausted near P = 0.5) | 8% |

@@ -98,3 +98,4 @@
 2.50 block_structure.json:runlen_mixed_permuted .2f
 0.507 structure_probe.json:B.majority_class_share .3f
 2,213 structure_probe.json:B.logistic_n ,d
+16 per_chip_calls.json:truth_counts.passes d

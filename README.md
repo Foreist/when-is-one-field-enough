@@ -89,8 +89,8 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 
 | metric | value |
 |---|---|
-| per-field accuracy / AUC | 0.734 / 0.791 |
-| chip accuracy, all fields, mean | 0.80 |
+| per-field accuracy / AUC | 0.734 / 0.791 (always `good`: 0.525) |
+| chip accuracy, all fields, mean | 0.80 (every chip *pass*: 0.64) |
 | chip accuracy **among called chips** (sequential, spread fields, min 8 — tuned on these chips, see below) | **0.826** (95% Wilson CI 0.63–0.93, 23 calls) |
 | **false-confident calls** (conf ≥ 0.9 and wrong, of 23 calls) | **13%** (3/23) |
 | inconclusive (budget exhausted near P=0.5) | 8% |
