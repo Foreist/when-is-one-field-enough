@@ -199,7 +199,8 @@ def main():
         for n, w in sorted(zip(names, m.coef_[0]), key=lambda t: -abs(t[1]))[:6]:
             print(f"      {n:<18} {w:+.3f}")
         print("   n used:", len(yf), " in-sample acc:", round(m.score(sc.transform(Xf), yf), 3))
-        res_B.update(logistic_n=int(len(yf)), logistic_in_sample_acc=float(m.score(sc.transform(Xf), yf)))
+        res_B.update(logistic_n=int(len(yf)), logistic_in_sample_acc=float(m.score(sc.transform(Xf), yf)),
+                     majority_class_share=float(max(yf.mean(), 1 - yf.mean())))
     except Exception as e:
         print("   logistic skipped:", e)
 

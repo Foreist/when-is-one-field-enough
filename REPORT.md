@@ -78,9 +78,9 @@ Everything is reproducible from one public dataset with the scripts in this repo
 ### 1.1 The problem
 
 Microphysiological systems — organ-on-a-chip, organoids in microfluidic devices — are promoted as
-human-relevant alternatives to animal testing. Their practical bottleneck is not the biology but
-the *bookkeeping*: a chip is imaged repeatedly over days, and at each session someone must decide
-whether the field in front of them is usable. Technical artifacts (air bubbles, defocus, deformed
+human-relevant alternatives to animal testing. One recurring practical step is quality control: a
+chip is imaged repeatedly over days, and at each session someone must decide whether the fields in
+front of them are usable. Technical artifacts (air bubbles, defocus, deformed
 channel walls) and biological problems (cells not attaching, density far from the expected range)
 both appear as "bad", and both are judged by eye, field by field.
 
@@ -88,7 +88,7 @@ Automating this judgement is attractive, and a public benchmark for it exists. B
 system inherits every property of its benchmark: if the benchmark's split leaks, reported accuracy
 is inflated; if its labels are clustered, its effective sample size is far smaller than it looks;
 if its labels are field-dependent, then "accuracy per image" is not the quantity a lab actually
-needs. None of these properties are usually checked.
+needs. The benchmark we audit reports none of these checks.
 
 **Who this is for.** (i) *Chip and organoid labs* that image cultures daily and decide keep /
 re-image / discard by eye; (ii) *imaging and data teams* building reusable, trustworthy culture
@@ -245,9 +245,9 @@ number of held-out sessions (six). We therefore treat the **controlled A/B as th
 and report the shipped/grouped pair only as context.
 
 **Why this matters for the benchmark.** Any model compared on the shipped split is compared on a
-test set whose sessions it has already seen. Model *rankings* may survive (the leak affects all
-models similarly), but the *absolute* numbers, and any claim of "generalisation to new chips", do
-not.
+test set whose sessions it has already seen. Model *rankings* may or may not survive (we compared
+one architecture, so we cannot say whether the leak favours some models), but the *absolute*
+numbers, and any claim of "generalisation to new chips", do not.
 
 ### 4.2 Labels are clustered along the acquisition order
 
@@ -474,8 +474,9 @@ fields (k=6: 0.792 → 0.795 with a 3-field and 0.793 with a 5-field window; `au
 ### 4.7 Metadata does not explain the labels
 
 A logistic model on day, log seeding density, flow rate and cell line reaches only 0.562 in-sample
-accuracy, and apparent cell-line differences (Caco-2 68.5% bad vs NHBE 23.9%) dissolve on
-inspection: every cell line has sessions with a 0% bad rate and sessions with 100%. The label is
+accuracy on the 2,213 fields with complete metadata, against 0.507 for always predicting the majority
+label. Cell lines do differ on average (Caco-2 68.5% bad vs NHBE 23.9%), but every cell line has
+sessions with a 0% bad rate and sessions with 100%. The label is
 dominated by **session-level** variation, consistent with §4.2.
 
 ---

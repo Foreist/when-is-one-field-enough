@@ -462,7 +462,8 @@
    ]
   },
   "logistic_n": 2213,
-  "logistic_in_sample_acc": 0.562132851333032
+  "logistic_in_sample_acc": 0.562132851333032,
+  "majority_class_share": 0.5065521915951198
  },
  "n_sessions_tested": 45,
  "n_significant": 23,
