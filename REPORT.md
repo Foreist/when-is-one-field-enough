@@ -698,8 +698,8 @@ split, one seed; `audit/05_lolo_cellline.py`):
 | in-distribution (all lines seen, §6.3) | 684 (25) | 0.734 | 0.733 | 0.791 |
 
 *Table 8. Leave-one-cell-line-out. The spread between cell lines (AUC 0.630–0.930) is larger than
-the effect of any modelling choice we tested — a backbone with 2.8× the parameters or 512 px inputs change
-nothing (§6.3).*
+the effect of either modelling change we tested — 2.8× the parameters or 512 px inputs moved AUC by
+at most 0.006 (§6.3).*
 
 **Deploying on a new cell line costs about seven AUC points on average and up to 22 accuracy
 points** (Caco-2, against the pooled 0.734; against Caco-2's own 89 fields in the session-disjoint
