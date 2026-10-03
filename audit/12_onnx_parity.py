@@ -8,7 +8,7 @@ check uses them).
 
 Writes results/onnx_parity.json
 """
-import json, sys
+import argparse, hashlib, json, sys
 from pathlib import Path
 
 import numpy as np
@@ -22,11 +22,21 @@ sys.path.insert(0, str(ROOT))
 from inference import TF, load_model   # noqa: E402
 
 SPACE = "taewoong23/ooc-chip-qc-demo"
+REVISION = "d5d27e9134a4d4cc6dcb39ef1250e3058bb8e92a"
+REMOTE_SHA256 = "bedae8a18f3662e0dd90f1d334c939cd50fef79e73ab3ded6cb429c701700c79"
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--onnx", type=Path, help="check a locally exported model instead of downloading")
+    ap.add_argument("--out", type=Path, default=ROOT / "results" / "onnx_parity.json")
+    args = ap.parse_args()
     model = load_model(str(ROOT / "model" / "perfield_mnv3s_384_s0.pt"))
-    sess = ort.InferenceSession(hf_hub_download(SPACE, "ooc_model.onnx", repo_type="space"))
+    path = args.onnx or Path(hf_hub_download(SPACE, "ooc_model.onnx", repo_type="space", revision=REVISION))
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if not args.onnx and digest != REMOTE_SHA256:
+        raise ValueError("pinned browser model SHA-256 mismatch")
+    sess = ort.InferenceSession(str(path))
     name = sess.get_inputs()[0].name
     files = sorted((ROOT / "demo" / "examples").glob("*/*.png"))
     diffs = []
@@ -38,9 +48,14 @@ def main():
         if not np.allclose(o.sum(-1), 1, atol=1e-4):          # logits -> softmax
             o = np.exp(o - o.max(-1, keepdims=True)); o /= o.sum(-1, keepdims=True)
         diffs.append(float(np.abs(a - o).max()))
-    out = dict(space=SPACE, n_fields=len(files), max_abs_diff=max(diffs), mean_abs_diff=float(np.mean(diffs)))
+    out = dict(space=SPACE, revision=REVISION if not args.onnx else None, onnx_sha256=digest,
+               n_fields=len(files), max_abs_diff=max(diffs), mean_abs_diff=float(np.mean(diffs)),
+               scope="identical Python-preprocessed tensors; not browser input-path validation")
+    if max(diffs) > 1e-4:
+        raise ValueError(f"ONNX parity exceeded tolerance: {max(diffs)}")
     print(out)
-    (ROOT / "results" / "onnx_parity.json").write_text(json.dumps(out, indent=1))
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(out, indent=1))
 
 
 if __name__ == "__main__":

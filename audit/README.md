@@ -12,7 +12,7 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 2a | `02c_celltype_control.py` | `celltype_control.json` | runs test survives a cell-type control |
 | 2b | `02d_redundancy.py` | `redundancy.json` | consecutive fields are correlated but not duplicates |
 | 2b | `block_structure.py` | `block_structure.json` | ICC 0.321, design effect 17 (ANOVA m0), effective N ≈ 181 |
-| 2c | `15_effective_n.py` | `effective_n.json` | effective N under three cluster-size conventions: 80 (Kish, pooled per-field metric), 167, 181 |
+| 2c | `15_effective_n.py` | `effective_n.json` | label-prevalence effective N under three cluster-size conventions: 80 (Kish, label mean), 167, 181 — not an accuracy/AUC N |
 | 2c | `label_sufficiency.py` | `label_sufficiency.json` | m-field majority vs session majority |
 | 3 | `adaptive_sampling.py` | `adaptive_sampling.json` | label-only: random = best for the call, adaptive = best for localisation (does not survive 3c) |
 | 3b | `stopping_rule.py` | `stopping_rule.json` | label-only stopping simulation (optimistic) |
@@ -25,19 +25,21 @@ Set `OOC_DATA` if the dataset is not at `../../data/OOC_image_dataset`.
 | 4a | `04b_run_image_stats.py` | `run_image_groups.json` | focus and darkness of isolated vs long bad runs vs good fields (motivation in REPORT §4.5) |
 | 4b | `06_oct_leakage.py` | `oct_leakage.json` | second benchmark: 40% of test images (2,792 of 6,980) share a (well, day) with training |
 | 5 | `perfield_model.py` | `perfield_*.pt/json` | trains the deployed per-field model (`--arch large`, `--size 512` for the capacity/resolution checks) |
-| 5b | `05_lolo_cellline.py` | `lolo_cellline.json` | leave-one-cell-line-out: unseen cell line costs ~7 AUC points |
+| 5b | `05_lolo_cellline.py` | `lolo_cellline.json` | leave-one-cell-line-out: ~7 AUC points in a separate evaluation (Resize+flips loader, no crop, different `drop_last`, one seed; gap not isolated to cell line) |
 | 5b | `qc_map.py` | `qc_maps_384.png` | per-chip QC maps |
 | 6 | `../evaluate.py` | `tool_evaluation.json` | deployed-tool numbers (section 3 of README) |
-| 6a | `09_inner_cv_minfields.py` | `inner_cv_oof.json`, `inner_cv_minfields.json` | re-selects the minimum-fields guard by 5-fold session-grouped CV on the 34 non-test sessions (test chips untouched) |
+| 6a | `09_inner_cv_minfields.py` | `inner_cv_oof.json`, `inner_cv_minfields.json` | re-selects the minimum-fields guard by 5-fold session-grouped CV on 68 OOF half-session proxies from 34 non-test sessions (per-fold retraining; not 68 new physical chips) |
 | 6a' | `00_ood_reference.py` | `../model/train_image_stats.json`, `../model/train_feature_stats.json` | the OOD reference statistics on the 1,495 training fields (`--check` recomputes and compares) |
 | 6b | `10_ood_check.py` | `ood_check.json` | image-statistics and feature-space Mahalanobis alarms (training p99) on the 25 unseen chips: 0/25, 21/25 (median field) or 4/25 (mean feature); none flags 230405 |
 | 6c | `08_full_sessions.py` | `full_sessions.json` | same tool on all fields of the 25 held-out sessions: 0.76 at 9.0 fields vs 0.76 reading all 55.1 |
 | 6e | `07_efficiency.py` | `efficiency.json` | field efficiency: all fields, fixed k, cap k, sequential rule by minimum (Table 6) |
-| 6f | `12_onnx_parity.py` | `onnx_parity.json` | the browser (ONNX) model on the HF demo matches the PyTorch checkpoint: max |ΔP| 8.5e-06 over the 44 example fields |
+| 6f | `12_onnx_parity.py` | `onnx_parity.json` | ONNX vs PyTorch on identical tensors: max |ΔP| 8.5e-06 over the 44 example fields (does not make the browser live path reference-equivalent) |
 | 6g | `13_preprocessing_sensitivity.py` | `preprocessing_sensitivity.json` | P(bad) under other resize methods (bicubic / box / non-antialiased bilinear flip 11 / 19 / 35 of 200 field calls) and on the 1,024 × 768 bundled examples (borderline chip: *pass* instead of *inconclusive*) |
+| 6h | `14_vs_all_pass.py` | `vs_all_pass.json` | descriptive validation discordances on repeated session halves; exact test p=0.22 only for one proxy per distinct session |
 | 6d | `11_per_chip_calls.py` | `per_chip_calls.json` | per-chip calls of the shipped rule (Table 7: four wrong, two inconclusive) and the first-*k* failure on 230405 (*pass* at 0.94 after 6 fields; spread order: *fail* at 0.91) |
 
 Note: `stopping_rule.py` simulates the sequential rule on **ground-truth labels**, which overstates
 the deployed tool. `evaluate.py` re-measures it with the model's predictions (9.5 fields, 82.6%),
 and `03c_policy_model_in_loop.py` shows that the *policy ranking* from the label simulation does not
-survive the model in the loop — the report therefore claims no ranking.
+survive the model in the loop — the report therefore claims no ranking. Field counts are
+decision-budget consumption on scored maps, not microscope or operator time.

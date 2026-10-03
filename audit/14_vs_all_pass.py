@@ -3,7 +3,8 @@
 
 Both the rule (spread fields, conf 0.9, max 20, every chip called) and the constant call are scored
 on the same chips, so the comparison is paired: only chips where exactly one of them is right count.
-  validation: the 68 half-chips of the 34 non-test sessions (out-of-fold predictions, inner_cv_oof.json)
+  validation: 68 halves from 34 sessions; descriptive discordances only (clustered)
+  Do not attach the iid McNemar p to repeated session halves.
   test:       the 25 held-out chips (perfield_preds_384_s0.json)
 Writes results/vs_all_pass.json
 """
@@ -33,13 +34,19 @@ def call(probs, min_f):
 
 
 def compare(chips, min_f):
+    sessions = [c.get("session") for c in chips]
+    clustered = any(s is None for s in sessions) or len(set(sessions)) != len(sessions)
     ref = np.array([int((np.array(c["y"]) == 0).mean() > 0.5) for c in chips])
     rule = np.array([call(c["probs"], min_f) for c in chips]) == ref
     allpass = ref == 0
     b, d = int((rule & ~allpass).sum()), int((~rule & allpass).sum())
-    return dict(n_chips=len(chips), rule_acc=float(rule.mean()), all_pass_acc=float(allpass.mean()),
+    return dict(n_chips=len(chips), n_sessions=len(set(sessions)) if all(s is not None for s in sessions) else None,
+                rule_acc=float(rule.mean()), all_pass_acc=float(allpass.mean()),
                 only_rule_right=b, only_all_pass_right=d,
-                mcnemar_p=float(binomtest(b, b + d).pvalue) if b + d else 1.0)
+                mcnemar_p=None if clustered else (float(binomtest(b, b + d).pvalue) if b + d else 1.0),
+                inference_status="descriptive_only" if clustered else "exact_paired_test",
+                inference_reason="Repeated or unknown session IDs: independent discordant pairs are not established" if clustered else
+                                 "One proxy per distinct session; inference assumes independence between sessions")
 
 
 def main():
@@ -48,12 +55,14 @@ def main():
     by = collections.defaultdict(list)
     for p, y, s, i in zip(pr["p"], pr["y"], pr["session"], pr["idx"]):
         by[s].append((i, p, y))
-    test = [dict(probs=[p for _, p, _ in sorted(v)], y=[y for _, _, y in sorted(v)]) for v in by.values()]
+    test = [dict(session=s, probs=[p for _, p, _ in sorted(v)], y=[y for _, _, y in sorted(v)])
+            for s, v in by.items()]
     res = {f"{name}_min{m}": compare(ch, m) for name, ch in (("validation", val), ("test", test))
            for m in (1, 8)}
     for k, v in res.items():
+        p_text = "not tested (session-clustered)" if v['mcnemar_p'] is None else f"{v['mcnemar_p']:.3f}"
         print(f"{k:<16} rule {v['rule_acc']:.3f}  all-pass {v['all_pass_acc']:.3f}  "
-              f"discordant {v['only_rule_right']}/{v['only_all_pass_right']}  p {v['mcnemar_p']:.3f}")
+              f"discordant {v['only_rule_right']}/{v['only_all_pass_right']}  p {p_text}")
     (OUT / "vs_all_pass.json").write_text(json.dumps(res, indent=1))
     print("saved", OUT / "vs_all_pass.json")
 

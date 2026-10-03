@@ -12,3 +12,4 @@ playwright>=1.40     # make_report_pdf.py (run: playwright install chromium)
 onnxruntime>=1.16    # audit/12_onnx_parity.py only
 huggingface_hub>=0.20 # audit/12_onnx_parity.py only (downloads the browser model)
 pypdf>=4.0           # check_numbers.py (page count; skipped if absent)
+onnx>=1.14          # audit/export_onnx.py (optional reproducible browser export)

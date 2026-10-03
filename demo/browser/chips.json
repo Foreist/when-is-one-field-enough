@@ -1,0 +1,81 @@
+{
+  "field_budget": "All fields are scored before the sequential stopping rule is applied (same as inference.py). fields_used is a policy count, not skipped inference.",
+  "offline": true,
+  "n_png": 44,
+  "cached_reference": "Python-tool replay on the bundled 1024x768 fields. Not paper-exact, not full-resolution, not a physical-chip validation, not a clinical result.",
+  "onnx_local": "ooc_model.onnx (optional; not shipped in this tree)",
+  "onnx_remote_fallback": {
+    "space": "taewoong23/ooc-chip-qc-demo",
+    "revision": "d5d27e9134a4d4cc6dcb39ef1250e3058bb8e92a",
+    "filename": "ooc_model.onnx",
+    "sha256": "bedae8a18f3662e0dd90f1d334c939cd50fef79e73ab3ded6cb429c701700c79"
+  },
+  "ort_web": "onnxruntime-web@1.20.1",
+  "chips": {
+    "good_chip": {
+      "dir": "../examples/good_chip",
+      "n": 12,
+      "files": [
+        "01_230109_5.png",
+        "02_230109_17.png",
+        "03_230109_22.png",
+        "04_230109_34.png",
+        "05_230109_65.png",
+        "06_230109_74.png",
+        "07_230109_79.png",
+        "08_230109_89.png",
+        "09_230109_97.png",
+        "10_230109_112.png",
+        "11_230109_117.png",
+        "12_230109_129.png"
+      ],
+      "probs": "../examples/good_chip/probs.json"
+    },
+    "bad_chip": {
+      "dir": "../examples/bad_chip",
+      "n": 12,
+      "files": [
+        "01_230405_1.png",
+        "02_230405_16.png",
+        "03_230405_26.png",
+        "04_230405_38.png",
+        "05_230405_49.png",
+        "06_230405_65.png",
+        "07_230405_79.png",
+        "08_230405_89.png",
+        "09_230405_104.png",
+        "10_230405_115.png",
+        "11_230405_126.png",
+        "12_230405_134.png"
+      ],
+      "probs": "../examples/bad_chip/probs.json"
+    },
+    "borderline_chip": {
+      "dir": "../examples/borderline_chip",
+      "n": 20,
+      "files": [
+        "01_230529_4.png",
+        "02_230529_15.png",
+        "03_230529_21.png",
+        "04_230529_39.png",
+        "05_230529_48.png",
+        "06_230529_53.png",
+        "07_230529_60.png",
+        "08_230529_75.png",
+        "09_230529_91.png",
+        "10_230529_103.png",
+        "11_230529_112.png",
+        "12_230529_122.png",
+        "13_230529_135.png",
+        "14_230529_142.png",
+        "15_230529_151.png",
+        "16_230529_161.png",
+        "17_230529_172.png",
+        "18_230529_187.png",
+        "19_230529_199.png",
+        "20_230529_216.png"
+      ],
+      "probs": "../examples/borderline_chip/probs.json"
+    }
+  }
+}

@@ -3,19 +3,22 @@
 This repository contains (1) an **audit** of a public organ-on-a-chip (OoC) quality-control
 benchmark, (2) a **corrected evaluation protocol**, and (3) a **chip-level QC tool** that decides
 whether a chip passes or fails from a handful of brightfield fields, with a posterior confidence
-and an explicit "inconclusive" outcome.
+and an explicit "inconclusive" outcome. The prototype accepts a folder of fields as one chip;
+the measured numbers below are on **session-derived half-chip proxies** (random withheld halves of
+acquisition dates — a date is one microscope run over one or more chips), not verified physical chips.
 
 **Deliverables**
 
 | | |
 |---|---|
-| Technical report (20 pages + references, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
-| Demo video (4:51, narrated) | [plays in the browser](https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html) · file: [`demo_video.mp4`](demo_video.mp4) |
+| Technical report (20 body pages + references, PDF) | [`report.pdf`](report.pdf) · source: [`REPORT.md`](REPORT.md) |
+| Demo video v10 (4:23.96, narrated) | [HF player](https://taewoong23-ooc-chip-qc-demo.static.hf.space/video.html) · [direct MP4](https://taewoong23-ooc-chip-qc-demo.static.hf.space/demo_video.mp4) · file: [`demo_video.mp4`](demo_video.mp4) |
 | **Interactive demo** (permanent, no server, no login) | **https://taewoong23-ooc-chip-qc-demo.static.hf.space/index.html** |
-| Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it; `python3 check_numbers.py` fails if a number in REPORT/README has no source |
+| Reproducible results | [`results/`](results/) — one JSON per claim, written by the script that made it; `python3 check_numbers.py` pins named headline numbers; `check_tables.py` checks the enumerated numeric result tables and their row schemas |
 
-Everything runs from one public dataset. Every number in this README is reproduced by the scripts
-in `audit/` and `evaluate.py`; the raw outputs are in `results/`.
+Everything runs from one public dataset. Named headline numbers in this README are pinned to
+`results/*.json`; the enumerated numeric result tables are checked cell by cell, including expected row IDs. That is the checkers'
+guarantee, not that every prose token is traced.
 
 ---
 
@@ -29,7 +32,14 @@ python3 demo/app.py                                     # interactive demo (Grad
 
 The tool, the demo, `figures.py` and `make_report_pdf.py` run without the dataset (figures and the
 PDF are rebuilt from the committed `results/*.json`; the PDF additionally needs
-`playwright install chromium`). `evaluate.py` and the `audit/` scripts need the full dataset from §1.
+`playwright install chromium`). `evaluate.py` and dataset audits need the full dataset from §1.
+
+`python3 check_claims.py --mutations` tests the named headline anchors without changing files.
+`demo/browser/index.html` contains the deployed reference-replay / exploratory-upload source.
+The HF root deployment adjusts only the relative example paths. Uploads deliberately emit no operational chip call.
+`python3 audit/export_onnx.py --out out/ooc_model.onnx` exports the checkpoint with a SHA manifest;
+`python3 audit/12_onnx_parity.py --onnx out/ooc_model.onnx --out out/onnx_parity.json` checks it.
+The exporter additionally needs `onnx`; the pinned hosted ONNX remains available for parity checks.
 
 ---
 
@@ -39,7 +49,8 @@ PDF are rebuilt from the committed `results/*.json`; the PDF additionally needs
 descriptor lists CC-BY-SA — we therefore do **not** redistribute the full dataset, only the 44 demo
 example fields, with attribution; download the full dataset from Zenodo).
 3,072 brightfield images (2056x1542) from an automated microscope on an OoC setup, 6 cell lines,
-**59 acquisition sessions** (file names `YYMMDD_N.png`), labels `good`/`bad` assigned by four
+**59 acquisition sessions** (file names `YYMMDD_N.png`; a date is one microscope run over one or more
+chips), labels `good`/`bad` assigned by four
 cell-biology experts (majority vote), plus protocol metadata (seeding density, flow rate, day).
 Reference paper: Movčana et al., *Data* 2024, 9, 28 (`10.3390/data9020028`).
 
@@ -59,9 +70,9 @@ The zip contains a top-level `OOC_image_dataset/` folder, so this lands at `../d
 
 | # | Finding | Measurement | Script |
 |---|---|---|---|
-| 1 | **The published split leaks sessions** | train∩test = **57/59 sessions**. Controlled A/B (same test images, same training size, 8 seeds): **+7.9 pp accuracy (95% CI 4.2–11.5) / +8.9 pp AUC (6.7–11.0)** inflation | `audit/leakage_controlled.py` |
-| 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17–38 → **effective N ≈ 80–180** (80 for a metric pooled over fields); lag-1 autocorrelation 0.32; in mixed sessions runs of 5.42 fields vs 2.50 shuffled | `audit/block_structure.py`, `audit/15_effective_n.py` |
-| 3 | **Failures occupy contiguous stretches of the chip** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views) | `audit/structure_probe.py` |
+| 1 | **The published split leaks sessions** | train∩test = **57/59 sessions**. Controlled A/B (lighter 224 px / 6-epoch recipe, 20 test sessions; same test images, same training size, 8 seeds): **+7.9 pp accuracy (95% CI 4.2–11.5) / +8.9 pp AUC (6.7–11.0)** inflation — not a re-score of the published split's own headline | `audit/leakage_controlled.py` |
+| 2 | **The 3,072 labels are not 3,072 independent observations** | session ICC 0.321 → design effect 17–38 → **label-prevalence effective N ≈ 80–180** (Kish ≈ 80 for the label mean; not an accuracy/AUC N); lag-1 autocorrelation 0.32; in mixed sessions runs of 5.42 fields vs 2.50 shuffled | `audit/block_structure.py`, `audit/15_effective_n.py` |
+| 3 | **Failures occupy contiguous stretches of the acquisition order** | runs test: 23/45 sessions p<0.05, 36/45 clustered; survives cell-type control (38/72); not duplicates (98% distinct views). Contiguous in filename index, not a mapped XY spatial block | `audit/structure_probe.py` |
 | 4 | **Which fields are read matters — but no policy ranking is claimed** | label-based simulation suggests random > scan > adaptive (0.887 / 0.879 / 0.828 at k=8); with the model in the loop the ordering changes and **no paired difference survives a multiple-comparison correction** (13–15 chips). The tool uses spread sampling because reading the *first* k fields called a 100%-bad chip *pass* with 0.94 confidence | `audit/adaptive_sampling.py`, `audit/03c_policy_model_in_loop.py`, `audit/03d_policy_bootstrap.py` |
 | 4b | **The leakage is not unique to this benchmark** | a second organoid benchmark (OCT organoid tracking, zenodo.15783866) has **40.0% of test images in a (well, day) group that also appears in training** | `audit/06_oct_leakage.py` |
 | 5 | **A re-image/discard rule is NOT supported** | recovery target CV AUC 0.613 vs permutation null p95 0.564; a simple rule (run length ≤ 2 ⇒ recovers) scores 0.560, below the 0.624 base rate → reported as an open problem | `audit/recovery_test.py` |
@@ -85,7 +96,7 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
   fields; on a long chip reading the first k can land inside a good region and stop early with a wrong confident call)
 * **model card** with the measured performance, so the number is never read out of context
 
-### Measured performance (25 unseen chips, 684 fields, session-disjoint)
+### Measured performance (25 session-derived half-chip proxies, 684 fields, session-disjoint)
 
 | metric | value |
 |---|---|
@@ -94,10 +105,10 @@ Outputs `out/chip_report.json` and `out/qc_map.png`:
 | chip accuracy **among called chips** (sequential, spread fields, min 8 — tuned on these chips, see below) | **0.826** (95% Wilson CI 0.63–0.93, 23 calls) |
 | **false-confident calls** (conf ≥ 0.9 and wrong, of 23 calls) | **13%** (3/23) |
 | inconclusive (budget exhausted near P=0.5) | 8% |
-| **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** |
+| **fields used** | **9.5 per chip vs 27.4 for the read-everything baseline — same accuracy (0.800), 2.9× fewer fields** (decision-field consumption on scored maps, not microscope / operator / inference time) |
 | plain cap of 12 spread fields (for comparison) | 9.0 fields, 0.800 — as frugal, but only at 12 (cap 8: 0.720, cap 20: 0.760); no confidence, no *inconclusive* |
-| **min-8 and cap-12 re-selected without the test chips** (5-fold CV, 34 other sessions) | min **1** (0.708 on the 24 chips it calls here, 0.680 with every chip called) and cap **20** (0.760 here); on those 68 chips the rule matches read-everything (0.765–0.779 vs 0.765) with 5.3–9.9 of 24.9 fields (`audit/09_inner_cv_minfields.py`) |
-| held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution; line by line against each line's own test fields the AUC drop averages 16 points) |
+| **min-8 and cap-12 re-selected without the test chips** (5-fold CV, 34 other sessions) | min **1** (0.708 on the 24 chips it calls here, 0.680 with every chip called) and cap **20** (0.760 here); on those 68 OOF half-session proxies (per-fold retraining; clustered, not 68 new physical chips) the rule matches read-everything (0.765–0.779 vs 0.765) with 5.3–9.9 of 24.9 fields (`audit/09_inner_cv_minfields.py`) |
+| held-out cell line (leave-one-cell-line-out, 6 folds) | accuracy **0.670**, AUC **0.719** (vs 0.734 / 0.791 in-distribution; line by line against each line's own test fields the AUC drop averages 16 points). Separate evaluation: one seed, inherited train sizes, Resize+flips loader (no crop; different `drop_last`) — the AUC gap is not an isolated cell-line effect |
 | larger backbone / higher resolution | no gain (AUC 0.788 with MobileNetV3-large; 0.797 at 512 px) |
 | **full held-out sessions** (all 1,377 fields; the rows above use the withheld half of each session) | read-everything 0.76 with 55.1 fields; shipped rule **0.76 with 9.0 fields**, no deferral, 6/25 confident-but-wrong (`audit/08_full_sessions.py`) |
 
@@ -111,7 +122,7 @@ python3 demo/app.py          # http://127.0.0.1:7861
 
 **Plate triage** — `python3 inference.py --plate /path/to/plate --out out/`, where the folder contains
 one subfolder per chip. Chips are ranked by how much attention they need, and the run reports how
-many fields were spent. On the 25 test chips: **238 of 684 fields used (65% saved)**, with
+many fields the *decision* consumed. On the 25 test proxies: **238 of 684 scored fields used (65% of the decision budget unused)** — offline QC-map consumption, not microscope or operator time — with
 6 chips called *fail*, 2 *inconclusive* and 17 *pass*. The demo app has the same mode in its
 "plate triage" tab.
 
@@ -123,7 +134,10 @@ are bundled (12/12/20 fields, with attribution in `demo/examples/README.md`): a 
 returns *pass* at confidence 0.67, a wrong call made visibly unconfident. The bundled fields are
 stored at 1,024 × 768 to keep the repository small; the same 20 fields at full resolution give
 *inconclusive*, and so does the full test half of that session (`audit/13_preprocessing_sensitivity.py`).
-The model is sensitive to the resize method, so browser scores of uploads are approximate (REPORT §6.8).
+The model is sensitive to the resize method. The corrected browser **live** path uses a restricted
+still-PNG decoder and a Pillow-style resampler, but is not validated as reference-equivalent.
+It displays exploratory field probabilities only — no chip call or confidence. Bundled buttons
+separately replay cached Python-reference calls (REPORT §6.8). The Hugging Face Space README states the same scope.
 
 ### Input / output formats
 
@@ -136,17 +150,19 @@ The model is sensitive to the resize method, so browser scores of uploads are ap
 
 ## 4. Limitations (read this before using the tool)
 
-* **13% confident-but-wrong** on unseen chips (4 of 23 calls wrong, 3 of them with ≥0.9
+* **13% confident-but-wrong** on unseen session-derived half-chip proxies (4 of 23 calls wrong, 3 of them with ≥0.9
   confidence). This is a research prototype, not a
-  validated instrument; do not discard a chip on its output alone.
+  validated operational instrument; do not discard a chip on its output alone.
 * **No reliable out-of-distribution detector.** We tried image-statistics and feature-space
   Mahalanobis distances; both missed the worst failure (a 100%-bad chip called `pass` with 0.94
   confidence). The `image_statistics_distance` field is diagnostic only.
 * **The re-image vs discard recommendation is not validated** — the recovery target does not support
   it (finding 5). The tool reports `pass`/`fail`/`inconclusive`, nothing more.
-* **Single dataset, 25 test chips**, each the withheld half of a held-out session; on the full
+* **Single dataset, 25 test units**, each a session-derived half-chip proxy (withheld half of a held-out
+  date — one microscope run over one or more chips). On the full
   sessions the rule is 0.76 accurate with 6/25 confident-but-wrong. No wet-lab validation; we make no claim about biology or
-  clinical validity. The claim is about *measurement validity*.
+  clinical validity. The claim is about *measurement validity*. The observed field-budget saving is not a
+  non-inferiority result or a guarantee on new physical chips (test McNemar vs all-pass: p = 0.22; validation discordances 12 vs 5 are clustered descriptive counts, not 68 independent pairs).
 * Simulating a stopping rule on ground-truth labels **overstates** real performance: the same rule
   on the same 25 chips is 0.875 on labels but 0.708 with the model when no minimum is enforced; the
   8-field minimum brings the model to 0.826 (`audit/label_vs_model_same_rule.py`).
@@ -163,10 +179,11 @@ audit/                  audit scripts, each writing JSON into results/
 results/                one JSON per claim, plus the capacity/resolution checkpoints
 figures.py              every figure in REPORT.md, from results/*.json
 demo/                   Gradio demo (app.py) and the 44 bundled example fields
-check_numbers.py        fails if a number in REPORT/README has no source in results/*.json;
-check_tables.py         ... and cell by cell for the report's tables (called by check_numbers.py)
-make_report_pdf.py      REPORT.md -> report.pdf
-demo_video.mp4          narrated demo (4:51)
+check_numbers.py        numeric lint + named claims + tables + PDF-source hashes
+check_claims.py         claims.json context anchors; --mutations exercises planted errors
+check_tables.py         cell-by-cell check of the report's tables (called by check_numbers.py)
+make_report_pdf.py      REPORT.md -> report.pdf + report.sources.json
+demo_video.mp4          corrected narrated demo v10 (4:23.96)
 ```
 
 ## 6. Licence and attribution

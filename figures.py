@@ -89,7 +89,7 @@ def fig_label_structure():
     ax[1].set_title(f"(b) runs are {ratio:.0f}x longer than i.i.d.\n({ratio_mixed:.1f}x within mixed sessions vs shuffled)",
                     fontsize=9, loc="left")
     e = load("effective_n.json")          # effective N under three cluster-size conventions
-    names = ["Kish m~\n(pooled metric)", "inverse-\nvariance", "ANOVA m0"]
+    names = ["Kish m~\n(label mean)", "inverse-\nvariance", "ANOVA m0"]
     vals = [e["n_eff_kish"], e["n_eff_inverse_variance"], e["n_eff_anova"]]
     ax[2].bar(names, vals, color=["#c0392b", "#c0392b", "#c0392b"])
     for i, v in enumerate(vals):
@@ -157,7 +157,7 @@ def fig_tool():
     ax[2].plot(mins, [seq[str(m)]["mean_fields"] for m in mins], "o-", color="#4a6fa5")
     ax[2].axhline(20, color="k", ls="--", lw=1, label="budget 20")
     ax[2].set_xlabel("minimum fields"); ax[2].set_ylabel("mean fields used")
-    ax[2].legend(fontsize=8); ax[2].set_title("(c) imaging cost", fontsize=9, loc="left")
+    ax[2].legend(fontsize=8); ax[2].set_title("(c) decision-policy field budget", fontsize=9, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig5_tool.png", dpi=150); plt.close(fig)
 
 
@@ -185,7 +185,7 @@ def fig_efficiency():
                 arrowprops=dict(arrowstyle="->", color="k", lw=1), fontsize=9)
     ax.set_xlabel("fields used per chip"); ax.set_ylabel("chip-level accuracy")
     ax.set_ylim(0.6, 0.9); ax.legend(fontsize=8, loc="lower right")
-    ax.set_title("Field efficiency on 25 unseen chips", fontsize=10, loc="left")
+    ax.set_title("Field budget on 25 held-out half-session proxies", fontsize=10, loc="left")
     fig.tight_layout(); fig.savefig(F / "fig7_efficiency.png", dpi=150); plt.close(fig)
 
 

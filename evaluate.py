@@ -10,6 +10,11 @@ Reproduces:
 (split leakage is audit/leakage_experiment.py and audit/leakage_controlled.py)
 
 Outputs results/tool_evaluation.json
+
+Units are withheld half-session proxies, not physical-chip-validated; this script
+does not claim an accuracy or imaging-time guarantee. Every test field is scored
+for the per-field metrics / QC-style maps; sequential fields_used is rule consumption
+(resource_basis), not measured time savings.
 """
 import argparse, collections, json, os, sys
 from pathlib import Path
@@ -22,14 +27,26 @@ from torchvision.models import mobilenet_v3_small
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "audit"))
-from inference import TF, spread_order, beta_p_bad            # noqa: E402
+from inference import TF, spread_order, sequential_decision, RESOURCE_BASIS  # noqa: E402
 
 
 def load_test_chips(data_root=None):
-    """Rebuild the session-disjoint split used in training (seed 1000, 25 test sessions)."""
-    from leakage_experiment import index_images
+    """Rebuild the session-disjoint split used in training (seed 1000, 25 test sessions).
+
+    Honors `data_root` for this call only. Does not write OOC_DATA or leave
+    leakage_experiment.DATA pointing at the supplied root.
+    """
+    import leakage_experiment as le
     from leakage_controlled import split_controlled
-    recs = index_images()
+    recs_root = Path(data_root) if data_root is not None else Path(
+        os.environ.get("OOC_DATA", str(HERE.parent / "data" / "OOC_image_dataset"))
+    )
+    prev = le.DATA
+    try:
+        le.DATA = recs_root
+        recs = le.index_images()
+    finally:
+        le.DATA = prev
     sp = split_controlled(recs, seed=1000, n_test_sessions=25)
     by = collections.defaultdict(list)
     for r in sp["disjoint"]["test"]:
@@ -42,13 +59,19 @@ def load_test_chips(data_root=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data-root", default=os.environ.get("OOC_DATA", str(HERE.parent / "data" / "OOC_image_dataset")),
-                    help="recorded in the output only; images are located via OOC_DATA (audit/leakage_experiment.py)")
+    ap.add_argument("--data-root", default=os.environ.get(
+                        "OOC_DATA", str(HERE.parent / "data" / "OOC_image_dataset")),
+                    help="image root (default: $OOC_DATA or ../data/OOC_image_dataset); "
+                         "used for this run only, does not mutate OOC_DATA")
     ap.add_argument("--checkpoint", default=str(HERE / "model" / "perfield_mnv3s_384_s0.pt"))
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--max-fields", type=int, default=20)
     ap.add_argument("--conf", type=float, default=0.9)
     args = ap.parse_args()
+    if args.max_fields < 2:
+        raise SystemExit("max_fields must be >= 2")
+    if not (0.5 < float(args.conf) < 1.0):
+        raise SystemExit("conf must be in (0.5, 1)")
 
     by = load_test_chips(args.data_root)
     model = mobilenet_v3_small(weights=None)
@@ -85,6 +108,7 @@ def main():
     allfield_acc = float(np.mean([r[1] == r[2] for r in rows]))
 
     # ---- chip-level: sequential stopping, min-fields sweep ----
+    # same metric definitions as before; sequential_decision is the shared rule
     seq = {}
     for min_f in [1, 3, 5, 8, 10, 12]:
         acc, wrong_conf, used, stopped = [], [], [], []
@@ -92,22 +116,15 @@ def main():
         for s, c in chips.items():
             probs = c["probs"]; y = np.array(c["y"])
             ref_bad = int((y == 0).mean() > 0.5)
-            order_idx = spread_order(len(probs), args.max_fields)
-            bad = good = 0; call = None; conf = None
-            for i, idx in enumerate(order_idx, 1):
-                if probs[idx] > 0.5: bad += 1
-                else: good += 1
-                pb = beta_p_bad(bad, good)
-                if i >= min_f and (pb > args.conf or (1 - pb) > args.conf):
-                    call = int(pb > 0.5); conf = max(pb, 1 - pb); used.append(i); stopped.append(1)
-                    break
-            if call is None:
-                pb = beta_p_bad(bad, good); conf = max(pb, 1 - pb)
-                used.append(len(order_idx)); stopped.append(0)
-                if 0.35 < pb < 0.65:                      # inconclusive: report, do not force a call
-                    outcomes["inconclusive"] += 1
-                    continue
-                call = int(pb > 0.5)
+            dec = sequential_decision(probs, thr_conf=args.conf, max_fields=args.max_fields,
+                                      min_fields=min_f)
+            used.append(dec["n_fields"])
+            stopped.append(1 if dec["stopped"] else 0)
+            if dec["call"] == "inconclusive":
+                outcomes["inconclusive"] += 1
+                continue
+            call = int(dec["call"] == "fail")
+            conf = max(dec["p_bad"], 1 - dec["p_bad"])
             acc.append(int(call == ref_bad))
             outcomes["fail" if call == 1 else "pass"] += 1
             if conf >= args.conf and call != ref_bad:
@@ -141,9 +158,12 @@ def main():
     half = z * np.sqrt(k8 * (n8 - k8) / n8 + z * z / 4) / (n8 + z * z)
     wilson = [round(float(ctr - half), 3), round(float(ctr + half), 3)]
 
+    n_scored = int(len(P))
     out = dict(
         data_root=Path(args.data_root).name, checkpoint=Path(args.checkpoint).name,
-        n_chips=len(chips), n_fields=int(len(P)),
+        n_chips=len(chips), n_fields=n_scored,
+        n_fields_scored=n_scored,
+        resource_basis=RESOURCE_BASIS,
         field_accuracy=field_acc, field_auc=auc,
         chip_all_fields_mean_acc=allfield_acc,
         chip_sequential_by_min_fields=seq,

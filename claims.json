@@ -1,0 +1,533 @@
+{
+  "docs": {
+    "report": {
+      "path": "REPORT.md",
+      "required": true
+    },
+    "readme": {
+      "path": "README.md",
+      "required": true
+    },
+    "audit_readme": {
+      "path": "audit/README.md",
+      "required": true
+    },
+    "demo_app": {
+      "path": "demo/app.py",
+      "required": false
+    },
+    "writeup": {
+      "path": "../WRITEUP.md",
+      "required": false
+    }
+  },
+  "claims": [
+    {
+      "id": "chip_acc_min8_called",
+      "result": "tool_evaluation.json:chip_sequential_by_min_fields.8.chip_acc_among_confident",
+      "format": ".3f",
+      "anchors": [
+        {
+          "id": "report_19_23",
+          "docs": [
+            "report"
+          ],
+          "regex": "19/23\\s*=\\s*(?P<num>0\\.\\d+)",
+          "min": 1,
+          "exact": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "report_among_called",
+          "docs": [
+            "report",
+            "readme"
+          ],
+          "regex": "chip accuracy \\*{0,2}among called chips\\*{0,2}[^\\n]{0,220}(?P<num>0\\.\\d{3})",
+          "min": 2,
+          "counts": {
+            "report": 1,
+            "readme": 1
+          }
+        },
+        {
+          "id": "report_table6_abstain",
+          "docs": [
+            "report"
+          ],
+          "regex": "sequential, abstain[^\\n]{0,80}\\|\\s*\\*\\*(?P<num>0\\.\\d{3})\\*\\*",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "report_23_calls",
+          "docs": [
+            "report"
+          ],
+          "regex": "(?P<num>0\\.\\d{3}) on the 23 it calls",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "writeup_table",
+          "docs": [
+            "writeup"
+          ],
+          "optional": true,
+          "regex": "sequential \\(abstain, min 8\\)[^\\n]{0,80}(?P<num>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "writeup": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "force_acc_min8",
+      "result": "efficiency.json:sequential.force_min8.acc",
+      "format": ".3f",
+      "anchors": [
+        {
+          "id": "report_every_field",
+          "docs": [
+            "report"
+          ],
+          "regex": "every\\*\\* field \\((?P<num>0\\.\\d{3})\\)",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "report_table6_force",
+          "docs": [
+            "report"
+          ],
+          "regex": "sequential, force[^\\n]{0,80}\\|\\s*\\*\\*(?P<num>0\\.\\d{3})\\*\\*",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "report_all_fields_row",
+          "docs": [
+            "report"
+          ],
+          "regex": "all fields \\(mean of every field\\) \\| [0-9.]+ \\| 25/25 \\| (?P<num>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "writeup_table",
+          "docs": [
+            "writeup"
+          ],
+          "optional": true,
+          "regex": "sequential \\(force, min 8\\)[^\\n]{0,80}(?P<num>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "writeup": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "mean_fields_used_vs_all",
+      "groups": {
+        "used": {
+          "result": "tool_evaluation.json:chip_sequential_by_min_fields.8.mean_fields",
+          "format": ".1f"
+        },
+        "all": {
+          "result": "efficiency.json:mean_fields_per_chip",
+          "format": ".1f"
+        }
+      },
+      "anchors": [
+        {
+          "id": "instead_of",
+          "docs": [
+            "report",
+            "writeup"
+          ],
+          "regex": "every\\*{0,2} field \\(0\\.\\d{3}\\)[\\s\\S]{0,80}?(?P<used>\\d+\\.\\d)\\s+fields instead of (?P<all>\\d+\\.\\d)",
+          "min": 1,
+          "counts": {
+            "report": 1,
+            "writeup": 1
+          }
+        },
+        {
+          "id": "report_cost_row",
+          "docs": [
+            "report"
+          ],
+          "regex": "(?P<all>\\d+\\.\\d) fields per chip for 0\\.\\d{3} accuracy",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "fields_ratio",
+      "derived": {
+        "op": "div",
+        "args": [
+          "efficiency.json:mean_fields_per_chip",
+          "efficiency.json:sequential.force_min8.fields"
+        ]
+      },
+      "format": ".1f",
+      "anchors": [
+        {
+          "id": "times_fewer",
+          "docs": [
+            "report",
+            "readme",
+            "writeup"
+          ],
+          "regex": "(?P<num>\\d+\\.\\d)\\s*[\u00d7x]\\s*fewer fields(?: to inspect| on the 25|,|\\*\\*|$)",
+          "min": 1,
+          "counts": {
+            "report": 1,
+            "readme": 1,
+            "writeup": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "fields_spent_238_684",
+      "groups": {
+        "used": {
+          "derived": {
+            "op": "mul",
+            "args": [
+              "tool_evaluation.json:chip_sequential_by_min_fields.8.mean_fields",
+              "tool_evaluation.json:n_chips"
+            ]
+          },
+          "format": ".0f"
+        },
+        "total": {
+          "result": "tool_evaluation.json:n_fields",
+          "format": "d"
+        }
+      },
+      "anchors": [
+        {
+          "id": "spent",
+          "docs": [
+            "report",
+            "writeup"
+          ],
+          "regex": "(?:consum(?:es|ing)|spends?)\\s+\\*{0,2}(?P<used>\\d+) of (?P<total>\\d+)\\s+(?:scored )?fields",
+          "min": 1,
+          "counts": {
+            "report": 2,
+            "writeup": 1
+          }
+        },
+        {
+          "id": "readme_plate",
+          "docs": [
+            "readme"
+          ],
+          "regex": "\\*\\*(?P<used>\\d+) of (?P<total>\\d+) scored fields used",
+          "min": 1,
+          "counts": {
+            "readme": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "plate_calls",
+      "groups": {
+        "fail": {
+          "result": "tool_evaluation.json:chip_sequential_by_min_fields.8.outcomes.fail",
+          "format": "d"
+        },
+        "inconclusive": {
+          "result": "tool_evaluation.json:chip_sequential_by_min_fields.8.outcomes.inconclusive",
+          "format": "d"
+        },
+        "pass": {
+          "result": "tool_evaluation.json:chip_sequential_by_min_fields.8.outcomes.pass",
+          "format": "d"
+        }
+      },
+      "anchors": [
+        {
+          "id": "fail_inconc_pass",
+          "docs": [
+            "report",
+            "readme",
+            "writeup"
+          ],
+          "regex": "(?P<fail>\\d+)(?: chips called)? \\*?fail\\*?,?\\s*(?P<inconclusive>\\d+) \\*?inconclusive\\*?[, ]+(?:and )?(?P<pass>\\d+) \\*?pass\\*?",
+          "min": 1,
+          "counts": {
+            "report": 1,
+            "readme": 1,
+            "writeup": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "all_pass_test",
+      "result": "vs_all_pass.json:test_min8.all_pass_acc",
+      "format": ".2f",
+      "anchors": [
+        {
+          "id": "pass_baseline",
+          "docs": [
+            "report",
+            "readme"
+          ],
+          "regex": "every chip \\*pass\\*: (?P<num>0\\.\\d{2})",
+          "min": 1,
+          "counts": {
+            "report": 1,
+            "readme": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_min1_force_abstain",
+      "groups": {
+        "force": {
+          "result": "efficiency.json:sequential.force_min1.acc",
+          "format": ".3f"
+        },
+        "abstain": {
+          "result": "efficiency.json:sequential.abstain_min1.acc",
+          "format": ".3f"
+        }
+      },
+      "anchors": [
+        {
+          "id": "report_force_then_abstain",
+          "docs": [
+            "report"
+          ],
+          "regex": "(?P<force>0\\.\\d{3})(?: here)? with every chip called \\((?P<abstain>0\\.\\d{3}) on the 24",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "readme_abstain_then_force",
+          "docs": [
+            "readme"
+          ],
+          "regex": "(?P<abstain>0\\.\\d{3}) on the 24 chips it calls here, (?P<force>0\\.\\d{3}) with every chip called",
+          "min": 1,
+          "counts": {
+            "readme": 1
+          }
+        },
+        {
+          "id": "demo_pair",
+          "docs": [
+            "demo_app"
+          ],
+          "optional": true,
+          "regex": "(?P<abstain>0\\.\\d{3}) on 24 calls, (?P<force>0\\.\\d{3}) with every chip called",
+          "min": 1,
+          "counts": {
+            "demo_app": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "leakage_ab",
+      "groups": {
+        "acc": {
+          "result": "leakage_ci.json:acc.mean",
+          "format": "%.1f"
+        },
+        "acc_lo": {
+          "result": "leakage_ci.json:acc.lo",
+          "format": "%.1f"
+        },
+        "acc_hi": {
+          "result": "leakage_ci.json:acc.hi",
+          "format": "%.1f"
+        },
+        "auc": {
+          "result": "leakage_ci.json:auc.mean",
+          "format": "%.1f"
+        },
+        "auc_lo": {
+          "result": "leakage_ci.json:auc.lo",
+          "format": "%.1f"
+        },
+        "auc_hi": {
+          "result": "leakage_ci.json:auc.hi",
+          "format": "%.1f"
+        }
+      },
+      "anchors": [
+        {
+          "id": "report_table",
+          "docs": [
+            "report"
+          ],
+          "regex": "inflation[^\\n]+\\*\\*\\+(?P<acc>\\d+\\.\\d) pp\\*\\* \\[(?P<acc_lo>[\\d.]+), (?P<acc_hi>[\\d.]+)\\] \\| \\*\\*\\+(?P<auc>\\d+\\.\\d) pp\\*\\* \\[(?P<auc_lo>[\\d.]+), (?P<auc_hi>[\\d.]+)\\]",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "readme_row",
+          "docs": [
+            "readme"
+          ],
+          "regex": "\\+(?P<acc>\\d+\\.\\d) pp accuracy \\(95% CI (?P<acc_lo>[\\d.]+)[\u2013-](?P<acc_hi>[\\d.]+)\\) / \\+(?P<auc>\\d+\\.\\d) pp AUC \\((?P<auc_lo>[\\d.]+)[\u2013-](?P<auc_hi>[\\d.]+)\\)",
+          "min": 1,
+          "counts": {
+            "readme": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "icc_session",
+      "result": "block_structure.json:icc_session",
+      "format": ".3f",
+      "anchors": [
+        {
+          "id": "icc",
+          "docs": [
+            "report",
+            "readme",
+            "audit_readme"
+          ],
+          "regex": "ICC(?:\\s*=\\s*|\\s+)(?P<num>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "report": 4,
+            "readme": 1,
+            "audit_readme": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "label_n_eff",
+      "groups": {
+        "lo": {
+          "result": "effective_n.json:n_eff_kish",
+          "format": ".0f"
+        },
+        "hi": {
+          "derived": {
+            "op": "floor",
+            "args": [
+              "effective_n.json:n_eff_anova"
+            ]
+          },
+          "format": ".0f"
+        }
+      },
+      "anchors": [
+        {
+          "id": "range",
+          "docs": [
+            "report"
+          ],
+          "regex": "(?P<lo>\\d{2})[\u2013-](?P<hi>\\d{3}) independent labels",
+          "min": 1,
+          "counts": {
+            "report": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "label_vs_model",
+      "groups": {
+        "labels": {
+          "result": "label_vs_model.json:min1_labels.accuracy",
+          "format": ".3f"
+        },
+        "model": {
+          "result": "label_vs_model.json:min1_model.accuracy",
+          "format": ".3f"
+        }
+      },
+      "anchors": [
+        {
+          "id": "summary",
+          "docs": [
+            "report"
+          ],
+          "regex": "labels give (?P<labels>0\\.\\d{3}) and the model (?P<model>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        },
+        {
+          "id": "ratio",
+          "docs": [
+            "report"
+          ],
+          "regex": "21/24 = (?P<labels>0\\.\\d{3}).{0,90}17/24 = (?P<model>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "report": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "lolo_mean_auc",
+      "result": "lolo_cellline.json:mean_auc",
+      "format": ".3f",
+      "anchors": [
+        {
+          "id": "arrow",
+          "docs": [
+            "report",
+            "writeup"
+          ],
+          "regex": "(?:0\\.791\\s*\u2192\\s*|leave-one-cell-line-out evaluation gives mean AUC )(?P<num>0\\.\\d{3})",
+          "min": 1,
+          "counts": {
+            "report": 1,
+            "writeup": 2
+          }
+        },
+        {
+          "id": "readme",
+          "docs": [
+            "readme"
+          ],
+          "regex": "AUC \\*\\*(?P<num>0\\.\\d{3})\\*\\*",
+          "min": 1,
+          "counts": {
+            "readme": 1
+          }
+        }
+      ]
+    }
+  ]
+}

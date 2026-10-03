@@ -7,13 +7,16 @@ It returns:
   * per-field P(bad)
   * a chip-level call (pass / fail / inconclusive) with a posterior confidence (not
     calibrated: stated confidence averages 0.93 while 82.6% of calls are correct)
-  * how many fields were needed (sequential stopping rule; on 25 held-out chips:
+  * how many fields the sequential rule consumed (on 25 held-out half-session proxies:
     9.5 fields on average, 82.6% accurate on the 23 chips it calls -- with
     min_fields 8 chosen on those chips; untuned it would be 1: 0.708 on the
-    24 chips it calls, 0.680 with every chip called)
+    24 chips it calls, 0.680 with every chip called). The CLI/app score every
+    supplied field for the QC map; fields_used is that rule's consumption, not a
+    measured time saving. Units are test half-session proxies, not
+    physical-chip-validated; there is no accuracy or imaging-time guarantee.
   * an image-statistics distance to the training chips, as a diagnostic only
     (it is not a reliable out-of-distribution detector; see README limitations)
-  * a QC map PNG (field index vs P(bad))
+  * a QC map PNG (field index vs P(bad); consumed spread fields marked)
 
 Model : MobileNetV3-small, 384 px, trained on a SESSION-DISJOINT split of the
         OOC Image Dataset (zenodo.10203721). See README for the measured numbers.
@@ -39,6 +42,11 @@ TF = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
+RESOURCE_BASIS = (
+    "n_fields_scored = every supplied field scored for the QC map; "
+    "fields_used = sequential-rule consumption on a spread grid. "
+    "Not measured imaging or operator time."
+)
 
 
 def load_model(ckpt_path):
@@ -81,10 +89,41 @@ def spread_order(n, max_fields):
     good region and stop early with a wrong confident call (observed on a
     100%-bad chip). The rule reads a prefix of this grid; when n <= max_fields the
     grid is every field in order, i.e. identical to reading the first fields.
+    max_fields < 2 is guarded so (max_fields - 1) never divides; shipped default is 20.
     """
+    if n <= 0 or max_fields < 1:
+        return []
     if n <= max_fields:
         return list(range(n))
+    if max_fields == 1:
+        return [0]
     return [round(i * (n - 1) / (max_fields - 1)) for i in range(max_fields)]
+
+
+def validate_rule_args(max_fields, min_fields, conf):
+    """CLI/app bounds. sequential_decision keeps its defaults for audit callers."""
+    if max_fields < 2:
+        raise ValueError("max_fields must be >= 2")
+    if min_fields < 1:
+        raise ValueError("min_fields must be >= 1")
+    if not (0.5 < float(conf) < 1.0):
+        raise ValueError("conf must be in (0.5, 1)")
+    return max_fields, min_fields, float(conf)
+
+
+def short_chip_warning(n_available, min_fields):
+    if n_available >= min_fields:
+        return None
+    return (f"only {n_available} field(s), fewer than the {min_fields}-field minimum: the guard "
+            "never applies; 2 of the 10 such test chips were called wrong, both chips whose "
+            "fields the model mostly misread (field accuracy 0.20 and 0.17; REPORT Table 7)")
+
+
+def last_consumed_index(field_indices):
+    """Acquisition-order index of the last field the rule consumed (not n_fields - 0.5)."""
+    if not field_indices:
+        return None
+    return int(field_indices[-1])
 
 
 MODEL_CARD = {
@@ -92,7 +131,8 @@ MODEL_CARD = {
     "chip_accuracy_among_confident": 0.826, "false_confident_rate": 0.13,
     "inconclusive_rate": 0.08, "mean_fields_used": 9.5,
     "n_test_chips": 25, "n_test_fields": 684,
-    "protocol": "session-disjoint split (no chip appears in both train and test)",
+    "protocol": "session-disjoint split of withheld half-session proxies "
+                "(not physical-chip-validated; no session appears in both train and test)",
     "settings": "spread-field sequential stopping, Beta(1,1) posterior, conf 0.90, min_fields 8",
     "measured_by": "evaluate.py",
     "definitions": "chip_accuracy_among_confident = accuracy on the chips that got pass/fail (23 of 25), "
@@ -101,7 +141,7 @@ MODEL_CARD = {
     "caveat": "min_fields 8 was chosen on these 25 test chips; re-selected without them it would be 1, "
               "which scores 0.708 on the 24 chips it calls and 0.680 with every chip called "
               "(results/inner_cv_minfields.json: selected_min_fields; results/efficiency.json: sequential.*_min1), "
-              "so 0.826 / 0.13 are optimistic",
+              "so 0.826 / 0.13 are optimistic. No accuracy or imaging-time guarantee.",
 }
 
 
@@ -137,6 +177,32 @@ def sequential_decision(probs, thr_conf=0.9, max_fields=20, min_fields=8):
                 field_indices=order)
 
 
+def mark_qc_map(ax, probs, field_indices, vline_lw=1.2):
+    """Existing bar QC map; mark consumed spread fields and the last acquisition index."""
+    x = np.arange(len(probs))
+    ax.bar(x, probs, color=["#c0392b" if p > 0.5 else "#7fb3d5" for p in probs], width=0.9)
+    ax.axhline(0.5, color="gray", ls="--", lw=0.9)
+    last = last_consumed_index(field_indices)
+    if field_indices:
+        sel = [int(i) for i in field_indices]
+        ax.plot(sel, [probs[i] for i in sel], "o", color="black", ms=4.5, zorder=3)
+        ax.axvline(last, color="black", lw=vline_lw)
+    return last
+
+
+def score_paths(model, paths, with_stats=False):
+    """Score every supplied field (QC map / resource_basis). Call sequential_decision after."""
+    probs, stats = [], []
+    with torch.no_grad():
+        for p in paths:
+            img = Image.open(p).convert("RGB")
+            x = TF(img).unsqueeze(0)
+            probs.append(float(torch.softmax(model(x), dim=1)[0, 0]))
+            if with_stats:
+                stats.append(image_stats(img))
+    return (probs, stats) if with_stats else probs
+
+
 def plate_triage(root, model, ref, args, out):
     """Run the decision on every chip folder inside `root` and rank them by attention needed."""
     import csv
@@ -147,39 +213,47 @@ def plate_triage(root, model, ref, args, out):
         files = sorted([p for p in d.iterdir() if p.suffix.lower() in IMG_EXT], key=natural_key)
         if not files:
             continue
-        probs = []
-        with torch.no_grad():
-            for p in files:
-                x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
-                probs.append(float(torch.softmax(model(x), dim=1)[0, 0]))
+        n_scored = len(files)
+        probs = score_paths(model, files)
         dec = sequential_decision(probs, thr_conf=args.conf, max_fields=args.max_fields,
                                   min_fields=args.min_fields)
         call = dec["call"]
         if not dec["stopped"] and 0.35 < dec["p_bad"] < 0.65:
             call = "inconclusive"
         rank = {"fail": 0, "inconclusive": 1, "pass": 2}[call]
+        warn = short_chip_warning(n_scored, args.min_fields)
         rows.append(dict(chip=d.name, call=call, p_bad=round(dec["p_bad"], 3),
                          confidence=round(max(dec["p_bad"], 1 - dec["p_bad"]), 3),
-                         fields_used=dec["n_fields"], fields_available=len(files),
-                         attention_rank=rank, short_chip=len(files) < args.min_fields))
-        tot_fields += len(files); tot_used += dec["n_fields"]
+                         fields_used=dec["n_fields"], n_fields_scored=n_scored,
+                         fields_available=n_scored,
+                         field_indices=list(dec["field_indices"]),
+                         attention_rank=rank, short_chip=n_scored < args.min_fields,
+                         warning=warn, resource_basis=RESOURCE_BASIS))
+        tot_fields += n_scored; tot_used += dec["n_fields"]
     rows.sort(key=lambda r: (r["attention_rank"], -r["p_bad"]))
-    summary = dict(chips=len(rows), fields_available=tot_fields, fields_used=tot_used,
+    summary = dict(chips=len(rows), fields_available=tot_fields, n_fields_scored=tot_fields,
+                   fields_used=tot_used,
                    fields_saved_frac=1 - tot_used / max(1, tot_fields),
+                   resource_basis=RESOURCE_BASIS,
                    calls={k: sum(1 for r in rows if r["call"] == k) for k in ("fail", "inconclusive", "pass")},
                    model_card=MODEL_CARD)
     (out / "plate_report.json").write_text(json.dumps(dict(summary=summary, chips=rows), indent=1))
+    csv_fields = ["chip", "call", "p_bad", "confidence", "fields_used",
+                  "fields_available", "attention_rank", "short_chip"]
     with open(out / "plate_summary.csv", "w", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()) if rows else ["chip"])
+        w = csv.DictWriter(fh, fieldnames=csv_fields)
         w.writeheader()
-        w.writerows(rows)
-    print(f"plate: {summary['chips']} chips, {summary['fields_available']} fields available, "
-          f"{summary['fields_used']} used ({100*summary['fields_saved_frac']:.0f}% saved)")
+        w.writerows([{k: r[k] for k in csv_fields} for r in rows])
+    print(f"plate: {summary['chips']} chips, {summary['n_fields_scored']} fields scored, "
+          f"{summary['fields_used']} used by the rule ({100*summary['fields_saved_frac']:.0f}% "
+          f"policy consumption, not measured time)")
     print(f"calls: {summary['calls']}")
     print(f"{'chip':<24}{'call':<14}{'P(bad)':>8}{'conf':>7}{'fields':>9}")
     for r in rows:
         print(f"{r['chip']:<24}{r['call']:<14}{r['p_bad']:>8}{r['confidence']:>7}"
-              f"{r['fields_used']:>6}/{r['fields_available']}")
+              f"{r['fields_used']:>6}/{r['n_fields_scored']}")
+        if r["warning"]:
+            print(f"  warning: {r['warning']}")
     print(f"\nwrote {out/'plate_report.json'} and {out/'plate_summary.csv'}")
     return summary
 
@@ -194,6 +268,10 @@ def main():
     ap.add_argument("--min-fields", type=int, default=8)
     ap.add_argument("--conf", type=float, default=0.9)
     args = ap.parse_args()
+    try:
+        validate_rule_args(args.max_fields, args.min_fields, args.conf)
+    except ValueError as e:
+        raise SystemExit(str(e))
     if not args.images and not args.plate:
         raise SystemExit("give --images (one chip) or --plate (many chips)")
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
@@ -208,13 +286,8 @@ def main():
                    key=natural_key)
     if not files:
         raise SystemExit(f"no images in {args.images}")
-    probs, stats = [], []
-    with torch.no_grad():
-        for p in files:
-            img = Image.open(p).convert("RGB")
-            x = TF(img).unsqueeze(0)
-            probs.append(float(torch.softmax(model(x), dim=1)[0, 0]))   # P(bad)
-            stats.append(image_stats(img))
+    n_scored = len(files)
+    probs, stats = score_paths(model, files, with_stats=True)
 
     ref = json.loads((HERE / "model" / "train_image_stats.json").read_text())
     d = ood_distance(np.mean(stats, axis=0), ref)
@@ -222,26 +295,30 @@ def main():
     dec = sequential_decision(probs, thr_conf=args.conf, max_fields=args.max_fields,
                               min_fields=args.min_fields)
     mean_bad = float(np.mean(probs))
+    warn = short_chip_warning(n_scored, args.min_fields)
     report = dict(
-        n_fields_available=len(files),
+        n_fields_available=n_scored,
+        n_fields_scored=n_scored,
         fields_used=dec["n_fields"],
+        field_indices=list(dec["field_indices"]),
+        resource_basis=RESOURCE_BASIS,
         per_field_p_bad=[round(p, 4) for p in probs],
         chip_call=dec["call"],
         chip_p_bad=round(dec["p_bad"], 4),
         confidence=round(max(dec["p_bad"], 1 - dec["p_bad"]), 4),
         stopped_early=dec["stopped"],
-        warning=(f"only {len(files)} field(s), fewer than the {args.min_fields}-field minimum: the guard "
-                 "never applies; 2 of the 10 such test chips were called wrong, both chips whose "
-                 "fields the model mostly misread (field accuracy 0.20 and 0.17; REPORT Table 7)") if len(files) < args.min_fields else None,
+        warning=warn,
         mean_p_bad_all_fields=round(mean_bad, 4),
         image_statistics_distance=round(d, 3),
         image_statistics_distance_train_p99=round(ref["dist_p99"], 3),   # diagnostic: flagged 0 of 25 test chips
         reliability=dict(
             model_card=MODEL_CARD,
-            note="measured on 25 unseen chips: chip-level accuracy 0.80 and 13% of calls are "
-                 "CONFIDENT and WRONG. We could not build a reliable out-of-distribution detector "
-                 "for these failures (image statistics and feature-space distance both missed the "
-                 "100%-bad chip that was called pass with 0.94 confidence) — see README limitations.",
+            note="measured on 25 unseen half-session proxies (not physical-chip-validated): "
+                 "chip-level accuracy 0.80 and 13% of calls are CONFIDENT and WRONG. "
+                 "No accuracy or imaging-time guarantee. We could not build a reliable "
+                 "out-of-distribution detector for these failures (image statistics and "
+                 "feature-space distance both missed the 100%-bad chip that was called pass "
+                 "with 0.94 confidence) — see README limitations.",
         ),
         note="field order is taken from the filenames (natural sort); keep acquisition order.",
     )
@@ -252,14 +329,11 @@ def main():
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(figsize=(12, 2.6))
-    x = np.arange(len(probs))
-    ax.bar(x, probs, color=["#c0392b" if p > 0.5 else "#7fb3d5" for p in probs], width=0.9)
-    ax.axhline(0.5, color="gray", ls="--", lw=0.9)
-    ax.axvline(dec["n_fields"] - 0.5, color="black", lw=1.2)
+    mark_qc_map(ax, probs, dec["field_indices"])
     ax.set_ylim(0, 1); ax.set_xlabel("field index (acquisition order)")
     ax.set_ylabel("P(bad)")
     ttl = (f"chip call: {dec['call'].upper()}  (P={dec['p_bad']:.2f}, conf {report['confidence']:.2f})"
-           f"   fields used {dec['n_fields']}/{len(probs)}"
+           f"   rule used {dec['n_fields']}/{n_scored} scored"
            f"   [model card: chip acc 0.83 among called chips, false-confident 13%, inconclusive 8%]")
     ax.set_title(ttl, fontsize=10, loc="left")
     fig.tight_layout()

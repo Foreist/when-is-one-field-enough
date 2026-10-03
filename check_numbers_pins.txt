@@ -103,7 +103,7 @@
 65.7 leakage_results.json:cellaware_grouped.majority_share %.1f
 55.6 leakage_results.json:published.majority_share %.1f
 53.0 leakage_ci.json:test_majority_share.mean %.1f
-0.14 vs_all_pass.json:validation_min8.mcnemar_p .2f
+# Validation halves share session clusters; an iid McNemar p is deliberately not reported.
 0.22 vs_all_pass.json:test_min8.mcnemar_p .2f
 # effective N under the three cluster-size conventions (audit/15_effective_n.py)
 80      effective_n.json:n_eff_kish                                                     .0f

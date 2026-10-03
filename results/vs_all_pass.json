@@ -1,34 +1,46 @@
 {
  "validation_min1": {
   "n_chips": 68,
+  "n_sessions": 34,
   "rule_acc": 0.7794117647058824,
   "all_pass_acc": 0.6617647058823529,
   "only_rule_right": 14,
   "only_all_pass_right": 6,
-  "mcnemar_p": 0.11531829833984375
+  "mcnemar_p": null,
+  "inference_status": "descriptive_only",
+  "inference_reason": "Repeated or unknown session IDs: independent discordant pairs are not established"
  },
  "validation_min8": {
   "n_chips": 68,
+  "n_sessions": 34,
   "rule_acc": 0.7647058823529411,
   "all_pass_acc": 0.6617647058823529,
   "only_rule_right": 12,
   "only_all_pass_right": 5,
-  "mcnemar_p": 0.143463134765625
+  "mcnemar_p": null,
+  "inference_status": "descriptive_only",
+  "inference_reason": "Repeated or unknown session IDs: independent discordant pairs are not established"
  },
  "test_min1": {
   "n_chips": 25,
+  "n_sessions": 25,
   "rule_acc": 0.68,
   "all_pass_acc": 0.64,
   "only_rule_right": 4,
   "only_all_pass_right": 3,
-  "mcnemar_p": 1.0
+  "mcnemar_p": 1.0,
+  "inference_status": "exact_paired_test",
+  "inference_reason": "One proxy per distinct session; inference assumes independence between sessions"
  },
  "test_min8": {
   "n_chips": 25,
+  "n_sessions": 25,
   "rule_acc": 0.8,
   "all_pass_acc": 0.64,
   "only_rule_right": 5,
   "only_all_pass_right": 1,
-  "mcnemar_p": 0.21875
+  "mcnemar_p": 0.21875,
+  "inference_status": "exact_paired_test",
+  "inference_reason": "One proxy per distinct session; inference assumes independence between sessions"
  }
 }
