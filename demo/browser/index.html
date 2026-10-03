@@ -9,7 +9,9 @@
 <style>
 body{font:16px/1.5 system-ui,sans-serif;color:#17212b;background:#f5f7fa;margin:0}
 main{max-width:960px;margin:auto;padding:28px}h1{font-size:25px}section{background:white;border:1px solid #ccd5df;border-radius:8px;padding:20px;margin:18px 0}
-button,select,input{font:inherit;margin:6px 12px 6px 0}button{padding:8px 14px}table{border-collapse:collapse;width:100%}th,td{padding:6px 10px;border-bottom:1px solid #ddd;text-align:left}.warn{border-left:5px solid #b24c00;padding:10px;background:#fff8ee}.muted{color:#536575;font-size:14px}#error{color:#a11919}
+button,select,input{font:inherit;margin:6px 12px 6px 0}button{padding:8px 14px}table{border-collapse:collapse;width:100%;min-width:400px;table-layout:fixed}th,td{padding:6px 10px;border-bottom:1px solid #ddd;text-align:left;overflow-wrap:anywhere}.warn{border-left:5px solid #b24c00;padding:10px;background:#fff8ee}.muted{color:#536575;font-size:14px}#error{color:#a11919}
+label{display:block;font-weight:600}select,input{box-sizing:border-box;display:block;width:100%;max-width:100%;min-width:0;margin-right:0}.table-scroll{max-width:100%;overflow-x:auto}:focus-visible{outline:2px solid #175b9c;outline-offset:3px}main{overflow-wrap:anywhere}
+@media(max-width:480px){main{padding:16px}section{padding:14px}}
 </style>
 </head>
 <body><main>
@@ -17,15 +19,19 @@ button,select,input{font:inherit;margin:6px 12px 6px 0}button{padding:8px 14px}t
 <p>Research prototype. Benchmark numbers are on withheld half-session proxies, not identified physical chips. The field budget counts inputs consumed by the decision rule, not measured microscope or inference time.</p>
 <section><h2>Bundled Python-reference replay</h2>
 <p class="muted">These buttons replay probabilities computed by the Python tool on the bundled 1,024 × 768 images. This is not live inference and not exact reproduction of the full-resolution report.</p>
+<label for="chip">Bundled reference example</label>
 <select id="chip"><option value="good_chip">good example</option><option value="bad_chip">100%-bad example</option><option value="borderline_chip">borderline example (wrong reference call)</option></select>
 <button id="run">Replay reference</button><div id="status" role="status">Ready to replay a reference.</div>
 <div id="result" hidden><p id="call"></p><p id="budget"></p><p id="reference-note" class="muted"></p></div>
 </section>
 <section><h2>Exploratory live uploads</h2>
 <p class="warn">Live uploads do not emit PASS/FAIL or chip confidence. Browser decoding and preprocessing have not been validated as operationally equivalent to the reference pipeline. Only field scores are displayed. Do not use this preview as a chip-quality or clinical decision.</p>
-<input id="files" type="file" multiple accept="image/png,.png"><div id="upstatus" role="status">Load 8-bit grayscale/RGB still PNG images (no JPEG/BMP, animation, profile, interlace, or transparency) to explore field probabilities.</div>
+<label for="files">PNG fields for exploratory scores</label>
+<input id="files" type="file" multiple accept="image/png,.png" aria-describedby="upload-help">
+<p id="upload-help" class="muted">Load 8-bit grayscale/RGB still PNG images (no JPEG/BMP, animation, profile, interlace, or transparency) to explore field probabilities.</p>
+<div id="upstatus" role="status">Ready for PNG field uploads.</div>
 </section>
-<section id="field-results" hidden><h2>Field probabilities</h2><p id="source-label" class="muted"></p><table><thead><tr><th>Field</th><th>P(bad)</th><th>Used by reference rule</th></tr></thead><tbody id="scores"></tbody></table></section>
+<section id="field-results" hidden><h2 id="field-heading">Field probabilities</h2><p id="source-label" class="muted"></p><div class="table-scroll" role="region" aria-labelledby="field-heading" tabindex="0"><table><thead><tr><th scope="col">Field</th><th scope="col">P(bad)</th><th scope="col">Used by reference rule</th></tr></thead><tbody id="scores"></tbody></table></div></section>
 <p id="error" role="alert"></p>
 <section><h2>Scope and limits</h2>
 <p>The Python reference attained 19/23 called half-session proxies (82.6%), with four wrong calls, three at confidence ≥ 0.9. Its minimum of eight fields was chosen on that test set. The untuned minimum scored 0.708 on 24 calls or 0.680 with every proxy called. The rule consumed 9.5 of 27.4 fields at the same observed forced accuracy 0.800; all available fields are still scored for the QC view. This is not a validated accuracy or time-saving guarantee.</p>

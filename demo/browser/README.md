@@ -1,6 +1,6 @@
 # Browser reference replay and exploratory preview
 
-This tree is the source for the corrected static demo deployed to the existing HF Space on 2026-10-03 (Space commit `852a6c1624268779a9a66d662a64f6001131ee12`).
+This tree is the source for the corrected static demo deployed to the existing HF Space on 2026-10-03 (UI update commit `645382d0697bd2df6c01fba8c8530ddba7ee3add`; initial corrected release `852a6c1624268779a9a66d662a64f6001131ee12`). Controls have visible labels and permanent input-format help; narrow screens use a named, keyboard-focusable table scroll region instead of overflowing the page.
 
 - Bundled buttons replay Python probabilities on `demo/examples/` images, not the full-resolution report inputs. The borderline example is a wrong, low-confidence reference call.
 - Live uploads display **field scores only**. PASS/FAIL and chip confidence are suppressed until the actual decoding/preprocessing/model path is validated. Only 8-bit grayscale/RGB non-interlaced still PNGs without EXIF/color-profile chunks are accepted; JPEG/BMP, animation, other bit depths and transparent/profiled PNGs fail with an unsupported-input message. This does not turn a research prototype into a validated instrument.

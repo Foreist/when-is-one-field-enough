@@ -135,6 +135,82 @@ class BrowserPath(unittest.TestCase):
         finally:
             page.close();server.shutdown();server.server_close();thread.join(timeout=3)
 
+    def test_controls_have_accessible_labels_and_stable_input_help(self):
+        server,thread,url=_serve_repo()
+        page=self.browser.new_page()
+        page.route('https://**/*',lambda route:route.abort())
+        try:
+            page.goto(url)
+            self.assertEqual(page.get_by_label('Bundled reference example',exact=True).count(),1)
+            self.assertEqual(page.get_by_label('PNG fields for exploratory scores',exact=True).count(),1)
+            self.assertTrue(page.locator('label[for="chip"]').is_visible())
+            self.assertTrue(page.locator('label[for="files"]').is_visible())
+            self.assertEqual(page.locator('#files').get_attribute('aria-describedby'),'upload-help')
+            help_text=page.locator('#upload-help').inner_text()
+            self.assertIn('8-bit grayscale/RGB',help_text)
+            self.assertIn('transparency',help_text)
+            page.get_by_label('Bundled reference example',exact=True).select_option('bad_chip')
+            page.get_by_role('button',name='Replay reference').click()
+            page.wait_for_function("document.getElementById('status').textContent.includes('complete')")
+            self.assertIn('Reference replay: FAIL',page.locator('#call').inner_text())
+            page.evaluate('''()=>{
+                window.originalScoreImage=window.scoreImage;
+                window.scoreImage=()=>new Promise(resolve=>window.releaseLiveScore=()=>resolve(.123));
+            }''')
+            page.get_by_label('PNG fields for exploratory scores',exact=True).set_input_files(str(EXAMPLE_PNG))
+            page.wait_for_function("typeof window.releaseLiveScore==='function'")
+            self.assertEqual(page.locator('#upload-help').inner_text(),help_text)
+            self.assertIn('Scoring field',page.locator('#upstatus').inner_text())
+            page.evaluate('window.releaseLiveScore()')
+            page.wait_for_function("document.getElementById('upstatus').textContent.includes('fields scored')")
+            self.assertEqual(page.locator('#upload-help').inner_text(),help_text)
+            page.evaluate('delete window.releaseLiveScore;window.scoreImage=window.originalScoreImage;delete window.originalScoreImage')
+            page.get_by_label('PNG fields for exploratory scores',exact=True).set_input_files(dict(
+                name='unsupported.jpg',mimeType='image/jpeg',buffer=EXAMPLE_PNG.read_bytes()))
+            page.wait_for_function("document.getElementById('upstatus').textContent.includes('failed')")
+            self.assertEqual(page.locator('#upload-help').inner_text(),help_text)
+            self.assertIn('JPEG',page.locator('#error').inner_text())
+        finally:
+            page.close();server.shutdown();server.server_close();thread.join(timeout=3)
+
+    def test_small_viewports_contain_controls_and_results(self):
+        server,thread,url=_serve_repo()
+        page=self.browser.new_page()
+        page.route('https://**/*',lambda route:route.abort())
+        try:
+            page.goto(url)
+            for width in (320,390):
+                with self.subTest(width=width):
+                    page.set_viewport_size(dict(width=width,height=844))
+                    page.select_option('#chip','borderline_chip')
+                    page.get_by_role('button',name='Replay reference').click()
+                    page.wait_for_function("document.getElementById('budget').textContent.includes('20 / 20') && !document.getElementById('run').disabled")
+                    layout=page.evaluate('''()=>({
+                        pageWidth:document.documentElement.scrollWidth,
+                        controls:Array.from(document.querySelectorAll('#chip,#files')).map(e=>({
+                            left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right
+                        })),
+                        rows:document.querySelectorAll('#scores tr').length
+                    })''')
+                    self.assertEqual(layout['rows'],20)
+                    self.assertLessEqual(layout['pageWidth'],width)
+                    for control in layout['controls']:
+                        self.assertGreaterEqual(control['left'],0)
+                        self.assertLessEqual(control['right'],width)
+                    wrapper=page.get_by_role('region',name='Field probabilities',exact=True)
+                    self.assertEqual(wrapper.locator('table').count(),1)
+                    self.assertEqual(wrapper.evaluate('e=>getComputedStyle(e).overflowX'),'auto')
+                    self.assertLessEqual(wrapper.bounding_box()['x']+wrapper.bounding_box()['width'],width)
+                    wrapper.focus()
+                    self.assertTrue(wrapper.evaluate('e=>document.activeElement===e'))
+                    page.evaluate("document.querySelector('#scores td').textContent='field_'+'x'.repeat(300)+'.png'")
+                    self.assertEqual(page.locator('#scores td').first.evaluate('e=>getComputedStyle(e).overflowWrap'),'anywhere')
+                    self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'),width)
+                    self.assertIn('Reference replay: PASS',page.locator('#call').inner_text())
+                    self.assertIn('0.668',page.locator('#call').inner_text())
+        finally:
+            page.close();server.shutdown();server.server_close();thread.join(timeout=3)
+
     def test_network_blocked_upload_after_replay_clears_cached_rows(self):
         server,thread,url=_serve_repo()
         page=self.browser.new_page()
