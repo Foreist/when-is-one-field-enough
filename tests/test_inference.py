@@ -194,6 +194,72 @@ class DefaultPlateCli(unittest.TestCase):
                 plate_triage(root,None,None,args,out)
             self.assertEqual(list(out.iterdir()),[])
 
+    def test_output_folder_inside_plate_is_not_treated_as_a_chip(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name) / "plate"; root.mkdir()
+            chip = root / "chip-good"; chip.mkdir()
+            image = chip / "field.png"; image.write_bytes(b"fixture")
+            out = root / "out"; out.mkdir()
+            args = SimpleNamespace(conf=.9, max_fields=20, min_fields=8)
+            with mock.patch("inference.score_paths", return_value=[.1]):
+                summary = plate_triage(root, None, None, args, out)
+            self.assertEqual(summary["chips"], 1)
+            self.assertTrue((out / "plate_report.json").is_file())
+
+    def test_output_folder_cannot_hide_an_actual_chip(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name)/'plate';root.mkdir()
+            out=root/'chip-a';out.mkdir();(out/'field.png').write_bytes(b'fixture')
+            other=root/'chip-b';other.mkdir();(other/'field.png').write_bytes(b'fixture')
+            args=SimpleNamespace(conf=.9,max_fields=20,min_fields=8)
+            with mock.patch('inference.score_paths') as score:
+                with self.assertRaisesRegex(ValueError,'output path overlaps chip folder'):
+                    plate_triage(root,None,None,args,out)
+            score.assert_not_called()
+            self.assertEqual(sorted(p.name for p in out.iterdir()),['field.png'])
+
+    def test_partial_plate_rejects_empty_chip_before_scoring(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name) / "plate"; root.mkdir()
+            (root / "chip-good").mkdir(); (root / "chip-empty").mkdir()
+            (root / "chip-good" / "field.png").write_bytes(b"not decoded")
+            out = Path(name) / "out"; out.mkdir()
+            args = SimpleNamespace(conf=.9, max_fields=20, min_fields=8)
+            with mock.patch("inference.score_paths") as score:
+                with self.assertRaisesRegex(ValueError, r"no eligible images: chip-empty"):
+                    plate_triage(root, None, None, args, out)
+            score.assert_not_called()
+            self.assertEqual(list(out.iterdir()), [])
+
+    def test_cli_modes_are_required_and_mutually_exclusive(self):
+        for extra in ([], ["--images", "one", "--plate", "many"]):
+            proc = subprocess.run(
+                [sys.executable, str(REPO / "inference.py"), *extra],
+                cwd=str(REPO), capture_output=True, text=True, timeout=30,
+            )
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertIn("one of the arguments --images --plate is required" if not extra
+                          else "not allowed with argument", proc.stderr)
+
+    def test_existing_known_output_is_rejected_before_model_load(self):
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            images = root / "images"; images.mkdir()
+            out = root / "out"; out.mkdir()
+            stale = out / "plate_report.json"; stale.write_text("stale")
+            proc = subprocess.run(
+                [sys.executable, str(REPO / "inference.py"), "--images", str(images),
+                 "--out", str(out), "--checkpoint", str(root / "missing.pt")],
+                cwd=str(REPO), capture_output=True, text=True, timeout=30,
+            )
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertIn("choose a fresh --out folder", proc.stdout + proc.stderr)
+            self.assertNotIn("missing.pt", proc.stdout + proc.stderr)
+            self.assertEqual(stale.read_text(), "stale")
+
     def _assert_empty_plate_rejected(self, arrange):
         ckpt = REPO / "model" / "perfield_mnv3s_384_s0.pt"
         if not ckpt.is_file():

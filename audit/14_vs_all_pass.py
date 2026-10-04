@@ -8,7 +8,7 @@ on the same chips, so the comparison is paired: only chips where exactly one of 
   test:       the 25 held-out chips (perfield_preds_384_s0.json)
 Writes results/vs_all_pass.json
 """
-import collections, json, sys
+import collections, json, math, sys
 from pathlib import Path
 
 import numpy as np
@@ -33,6 +33,43 @@ def call(probs, min_f):
     return int(beta_p_bad(bad, good) > 0.5)
 
 
+def chips_from_prediction_arrays(pr):
+    """Validate and group the saved per-field prediction arrays."""
+    names = ("p", "y", "session", "idx")
+    if not isinstance(pr, dict):
+        raise ValueError("saved predictions must be an object of arrays")
+    missing = [name for name in names if name not in pr]
+    if missing:
+        raise ValueError(f"missing prediction arrays: {', '.join(missing)}")
+    for name in names:
+        if not isinstance(pr[name], list):
+            raise ValueError(f"{name} must be a prediction array")
+    lengths = {name: len(pr[name]) for name in names}
+    if len(set(lengths.values())) != 1:
+        raise ValueError(f"prediction arrays must have equal lengths: {lengths}")
+    if not lengths["p"]:
+        raise ValueError("prediction arrays must not be empty")
+    by = collections.defaultdict(list)
+    seen = set()
+    for pos, (p, y, session, idx) in enumerate(zip(*(pr[name] for name in names))):
+        if (isinstance(p, bool) or not isinstance(p, (int, float))
+                or not 0 <= p <= 1 or not math.isfinite(p)):
+            raise ValueError(f"p[{pos}] must be a finite number in [0, 1]")
+        if isinstance(y, bool) or y not in (0, 1):
+            raise ValueError(f"y[{pos}] must be 0 or 1")
+        if not isinstance(session, str) or not session.strip():
+            raise ValueError(f"session[{pos}] must be a non-empty string")
+        if isinstance(idx, bool) or not isinstance(idx, int) or idx < 0:
+            raise ValueError(f"idx[{pos}] must be a non-negative integer")
+        key = (session, idx)
+        if key in seen:
+            raise ValueError(f"duplicate field index {idx} in session {session!r}")
+        seen.add(key)
+        by[session].append((idx, float(p), int(y)))
+    return [dict(session=s, probs=[p for _, p, _ in sorted(v)],
+                 y=[y for _, _, y in sorted(v)]) for s, v in by.items()]
+
+
 def compare(chips, min_f):
     sessions = [c.get("session") for c in chips]
     clustered = any(s is None for s in sessions) or len(set(sessions)) != len(sessions)
@@ -52,18 +89,14 @@ def compare(chips, min_f):
 def main():
     val = icv.chips_from(json.loads((OUT / "inner_cv_oof.json").read_text())["oof"])
     pr = json.loads((OUT / "perfield_preds_384_s0.json").read_text())["test"]
-    by = collections.defaultdict(list)
-    for p, y, s, i in zip(pr["p"], pr["y"], pr["session"], pr["idx"]):
-        by[s].append((i, p, y))
-    test = [dict(session=s, probs=[p for _, p, _ in sorted(v)], y=[y for _, _, y in sorted(v)])
-            for s, v in by.items()]
+    test = chips_from_prediction_arrays(pr)
     res = {f"{name}_min{m}": compare(ch, m) for name, ch in (("validation", val), ("test", test))
            for m in (1, 8)}
     for k, v in res.items():
         p_text = "not tested (session-clustered)" if v['mcnemar_p'] is None else f"{v['mcnemar_p']:.3f}"
         print(f"{k:<16} rule {v['rule_acc']:.3f}  all-pass {v['all_pass_acc']:.3f}  "
               f"discordant {v['only_rule_right']}/{v['only_all_pass_right']}  p {p_text}")
-    (OUT / "vs_all_pass.json").write_text(json.dumps(res, indent=1))
+    (OUT / "vs_all_pass.json").write_text(json.dumps(res, indent=1, allow_nan=False))
     print("saved", OUT / "vs_all_pass.json")
 
 

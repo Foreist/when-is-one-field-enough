@@ -145,11 +145,15 @@ separately replay cached Python-reference calls (REPORT §6.8). The Hugging Face
 
 ### Input / output formats
 
-* **Input** — a folder of field images (`.png`, `.jpg`, `.tif`), one folder per chip; the file names
-  are read in natural order (`230425_7.png` before `230425_10.png`) and that order is treated as the
-  acquisition order. With `--plate`, the given folder must contain one subfolder per chip.
-* **Output** — `chip_report.json` (per-field P(bad), chip call, posterior confidence, fields used,
-  model card) and `qc_map.png`; in plate mode also `plate_summary.csv` with one row per chip
+* **Input** — choose exactly one of `--images` or `--plate`. `--images` takes a folder of field
+  images (`.png`, `.jpg`, `.tif`) for one chip; file names are read in natural order
+  (`230425_7.png` before `230425_10.png`) and that order is treated as acquisition order. With
+  `--plate`, the given folder must contain one non-empty image subfolder per chip; the whole run is
+  rejected if any chip folder contains no eligible images.
+* **Output** — use a fresh `--out` folder for every run. The tool refuses a folder that already
+  contains any known inference output rather than deleting or mixing results. Single-chip mode writes
+  `chip_report.json` (per-field P(bad), chip call, posterior confidence, fields used, model card) and
+  `qc_map.png`; plate mode writes `plate_report.json` and `plate_summary.csv`, with one CSV row per chip
   (`chip, call, p_bad, confidence, fields_used, fields_available, attention_rank`).
 
 ## 4. Limitations (read this before using the tool)

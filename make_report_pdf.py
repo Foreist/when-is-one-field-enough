@@ -6,6 +6,7 @@ import hashlib
 import html as html_lib
 import json
 import re
+import tempfile
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -102,22 +103,29 @@ def main():
     for png in sorted((HERE / "figures").glob("*.png")):
         html = html.replace(f'src="figures/{png.name}"', f'src="{img_data_uri(png)}"')
     doc = f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{html}</body></html>"
-    tmp = HERE / "_report.html"
-    tmp.write_text(doc)
-    with sync_playwright() as pw:
-        b = pw.chromium.launch()
-        page = b.new_page()
-        page.goto(tmp.as_uri())
-        page.pdf(path=str(PDF), format="A4", print_background=True,
-                 margin={"top": "16mm", "bottom": "16mm", "left": "14mm", "right": "14mm"})
-        b.close()
-    tmp.unlink()
-    after = source_manifest()
-    if before != after:
-        raise RuntimeError("report sources changed during rendering; rebuild from a stable tree")
-    manifest = dict(sources=after,
-                    pdf_sha256=hashlib.sha256(PDF.read_bytes()).hexdigest())
-    (HERE / "report.sources.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    with tempfile.TemporaryDirectory(prefix=".report-build-", dir=str(HERE)) as name:
+        stage = Path(name)
+        tmp = stage / "report.html"
+        staged_pdf = stage / "report.pdf"
+        staged_manifest = stage / "report.sources.json"
+        tmp.write_text(doc)
+        with sync_playwright() as pw:
+            b = pw.chromium.launch()
+            try:
+                page = b.new_page()
+                page.goto(tmp.as_uri())
+                page.pdf(path=str(staged_pdf), format="A4", print_background=True,
+                         margin={"top": "16mm", "bottom": "16mm", "left": "14mm", "right": "14mm"})
+            finally:
+                b.close()
+        after = source_manifest()
+        if before != after:
+            raise RuntimeError("report sources changed during rendering; rebuild from a stable tree")
+        manifest = dict(sources=after,
+                        pdf_sha256=hashlib.sha256(staged_pdf.read_bytes()).hexdigest())
+        staged_manifest.write_text(json.dumps(manifest, indent=2) + "\n")
+        staged_pdf.replace(PDF)
+        staged_manifest.replace(HERE / "report.sources.json")
     print("wrote", PDF, f"({PDF.stat().st_size/1e3:.0f} kB)")
 
 

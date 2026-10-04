@@ -225,13 +225,24 @@ def score_paths(model, paths, with_stats=False):
 def plate_triage(root, model, ref, args, out):
     """Run the decision on every chip folder inside `root` and rank them by attention needed."""
     import csv
+    out_resolved = Path(out).resolve()
     chips = [d for d in sorted(Path(root).iterdir()) if d.is_dir()]
+    for d in chips:
+        if d.resolve() == out_resolved and any(p.suffix.lower() in IMG_EXT for p in d.iterdir()):
+            raise ValueError(f"output path overlaps chip folder: {d.name}")
+    chips = [d for d in chips if d.resolve() != out_resolved]
+    files_by_chip = {
+        d: sorted([p for p in d.iterdir() if p.suffix.lower() in IMG_EXT], key=natural_key)
+        for d in chips
+    }
+    if not any(files_by_chip.values()):
+        raise ValueError(f"no eligible chip images found in {root}")
+    empty_chips = [d.name for d, files in files_by_chip.items() if not files]
+    if empty_chips:
+        raise ValueError("chip folder(s) contain no eligible images: " + ", ".join(empty_chips))
     rows = []
     tot_fields = tot_used = 0
-    for d in chips:
-        files = sorted([p for p in d.iterdir() if p.suffix.lower() in IMG_EXT], key=natural_key)
-        if not files:
-            continue
+    for d, files in files_by_chip.items():
         n_scored = len(files)
         probs = score_paths(model, files)
         dec = sequential_decision(probs, thr_conf=args.conf, max_fields=args.max_fields,
@@ -281,9 +292,10 @@ def plate_triage(root, model, ref, args, out):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--images", help="folder with one chip's field images")
-    ap.add_argument("--plate", help="folder containing one subfolder per chip (triage mode)")
-    ap.add_argument("--out", default="out", help="output folder")
+    mode = ap.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--images", help="folder with one chip's field images")
+    mode.add_argument("--plate", help="folder containing one subfolder per chip (triage mode)")
+    ap.add_argument("--out", default="out", help="fresh output folder")
     ap.add_argument("--checkpoint", default=str(HERE / "model" / "perfield_mnv3s_384_s0.pt"))
     ap.add_argument("--max-fields", type=int, default=20)
     ap.add_argument("--min-fields", type=int, default=8)
@@ -293,9 +305,13 @@ def main():
         validate_rule_args(args.max_fields, args.min_fields, args.conf)
     except ValueError as e:
         raise SystemExit(str(e))
-    if not args.images and not args.plate:
-        raise SystemExit("give --images (one chip) or --plate (many chips)")
-    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
+    out = Path(args.out)
+    output_names = {"chip_report.json", "qc_map.png", "plate_report.json", "plate_summary.csv"}
+    existing_outputs = sorted(p.name for p in out.iterdir() if p.name in output_names) if out.is_dir() else []
+    if existing_outputs:
+        raise SystemExit("choose a fresh --out folder; existing inference outputs: "
+                         + ", ".join(existing_outputs))
+    out.mkdir(parents=True, exist_ok=True)
     model = load_model(args.checkpoint)
 
     if args.plate:

@@ -27,5 +27,23 @@ class PairedInference(unittest.TestCase):
         self.assertEqual(out['only_rule_right'],5);self.assertEqual(out['only_all_pass_right'],1)
         self.assertEqual(out['mcnemar_p'],.21875);self.assertEqual(out['n_sessions'],6)
 
+    def test_saved_prediction_array_length_mismatch_fails_closed(self):
+        fixture={'p':[.1,.2], 'y':[1], 'session':['s1','s2'], 'idx':[1,2]}
+        with self.assertRaisesRegex(ValueError, 'equal lengths'):
+            module.chips_from_prediction_arrays(fixture)
+
+    def test_saved_prediction_arrays_reject_invalid_and_duplicate_rows(self):
+        base={'p':[.1], 'y':[1], 'session':['s1'], 'idx':[1]}
+        cases=[
+            dict(base, p=[float('nan')]), dict(base, p=[10**1000]),
+            dict(base, p=.5), dict(base, session='s1'), None,
+            dict(base, y=[2]),
+            dict(base, session=['']), dict(base, idx=[-1]),
+            {'p':[.1,.2], 'y':[1,0], 'session':['s1','s1'], 'idx':[1,1]},
+        ]
+        for fixture in cases:
+            with self.subTest(fixture=fixture), self.assertRaises(ValueError):
+                module.chips_from_prediction_arrays(fixture)
+
 
 if __name__=='__main__':unittest.main()

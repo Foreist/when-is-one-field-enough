@@ -1,7 +1,7 @@
 {
   "sources": {
     "REPORT.md": "b5e27c2d1e859b5588c027b0f87912d9e8516bf4c4209a328b70d3c74e827bd9",
-    "make_report_pdf.py": "3a232d050f3f3bc3471f2b034f5b30c5fa81c045ab2153060a25c8115c100def",
+    "make_report_pdf.py": "dd8fa69bf8aa475db3cef1ea6671cde076639ba01db84f05261240b6bfc8e771",
     "figures/fig1_dataset.png": "4357bbf07e28fd6a847780fe4bfd49bfca091c6138e644db468d6822fdd19a1c",
     "figures/fig2_leakage.png": "afb4dd91c415f3e62cfc2b632136f8f3f6c2e6e349271a6fe699ec1b27a07fac",
     "figures/fig3_label_structure.png": "8e8fe161f3086e40fd38c3a297c625cfedefa4ce66057dfb20240f1a9a880c98",
@@ -10,5 +10,5 @@
     "figures/fig6_label_vs_model.png": "b0710224a81775a02d1c09363dd4d9f31b446f6c005b04874e734a04c40579ed",
     "figures/fig7_efficiency.png": "ad0dda728fb02e1b107ad77506c1b39c859c460ec8c5c152e3db5edf66b99bcb"
   },
-  "pdf_sha256": "577e6f753d22443c6fcbc8faa5045eb0d829f77c212d493bf63a18dcf2b4fdca"
+  "pdf_sha256": "89e06567fe9d57660e6842a2ff7d201230886ad15c98488b8b3b67f641b7fcd0"
 }

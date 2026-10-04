@@ -57,6 +57,26 @@ def load_test_chips(data_root=None):
     return by
 
 
+def validate_cli_parameters(batch, max_fields, conf):
+    """Validate user-controlled values before touching data or model files."""
+    if isinstance(batch, bool) or not isinstance(batch, int) or batch < 1:
+        raise ValueError("batch must be a positive integer")
+    if isinstance(max_fields, bool) or not isinstance(max_fields, int) or max_fields < 2:
+        raise ValueError("max_fields must be an integer >= 2")
+    if isinstance(conf, bool) or not isinstance(conf, (int, float)) or not np.isfinite(conf) or not 0.5 < conf < 1.0:
+        raise ValueError("conf must be a finite number in (0.5, 1)")
+
+
+def wilson95_or_none(n, correct):
+    """Wilson interval, or None when no calls were made."""
+    if n == 0:
+        return None
+    z = 1.959963984540054
+    ctr = (correct + z * z / 2) / (n + z * z)
+    half = z * np.sqrt(correct * (n - correct) / n + z * z / 4) / (n + z * z)
+    return [round(float(ctr - half), 3), round(float(ctr + half), 3)]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-root", default=os.environ.get(
@@ -68,10 +88,10 @@ def main():
     ap.add_argument("--max-fields", type=int, default=20)
     ap.add_argument("--conf", type=float, default=0.9)
     args = ap.parse_args()
-    if args.max_fields < 2:
-        raise SystemExit("max_fields must be >= 2")
-    if not (0.5 < float(args.conf) < 1.0):
-        raise SystemExit("conf must be in (0.5, 1)")
+    try:
+        validate_cli_parameters(args.batch, args.max_fields, args.conf)
+    except ValueError as exc:
+        ap.error(str(exc))
 
     by = load_test_chips(args.data_root)
     model = mobilenet_v3_small(weights=None)
@@ -133,10 +153,10 @@ def main():
                 wrong_conf.append(0)
         n_conf = len(acc)
         seq[min_f] = dict(n_confident=n_conf,
-                          chip_acc_among_confident=float(np.mean(acc)) if n_conf else float("nan"),
+                          chip_acc_among_confident=float(np.mean(acc)) if n_conf else None,
                           mean_fields=float(np.mean(used)),
                           frac_stopped=float(np.mean(stopped)),
-                          false_confident_rate=float(np.mean(wrong_conf)) if n_conf else float("nan"),
+                          false_confident_rate=float(np.mean(wrong_conf)) if n_conf else None,
                           outcomes=dict(outcomes), n_chips=len(chips))
 
     # ---- chip-level: cap of k spread fields (all fields if the chip has fewer) ----
@@ -152,11 +172,9 @@ def main():
 
     # Wilson 95% interval for the shipped rule's accuracy on the chips it calls
     m8 = seq[8]
-    n8, k8 = m8["n_confident"], round(m8["chip_acc_among_confident"] * m8["n_confident"])
-    z = 1.959963984540054
-    ctr = (k8 + z * z / 2) / (n8 + z * z)
-    half = z * np.sqrt(k8 * (n8 - k8) / n8 + z * z / 4) / (n8 + z * z)
-    wilson = [round(float(ctr - half), 3), round(float(ctr + half), 3)]
+    n8 = m8["n_confident"]
+    k8 = round(m8["chip_acc_among_confident"] * n8) if n8 else 0
+    wilson = wilson95_or_none(n8, k8)
 
     n_scored = int(len(P))
     out = dict(
@@ -171,10 +189,14 @@ def main():
         note="sequential stopping uses a Beta(1,1) posterior on the bad fraction with "
              "evenly spread fields; min_fields guards against stopping on a lucky good region",
         chip_acc_among_confident_wilson95=wilson,
-        note_ci=f"Wilson interval over {n8} confident calls ({len(chips) - n8} of {len(chips)} chips were inconclusive)",
+        note_ci=(f"Wilson interval over {n8} confident calls "
+                 f"({len(chips) - n8} of {len(chips)} chips were inconclusive)" if n8 else
+                 f"Wilson interval undefined: 0 confident calls "
+                 f"({len(chips)} of {len(chips)} chips were inconclusive)"),
     )
-    (HERE / "results" / "tool_evaluation.json").write_text(json.dumps(out, indent=1))
-    print(json.dumps(out, indent=1))
+    encoded = json.dumps(out, indent=1, allow_nan=False)
+    (HERE / "results" / "tool_evaluation.json").write_text(encoded)
+    print(encoded)
     print("\nsaved results/tool_evaluation.json")
 
 
