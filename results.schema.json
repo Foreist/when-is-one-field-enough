@@ -1,0 +1,481 @@
+{
+  "allow_null_paths": {
+    "lolo_cellline.json": [
+      "$.per_cell.cell_type_HUVEC.seen_line_auc"
+    ],
+    "per_chip_calls.json": [
+      "$.per_session.220502.k20_first",
+      "$.per_session.220502.k20_spread",
+      "$.per_session.220506.k20_first",
+      "$.per_session.220506.k20_spread",
+      "$.per_session.220515.k20_first",
+      "$.per_session.220515.k20_spread",
+      "$.per_session.220606.correct",
+      "$.per_session.220606.k20_first",
+      "$.per_session.220606.k20_spread",
+      "$.per_session.220620.k20_first",
+      "$.per_session.220620.k20_spread",
+      "$.per_session.220706.k20_first",
+      "$.per_session.220706.k20_spread",
+      "$.per_session.220715.k20_first",
+      "$.per_session.220715.k20_spread",
+      "$.per_session.220716.k20_first",
+      "$.per_session.220716.k20_spread",
+      "$.per_session.220718.k20_first",
+      "$.per_session.220718.k20_spread",
+      "$.per_session.220721.k20_first",
+      "$.per_session.220721.k20_spread",
+      "$.per_session.230123.k20_first",
+      "$.per_session.230123.k20_spread",
+      "$.per_session.230215.k20_first",
+      "$.per_session.230215.k20_spread",
+      "$.per_session.230321.k20_first",
+      "$.per_session.230321.k20_spread",
+      "$.per_session.230403.k20_first",
+      "$.per_session.230403.k20_spread",
+      "$.per_session.230529.correct"
+    ],
+    "vs_all_pass.json": [
+      "$.validation_min1.mcnemar_p",
+      "$.validation_min8.mcnemar_p"
+    ]
+  },
+  "files": {
+    "adaptive_sampling.json": {
+      "required": {
+        "12": "object",
+        "2": "object",
+        "20": "object",
+        "4": "object",
+        "8": "object"
+      },
+      "root_type": "object"
+    },
+    "aggregation_results.json": {
+      "required": {
+        "args": "object",
+        "runs": "array",
+        "summary": "object"
+      },
+      "root_type": "object"
+    },
+    "block_structure.json": {
+      "required": {
+        "deff_cellrun": "number",
+        "deff_session": "number",
+        "frac_lag1_gt03": "number",
+        "good_frac": "number",
+        "icc_cellrun": "number",
+        "icc_session": "number",
+        "lag1_mean": "number",
+        "lag1_median": "number",
+        "n_eff_cellrun": "number",
+        "n_eff_session": "number",
+        "n_images": "integer",
+        "n_sessions": "integer",
+        "runlen_iid_expected": "number",
+        "runlen_max": "integer",
+        "runlen_mean": "number",
+        "runlen_median": "number",
+        "runlen_mixed": "number",
+        "runlen_mixed_permuted": "number",
+        "runlen_p90": "number",
+        "sampling_sim": "object"
+      },
+      "root_type": "object"
+    },
+    "celltype_control.json": {
+      "required": {
+        "frac_clustered": "number",
+        "n_clustered": "integer",
+        "n_significant": "integer",
+        "n_stretches": "integer",
+        "rows": "array"
+      },
+      "root_type": "object"
+    },
+    "effective_n.json": {
+      "required": {
+        "deff_anova": "number",
+        "deff_kish": "number",
+        "icc_session": "number",
+        "m0_anova": "number",
+        "m_kish": "number",
+        "n_eff_anova": "number",
+        "n_eff_inverse_variance": "number",
+        "n_eff_kish": "number",
+        "n_fields": "integer",
+        "n_sessions": "integer",
+        "note": "str",
+        "session_size_max": "integer",
+        "session_size_min": "integer"
+      },
+      "root_type": "object"
+    },
+    "efficiency.json": {
+      "required": {
+        "all_fields_acc": "number",
+        "cap_k": "object",
+        "fixed_k": "object",
+        "mean_fields_per_chip": "number",
+        "n_chips": "integer",
+        "note": "str",
+        "sequential": "object",
+        "total_fields": "integer"
+      },
+      "root_type": "object"
+    },
+    "full_sessions.json": {
+      "required": {
+        "all_fields_acc": "number",
+        "cap_k": "object",
+        "fields_range": "array",
+        "mean_fields_per_chip": "number",
+        "n_chips": "integer",
+        "note": "str",
+        "reference_changes_vs_half": "integer",
+        "sequential": "object",
+        "total_fields": "integer"
+      },
+      "root_type": "object"
+    },
+    "inner_cv_minfields.json": {
+      "required": {
+        "all_fields": "object",
+        "all_pass_acc": "number",
+        "by_cap": "object",
+        "by_min_fields": "object",
+        "criterion": "str",
+        "first_k_by_min_fields": "object",
+        "n_chips": "integer",
+        "n_sessions": "integer",
+        "selected_cap": "integer",
+        "selected_min_fields": "integer",
+        "shipped_min_fields": "integer"
+      },
+      "root_type": "object"
+    },
+    "inner_cv_oof.json": {
+      "required": {
+        "args": "object",
+        "folds": "array",
+        "oof": "object"
+      },
+      "root_type": "object"
+    },
+    "label_sufficiency.json": {
+      "required": {
+        "minority_share_mean": "number",
+        "minority_share_mixed_mean": "number",
+        "n_images": "integer",
+        "n_sessions": "integer",
+        "session_composition": "object",
+        "sessions_mixed": "integer",
+        "single_field_agreement_field_weighted": "number",
+        "single_image_agreement_by_cell": "object",
+        "single_image_agreement_by_day": "object",
+        "sufficiency_curve": "object"
+      },
+      "root_type": "object"
+    },
+    "label_vs_model.json": {
+      "required": {
+        "min1_labels": "object",
+        "min1_model": "object",
+        "min8_labels": "object",
+        "min8_model": "object"
+      },
+      "root_type": "object"
+    },
+    "leakage_ci.json": {
+      "required": {
+        "acc": "object",
+        "auc": "object",
+        "leaky_share_of_training": "object",
+        "n_seeds": "integer",
+        "test_majority_share": "object"
+      },
+      "root_type": "object"
+    },
+    "leakage_controlled.json": {
+      "required": {
+        "args": "object",
+        "disjoint": "object",
+        "inflation_acc": "number",
+        "inflation_auc": "number",
+        "leaky": "object",
+        "n_images": "integer",
+        "n_test_sessions": "integer",
+        "runs": "array"
+      },
+      "root_type": "object"
+    },
+    "leakage_results.json": {
+      "required": {
+        "args": "object",
+        "cellaware_grouped": "object",
+        "gap_acc": "number",
+        "gap_auc": "number",
+        "minority_share_mean": "number",
+        "n_images": "integer",
+        "published": "object",
+        "random_grouped": "object",
+        "runs": "array",
+        "sessions_mixed": "integer",
+        "sessions_total": "integer"
+      },
+      "root_type": "object"
+    },
+    "lolo_cellline.json": {
+      "required": {
+        "mean_acc": "number",
+        "mean_auc": "number",
+        "mean_auc_drop_vs_seen_line": "number",
+        "n_lines_below_majority": "integer",
+        "n_lines_with_seen_auc": "integer",
+        "note": "str",
+        "per_cell": "object"
+      },
+      "root_type": "object"
+    },
+    "oct_leakage.json": {
+      "required": {
+        "files_per_split": "object",
+        "frac_test_files_in_train_group": "number",
+        "groups_per_split": "object",
+        "licence": "str",
+        "note": "str",
+        "source": "str",
+        "test_files": "integer",
+        "test_files_in_train_group": "integer",
+        "test_groups": "array",
+        "title": "str",
+        "train_cap_test": "array",
+        "train_cap_val": "array",
+        "train_groups": "array",
+        "val_cap_test": "array",
+        "val_groups": "array"
+      },
+      "root_type": "object"
+    },
+    "onnx_parity.json": {
+      "required": {
+        "max_abs_diff": "number",
+        "mean_abs_diff": "number",
+        "n_fields": "integer",
+        "space": "str"
+      },
+      "root_type": "object"
+    },
+    "ood_check.json": {
+      "required": {
+        "feature_p99": "number",
+        "image_stats_p99": "number",
+        "n_chips": "integer",
+        "per_session": "object",
+        "summary": "object"
+      },
+      "root_type": "object"
+    },
+    "per_chip_calls.json": {
+      "required": {
+        "inconclusive": "array",
+        "k20": "object",
+        "per_session": "object",
+        "truth_counts": "object",
+        "wrong": "array"
+      },
+      "root_type": "object"
+    },
+    "perfield_metrics_384_s0.json": {
+      "required": {
+        "args": "object",
+        "meta": "object",
+        "metrics_test": "object",
+        "per_session": "object"
+      },
+      "root_type": "object"
+    },
+    "perfield_metrics_large384_s0.json": {
+      "required": {
+        "args": "object",
+        "meta": "object",
+        "metrics_test": "object",
+        "per_session": "object"
+      },
+      "root_type": "object"
+    },
+    "perfield_metrics_small512_s0.json": {
+      "required": {
+        "args": "object",
+        "meta": "object",
+        "metrics_test": "object",
+        "per_session": "object"
+      },
+      "root_type": "object"
+    },
+    "perfield_preds_384_s0.json": {
+      "required": {
+        "args": "object",
+        "epochs": "integer",
+        "meta": "object",
+        "metrics_test": "object",
+        "per_session": "object",
+        "seed": "integer",
+        "size": "integer",
+        "test": "object"
+      },
+      "root_type": "object"
+    },
+    "perfield_preds_large384_s0.json": {
+      "required": {
+        "args": "object",
+        "epochs": "integer",
+        "meta": "object",
+        "metrics_test": "object",
+        "per_session": "object",
+        "seed": "integer",
+        "size": "integer",
+        "test": "object"
+      },
+      "root_type": "object"
+    },
+    "perfield_preds_small512_s0.json": {
+      "required": {
+        "args": "object",
+        "epochs": "integer",
+        "meta": "object",
+        "metrics_test": "object",
+        "per_session": "object",
+        "seed": "integer",
+        "size": "integer",
+        "test": "object"
+      },
+      "root_type": "object"
+    },
+    "policy_bootstrap.json": {
+      "required": {
+        "k12": "object",
+        "k8": "object",
+        "n_chips_k12": "integer",
+        "n_chips_k8": "integer"
+      },
+      "root_type": "object"
+    },
+    "policy_model_in_loop.json": {
+      "required": {
+        "12": "object",
+        "4": "object",
+        "8": "object"
+      },
+      "root_type": "object"
+    },
+    "preprocessing_sensitivity.json": {
+      "required": {
+        "bundled_example_size": "array",
+        "bundled_examples": "object",
+        "resamplers_vs_shipped": "object"
+      },
+      "root_type": "object"
+    },
+    "recovery_test.json": {
+      "required": {
+        "cv_auc": "object",
+        "dark_thr": "number",
+        "feature_rows": "array",
+        "lap_thr": "number",
+        "n_runs": "integer",
+        "null_mean": "number",
+        "null_p95": "number",
+        "recovery_rate": "number",
+        "simple_rule_acc": "number"
+      },
+      "root_type": "object"
+    },
+    "redundancy.json": {
+      "required": {
+        "cons_mean": "number",
+        "frac_distinct": "number",
+        "images": "integer",
+        "per_session": "object",
+        "rand_mean": "number",
+        "sessions": "integer",
+        "threshold": "number",
+        "views": "integer"
+      },
+      "root_type": "object"
+    },
+    "run_image_groups.json": {
+      "required": {
+        "good": "object",
+        "isolated_bad": "object",
+        "long_bad": "object"
+      },
+      "root_type": "object"
+    },
+    "run_image_stats.json": {
+      "required": {},
+      "root_type": "object"
+    },
+    "smoothing_test.json": {
+      "required": {
+        "12": "object",
+        "4": "object",
+        "6": "object",
+        "8": "object"
+      },
+      "root_type": "object"
+    },
+    "stopping_rule.json": {
+      "required": {
+        "conf": "number",
+        "corrected": "object",
+        "deff_table": "object",
+        "deff_used": "number",
+        "kmax": "integer",
+        "naive": "object",
+        "trials": "integer"
+      },
+      "root_type": "object"
+    },
+    "structure_probe.json": {
+      "required": {
+        "A": "array",
+        "B": "object",
+        "expected_clustered_if_random": "number",
+        "expected_significant_if_random": "number",
+        "n_clustered": "integer",
+        "n_sessions_tested": "integer",
+        "n_significant": "integer"
+      },
+      "root_type": "object"
+    },
+    "tool_evaluation.json": {
+      "required": {
+        "checkpoint": "str",
+        "chip_acc_among_confident_wilson95": "array",
+        "chip_all_fields_mean_acc": "number",
+        "chip_fixed_k_spread": "object",
+        "chip_sequential_by_min_fields": "object",
+        "data_root": "str",
+        "field_accuracy": "number",
+        "field_auc": "number",
+        "n_chips": "integer",
+        "n_fields": "integer",
+        "note": "str",
+        "note_ci": "str"
+      },
+      "root_type": "object"
+    },
+    "vs_all_pass.json": {
+      "required": {
+        "test_min1": "object",
+        "test_min8": "object",
+        "validation_min1": "object",
+        "validation_min8": "object"
+      },
+      "root_type": "object"
+    }
+  },
+  "schema_version": 1
+}

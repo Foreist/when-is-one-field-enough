@@ -73,6 +73,44 @@ class SpreadAndDecision(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_rule_args(20, 8, 1.0)
 
+    def test_validate_rule_args_requires_integers_and_usable_minimum(self):
+        for args in ((20.5,8,.9),(20,8.5,.9),(True,1,.9),(20,True,.9),
+                     (8,9,.9),(20,8,float('nan')),(20,8,float('inf'))):
+            with self.subTest(args=args),self.assertRaises(ValueError):
+                validate_rule_args(*args)
+        self.assertEqual(validate_rule_args(8,8,.9),(8,8,.9))
+
+    def test_sequential_rejects_invalid_probabilities_before_any_stop(self):
+        invalid=(float('nan'),float('inf'),float('-inf'),-.01,1.01,10**1000,True,'0.1',None)
+        for value in invalid:
+            for probs in ([value]*8,[.1]*8+[value]):
+                with self.subTest(value=value,tail=len(probs)>8),self.assertRaisesRegex(
+                        ValueError,'probability at index'):
+                    sequential_decision(probs)
+        self.assertEqual(sequential_decision([0.0]*8)['call'],'pass')
+        self.assertEqual(sequential_decision([1.0]*8)['call'],'fail')
+
+    def test_sequential_validates_numeric_rule_parameters(self):
+        for kwargs in (dict(max_fields=20.5),dict(min_fields=8.5),
+                       dict(max_fields=True),dict(min_fields=True),
+                       dict(thr_conf=float('nan')),dict(thr_conf=.5),
+                       dict(max_fields=0),dict(min_fields=0)):
+            with self.subTest(kwargs=kwargs),self.assertRaises(ValueError):
+                sequential_decision([.1]*20,**kwargs)
+        # Audit sweeps can disable early stopping with a minimum above the budget.
+        self.assertFalse(sequential_decision([.1]*20,max_fields=3,min_fields=8)['stopped'])
+        self.assertEqual(sequential_decision([.1]*20,max_fields=1,min_fields=1)['n_fields'],1)
+        self.assertEqual(sequential_decision([])['call'],'inconclusive')
+        with self.assertRaises(ValueError):
+            sequential_decision([.1]*20,thr_conf=10**1000)
+
+    def test_numpy_scalars_remain_supported(self):
+        import numpy as np
+        self.assertEqual(validate_rule_args(np.int64(20),np.int64(8),np.float32(.9))[:2],(20,8))
+        self.assertEqual(sequential_decision(np.full(20,.1,dtype=np.float32))['call'],'pass')
+        with self.assertRaises(ValueError):
+            sequential_decision([np.bool_(True)]*8)
+
     def test_spread_order_max1_no_divzero(self):
         # audit callers may pass k=1; CLI rejects it. Must not divide by zero.
         self.assertEqual(spread_order(100, 1), [0])

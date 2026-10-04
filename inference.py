@@ -27,6 +27,7 @@ Usage:
 """
 import argparse, json, math, re
 from pathlib import Path
+from numbers import Integral, Real
 
 import numpy as np
 import torch
@@ -100,15 +101,23 @@ def spread_order(n, max_fields):
     return [round(i * (n - 1) / (max_fields - 1)) for i in range(max_fields)]
 
 
+def _validate_rule_parameters(max_fields, min_fields, conf, audit=False):
+    minimum_budget = 1 if audit else 2
+    if isinstance(max_fields, bool) or not isinstance(max_fields, Integral) or max_fields < minimum_budget:
+        raise ValueError(f"max_fields must be an integer >= {minimum_budget}")
+    if isinstance(min_fields, bool) or not isinstance(min_fields, Integral) or min_fields < 1:
+        raise ValueError("min_fields must be an integer >= 1")
+    if not audit and min_fields > max_fields:
+        raise ValueError("min_fields must not exceed max_fields")
+    if (isinstance(conf, bool) or not isinstance(conf, Real)
+            or not 0.5 < conf < 1.0 or not math.isfinite(conf)):
+        raise ValueError("conf must be a finite number in (0.5, 1)")
+    return int(max_fields), int(min_fields), float(conf)
+
+
 def validate_rule_args(max_fields, min_fields, conf):
-    """CLI/app bounds. sequential_decision keeps its defaults for audit callers."""
-    if max_fields < 2:
-        raise ValueError("max_fields must be >= 2")
-    if min_fields < 1:
-        raise ValueError("min_fields must be >= 1")
-    if not (0.5 < float(conf) < 1.0):
-        raise ValueError("conf must be in (0.5, 1)")
-    return max_fields, min_fields, float(conf)
+    """CLI/app bounds; audit sweeps may intentionally disable early stopping."""
+    return _validate_rule_parameters(max_fields, min_fields, conf)
 
 
 def short_chip_warning(n_available, min_fields):
@@ -153,7 +162,17 @@ def sequential_decision(probs, thr_conf=0.9, max_fields=20, min_fields=8):
     min_fields=8 cut it to 13% (see results/tool_evaluation.json). That value was
     read off the test chips; re-selected on the other 34 sessions it would be 1
     (results/inner_cv_minfields.json, REPORT section 6.2(c)).
+
+    Reject invalid probabilities even beyond an early-stop prefix. Audit callers
+    may use a minimum above the budget to disable early stopping. An empty input
+    remains a zero-field inconclusive result; CLI/app reject empty image inputs.
     """
+    max_fields, min_fields, thr_conf = _validate_rule_parameters(
+        max_fields, min_fields, thr_conf, audit=True)
+    for idx, p in enumerate(probs):
+        if (isinstance(p, bool) or not isinstance(p, Real)
+                or not 0.0 <= p <= 1.0 or not math.isfinite(p)):
+            raise ValueError(f"probability at index {idx} must be a finite number in [0, 1]")
     order = spread_order(len(probs), max_fields)
     bad = good = 0
     for i, idx in enumerate(order, 1):

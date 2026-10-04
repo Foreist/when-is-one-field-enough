@@ -6,6 +6,9 @@
 
 This script is *not* a proof that every prose number is correct.
 
+0. Artifact integrity (`check_results.py` + `results.schema.json`): required result
+   membership, JSON/root/top-level types, finite numbers and declared nulls.
+   This runs even with --numbers-only; it is not full nested semantic validation.
 1. Generic lint: each numeric token in REPORT/README/audit README must equal
    *some* results/*.json leaf (at written precision) or an allow-list constant.
    Coincidence with an unrelated leaf is enough to pass. This is a leftover
@@ -51,10 +54,7 @@ def leaves(o):
 def json_values():
     vals = set()
     for f in sorted((HERE / "results").glob("*.json")):
-        try:
-            d = json.loads(f.read_text())
-        except Exception:
-            continue
+        d = json.loads(f.read_text())
         for v in leaves(d):
             vals.add(v)
     return vals
@@ -219,6 +219,13 @@ def main():
     extra = [Path(a) for a in sys.argv[1:] if not a.startswith("-")]
     numbers_only = "--numbers-only" in flags
     docs = DOCS + extra
+    import check_results
+    result_issues = check_results.check_results(here=HERE)
+    for issue in result_issues:
+        print(issue)
+    print(f"{len(result_issues)} result integrity issues", file=sys.stderr)
+    if result_issues:
+        sys.exit(1)
     vals = json_values()
     known = set()
     for v in vals:

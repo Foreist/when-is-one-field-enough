@@ -19,6 +19,10 @@ acquisition dates — a date is one microscope run over one or more chips), not 
 Everything runs from one public dataset. Named headline numbers in this README are pinned to
 `results/*.json`; the enumerated numeric result tables are checked cell by cell, including expected row IDs. That is the checkers'
 guarantee, not that every prose token is traced.
+`check_results.py` also requires the result artifacts declared in `results.schema.json`:
+valid JSON without duplicate keys, reviewed root/required top-level types, finite numeric
+leaves and only explicitly allowed null paths. This artifact-health check runs before
+numeric lint; it does not prove every nested value or prose claim is scientifically correct.
 
 ---
 
