@@ -76,6 +76,74 @@ class ResultIntegrity(unittest.TestCase):
         finally:
             td.cleanup()
 
+    def test_json_schema_numeric_type_semantics(self):
+        accepted = [
+            (0, "number"), (0.0, "number"), (-3, "number"), (-3.0, "number"),
+            (7, "number"), (0, "integer"), (0.0, "integer"),
+            (-3, "integer"), (-3.0, "integer"), (7, "integer"),
+        ]
+        rejected = [
+            (1.5, "integer"), (-1.5, "integer"),
+            (True, "number"), (False, "number"),
+            (True, "integer"), (False, "integer"),
+            (float("nan"), "number"), (float("inf"), "number"),
+            (float("-inf"), "integer"),
+        ]
+        for value, expected in accepted:
+            with self.subTest(value=value, expected=expected):
+                self.assertTrue(check_results.matches_type(value, expected))
+        for value, expected in rejected:
+            with self.subTest(value=value, expected=expected):
+                self.assertFalse(check_results.matches_type(value, expected))
+
+    def test_numeric_semantics_apply_to_roots_required_keys_and_unions(self):
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            (root / "results").mkdir()
+            schema = {
+                "schema_version": 1,
+                "files": {
+                    "number_root.json": {"root_type": "number"},
+                    "integer_root.json": {"root_type": "integer"},
+                    "required.json": {
+                        "root_type": "object",
+                        "required": {
+                            "number": "number",
+                            "integer": "integer",
+                            "union": ["integer", "str"],
+                        },
+                    },
+                },
+            }
+            (root / "results.schema.json").write_text(json.dumps(schema))
+            (root / "results" / "number_root.json").write_text("0")
+            (root / "results" / "integer_root.json").write_text("-3.0")
+            (root / "results" / "required.json").write_text(
+                json.dumps({"number": 7, "integer": 0.0, "union": -3.0})
+            )
+            self.assertEqual(check_results.check_results(root), [])
+
+            (root / "results" / "integer_root.json").write_text("1.5")
+            required = {"number": True, "integer": False, "union": 1.5}
+            (root / "results" / "required.json").write_text(json.dumps(required))
+            issues = check_results.check_results(root)
+            self.assertTrue(any("root type number, expected integer" in issue for issue in issues), issues)
+            self.assertTrue(any("$.number type boolean, expected number" in issue for issue in issues), issues)
+            self.assertTrue(any("$.integer type boolean, expected integer" in issue for issue in issues), issues)
+            self.assertTrue(any("$.union type number, expected integer or str" in issue for issue in issues), issues)
+
+    def test_integral_real_result_can_be_regenerated_as_integer(self):
+        td, root = self.copy_fixture()
+        try:
+            path = root / "results" / "block_structure.json"
+            data = json.loads(path.read_text())
+            self.assertEqual(data["runlen_median"], 2.0)
+            data["runlen_median"] = 2
+            path.write_text(json.dumps(data))
+            self.assertEqual(check_results.check_results(root), [])
+        finally:
+            td.cleanup()
+
     def test_corrupt_schema_is_descriptive_failure(self):
         for payload in ('[]','null','{"schema_version":1,"files":{}}',
                         '{"schema_version":1,"files":{"x.json":null}}',

@@ -249,6 +249,8 @@ def plate_triage(root, model, ref, args, out):
                          attention_rank=rank, short_chip=n_scored < args.min_fields,
                          warning=warn, resource_basis=RESOURCE_BASIS))
         tot_fields += n_scored; tot_used += dec["n_fields"]
+    if not rows:
+        raise ValueError(f"no eligible chip images found in {root}")
     rows.sort(key=lambda r: (r["attention_rank"], -r["p_bad"]))
     summary = dict(chips=len(rows), fields_available=tot_fields, n_fields_scored=tot_fields,
                    fields_used=tot_used,
@@ -298,7 +300,10 @@ def main():
 
     if args.plate:
         ref = json.loads((HERE / "model" / "train_image_stats.json").read_text())
-        plate_triage(args.plate, model, ref, args, out)
+        try:
+            plate_triage(args.plate, model, ref, args, out)
+        except ValueError as e:
+            raise SystemExit(str(e))
         return
 
     files = sorted([p for p in Path(args.images).iterdir() if p.suffix.lower() in IMG_EXT],

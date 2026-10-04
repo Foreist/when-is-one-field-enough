@@ -246,10 +246,19 @@ async function replay() {
     const m = await manifest();
     const name = $('chip').value;
     const c = m.chips[name];
+    if (!c || !Array.isArray(c.files) || c.files.length === 0 ||
+        !c.files.every((file) => typeof file === 'string' && file.length > 0) ||
+        typeof c.probs !== 'string' || c.probs.length === 0) {
+      throw new Error('Invalid reference manifest');
+    }
     const response = await fetch(c.probs);
     if (!response.ok) throw new Error('Reference probabilities unavailable');
-    const p = (await response.json()).p_bad;
-    if (p.length !== c.files.length) throw new Error('Reference count mismatch');
+    const payload = await response.json();
+    const p = payload && payload.p_bad;
+    if (!Array.isArray(p) || p.length === 0 || p.length !== c.files.length) {
+      throw new Error('Reference count mismatch');
+    }
+    api.validateProbabilities(p, false);
     const d = api.decide(p);
     const shown = api.presentResult('cached-replay', d);
     if (!isCurrent(id)) return;
@@ -273,9 +282,18 @@ async function scoreImage(file) {
   const tensor = api.rgbToNchw384(decoded.rgb, decoded.width, decoded.height);
   const session = await window.model();
   const output = await session.run({input: new window.ort.Tensor('float32', tensor, [1, 3, 384, 384])});
-  const l = output.logits.data;
+  if (!output || !output.logits || !output.logits.data) throw new Error('Invalid model output: missing logits');
+  const logits = output.logits;
+  const l = logits.data;
+  if (l.length !== 2) throw new Error('Invalid model output: expected exactly two logits');
+  if (!Array.isArray(logits.dims) || logits.dims.length !== 2 || logits.dims[0] !== 1 || logits.dims[1] !== 2) {
+    throw new Error('Invalid model output: expected logits shape [1, 2]');
+  }
+  if (!Number.isFinite(l[0]) || !Number.isFinite(l[1])) throw new Error('Invalid model output: logits must be finite');
   const z = Math.max(l[0], l[1]);
-  return Math.exp(l[0] - z) / (Math.exp(l[0] - z) + Math.exp(l[1] - z));
+  const probability = Math.exp(l[0] - z) / (Math.exp(l[0] - z) + Math.exp(l[1] - z));
+  if (!Number.isFinite(probability) || probability < 0 || probability > 1) throw new Error('Invalid model output: probability is not finite');
+  return probability;
 }
 
 async function onFilesChange(event) {

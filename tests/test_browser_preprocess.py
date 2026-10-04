@@ -7,6 +7,7 @@ validation on other formats, browsers or physical chips.
 import base64
 import functools
 import http.server
+import json
 import tempfile
 import threading
 import unittest
@@ -114,6 +115,93 @@ class BrowserPath(unittest.TestCase):
         })''')
         self.assertEqual(result['names'],['x_1.png','x_2.png','x_10.png'])
         self.assertEqual(result['consumed'],[0,5,10,16,21,26,31,36])
+
+    def test_decide_rejects_invalid_probabilities_and_options(self):
+        cases=self.page.evaluate('''()=>{
+            const probes=[
+              ()=>OocPreprocess.decide([NaN]),()=>OocPreprocess.decide([Infinity]),
+              ()=>OocPreprocess.decide([null]),()=>OocPreprocess.decide(['0.2']),
+              ()=>OocPreprocess.decide([-0.1]),()=>OocPreprocess.decide([1.1]),
+              ()=>OocPreprocess.decide([.2],{maxFields:1.5}),
+              ()=>OocPreprocess.decide([.2],{maxFields:true}),
+              ()=>OocPreprocess.decide([.2],{minFields:NaN}),
+              ()=>OocPreprocess.decide([.2],{conf:Infinity}),
+              ()=>OocPreprocess.decide([.2],{conf:0}),
+              ()=>OocPreprocess.decide([.2],{conf:.5}),
+              ()=>OocPreprocess.decide([.2],{conf:1}),
+              ()=>OocPreprocess.decide(new DataView(new ArrayBuffer(8)))];
+            return probes.map(fn=>{try{fn();return null}catch(e){return e.message}});
+        }''')
+        self.assertTrue(all(cases),cases)
+        audits=self.page.evaluate('''()=>({
+          max1:OocPreprocess.decide([.1,.9],{maxFields:1}),
+          minAbove:OocPreprocess.decide([.1,.1],{minFields:3}),
+          empty:OocPreprocess.decide([]),
+          intentional:OocPreprocess.decide([.1,.9]),
+          validConf:OocPreprocess.decide([.1],{conf:.500001}),
+          typed:OocPreprocess.decide(new Float32Array([.1,.9]))
+        })''')
+        self.assertEqual(audits['max1']['used'],1)
+        self.assertEqual(audits['minAbove']['used'],2)
+        self.assertEqual(audits['empty']['total'],0)
+        self.assertEqual(audits['intentional']['call'],'inconclusive')
+
+    def test_cached_replay_rejects_malformed_probability_arrays(self):
+        server,thread,url=_serve_repo()
+        try:
+            payloads=[
+              '{"p_bad":[]}',
+              '{"p_bad":['+','.join(['1e400']*12)+']}',
+              '{"p_bad":['+','.join(['null']+['0.1']*11)+']}',
+              '{"p_bad":['+','.join(['"0.1"']+['0.1']*11)+']}',
+              '{"p_bad":['+','.join(['1.1']+['0.1']*11)+']}',
+              '{"p_bad":['+','.join(['0.1']*11+['1e400'])+']}'
+            ]
+            for payload in payloads:
+                page=self.browser.new_page();page.route('https://**/*',lambda route:route.abort())
+                page.route('**/demo/examples/good_chip/probs.json',lambda route,request,payload=payload:route.fulfill(status=200,content_type='application/json',body=payload))
+                page.goto(url);page.locator('#run').click()
+                page.wait_for_function("document.getElementById('status').textContent.includes('failed')")
+                state=_ui_state(page)
+                self.assertTrue(state['error'],payload)
+                self.assertFalse(state['bannerVisible'],payload)
+                self.assertFalse(state['tableVisible'],payload)
+                self.assertEqual(state['rows'],0,payload)
+                self.assertEqual(state['source'],'',payload)
+                self.assertTrue(state['replayEnabled'],payload)
+                self.assertTrue(state['filesEnabled'],payload)
+                page.close()
+        finally:
+            server.shutdown();server.server_close();thread.join(timeout=3)
+
+    def test_cached_replay_rejects_malformed_manifest_entry(self):
+        server,thread,url=_serve_repo()
+        base=json.loads((BROWSER/'chips.json').read_text())
+        variants=[]
+        for files,probs in [('x'*12,'../examples/good_chip/probs.json'),
+                            (['ok.png']*12,None),([], '../examples/good_chip/probs.json'),
+                            (['']+['ok.png']*11,'../examples/good_chip/probs.json')]:
+            manifest=json.loads(json.dumps(base))
+            manifest['chips']['good_chip']['files']=files
+            manifest['chips']['good_chip']['probs']=probs
+            variants.append(json.dumps(manifest))
+        try:
+            for manifest in variants:
+                page=self.browser.new_page();page.route('https://**/*',lambda route:route.abort())
+                page.route('**/demo/browser/chips.json',lambda route,request,manifest=manifest:route.fulfill(status=200,content_type='application/json',body=manifest))
+                page.goto(url);page.locator('#run').click()
+                page.wait_for_function("document.getElementById('status').textContent.includes('failed')")
+                state=_ui_state(page)
+                self.assertIn('Invalid reference manifest',state['error'])
+                self.assertFalse(state['bannerVisible'])
+                self.assertFalse(state['tableVisible'])
+                self.assertEqual(state['rows'],0)
+                self.assertEqual(state['source'],'')
+                self.assertTrue(state['replayEnabled'])
+                self.assertTrue(state['filesEnabled'])
+                page.close()
+        finally:
+            server.shutdown();server.server_close();thread.join(timeout=3)
 
     def test_default_cached_button_replays_without_loading_model(self):
         server,thread,url=_serve_repo()
@@ -334,6 +422,39 @@ class BrowserPath(unittest.TestCase):
         finally:
             page.close();server.shutdown();server.server_close();thread.join(timeout=3)
 
+    def test_invalid_model_outputs_fail_closed_without_results(self):
+        server,thread,url=_serve_repo()
+        variants=[
+          "({logits:{data:[0]}})",
+          "({logits:{data:[0,1,2]}})",
+          "({})",
+          "({logits:{data:[NaN,0]}})",
+          "({logits:{data:[Infinity,0],dims:[1,2]}})",
+          "({logits:{data:[0,1]}})",
+          "({logits:{data:[0,1],dims:[2,1]}})"
+        ]
+        try:
+            for output in variants:
+                page=self.browser.new_page();page.route('https://**/*',lambda route:route.abort())
+                page.goto(url)
+                page.evaluate('''output=>{
+                    window.ort={Tensor:function(type,data,shape){this.data=data;this.shape=shape;}};
+                    window.model=async()=>({run:async()=>eval(output)});
+                }''',output)
+                page.locator('#files').set_input_files(str(EXAMPLE_PNG))
+                page.wait_for_function("document.getElementById('upstatus').textContent.includes('failed')")
+                state=_ui_state(page)
+                self.assertIn('Invalid model output',state['error'],output)
+                self.assertFalse(state['bannerVisible'],output)
+                self.assertFalse(state['tableVisible'],output)
+                self.assertEqual(state['rows'],0,output)
+                self.assertEqual(state['source'],'',output)
+                self.assertTrue(state['replayEnabled'],output)
+                self.assertTrue(state['filesEnabled'],output)
+                page.close()
+        finally:
+            server.shutdown();server.server_close();thread.join(timeout=3)
+
     def test_opaque_png_scores_through_actual_scoreImage_with_stub_model(self):
         server,thread,url=_serve_repo()
         page=self.browser.new_page()
@@ -342,7 +463,7 @@ class BrowserPath(unittest.TestCase):
             page.goto(url)
             page.evaluate('''()=>{
                 window.ort={Tensor:function(type,data,shape){this.data=data;this.shape=shape;}};
-                window.model=async()=>({run:async()=>({logits:{data:[Math.log(0.25),Math.log(0.75)]}})});
+                window.model=async()=>({run:async()=>({logits:{data:[Math.log(0.25),Math.log(0.75)],dims:[1,2]}})});
             }''')
             page.locator('#files').set_input_files(str(EXAMPLE_PNG))
             page.wait_for_function("document.getElementById('upstatus').textContent.includes('fields scored')")

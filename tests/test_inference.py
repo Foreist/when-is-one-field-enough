@@ -15,7 +15,7 @@ sys.path.insert(0, str(REPO))
 
 from inference import (  # noqa: E402
     last_consumed_index, mark_qc_map, sequential_decision, spread_order,
-    validate_rule_args,
+    validate_rule_args, plate_triage,
 )
 
 TMP = Path("/tmp/claude-ai4s-fixes-20260930/inference")
@@ -183,6 +183,50 @@ class EvaluateDataRoot(unittest.TestCase):
 
 
 class DefaultPlateCli(unittest.TestCase):
+    def test_empty_plate_library_guard_does_not_need_a_checkpoint(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name)/'plate';root.mkdir()
+            (root/'chip-empty').mkdir()
+            out=Path(name)/'out';out.mkdir()
+            args=SimpleNamespace(conf=.9,max_fields=20,min_fields=8)
+            with self.assertRaisesRegex(ValueError,'no eligible chip images found'):
+                plate_triage(root,None,None,args,out)
+            self.assertEqual(list(out.iterdir()),[])
+
+    def _assert_empty_plate_rejected(self, arrange):
+        ckpt = REPO / "model" / "perfield_mnv3s_384_s0.pt"
+        if not ckpt.is_file():
+            self.skipTest("checkpoint unavailable")
+        TMP.mkdir(parents=True, exist_ok=True)
+        root = Path(tempfile.mkdtemp(prefix="empty-plate-", dir=str(TMP)))
+        arrange(root)
+        out = root / "out"
+        env = dict(os.environ)
+        env["CUDA_VISIBLE_DEVICES"] = ""
+        proc = subprocess.run(
+            [sys.executable, str(REPO / "inference.py"),
+             "--plate", str(root), "--out", str(out)],
+            cwd=str(REPO), env=env, capture_output=True, text=True, timeout=90,
+        )
+        combined = proc.stdout + proc.stderr
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("no eligible chip images found", combined)
+        self.assertNotIn("100% policy consumption", combined)
+        self.assertFalse((out / "plate_report.json").exists())
+        self.assertFalse((out / "plate_summary.csv").exists())
+
+    def test_empty_plate_root_is_rejected_without_reports(self):
+        self._assert_empty_plate_rejected(lambda root: None)
+
+    def test_plate_with_only_empty_chip_subfolders_is_rejected_without_reports(self):
+        self._assert_empty_plate_rejected(lambda root: (root / "chip-empty").mkdir())
+
+    def test_plate_with_images_only_at_root_is_rejected_without_reports(self):
+        def arrange(root):
+            (root / "field.png").write_bytes(b"not decoded because root files are not chips")
+        self._assert_empty_plate_rejected(arrange)
+
     def test_demo_plate_scores_44_and_keeps_calls(self):
         ckpt = REPO / "model" / "perfield_mnv3s_384_s0.pt"
         examples = REPO / "demo" / "examples"

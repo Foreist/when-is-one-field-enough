@@ -294,11 +294,30 @@
     return sum / Math.pow(2, n);
   }
 
+  function validateProbabilities(probs, allowEmpty) {
+    if ((!Array.isArray(probs) && !ArrayBuffer.isView(probs)) ||
+        !Number.isInteger(probs.length) || probs.length < 0)
+      throw new Error("probabilities must be an array or numeric typed array");
+    if (!allowEmpty && probs.length === 0)
+      throw new Error("probabilities must not be empty");
+    for (var i = 0; i < probs.length; i++) {
+      if (typeof probs[i] !== "number" || !Number.isFinite(probs[i]) || probs[i] < 0 || probs[i] > 1)
+        throw new Error("probabilities must be finite numbers in [0, 1]");
+    }
+  }
+
   function decide(probs, opts) {
     opts = opts || {};
-    var maxf = opts.maxFields || MAXF;
-    var minf = opts.minFields || MINF;
+    validateProbabilities(probs, true);
+    var maxf = opts.maxFields === undefined ? MAXF : opts.maxFields;
+    var minf = opts.minFields === undefined ? MINF : opts.minFields;
     var conf = opts.conf === undefined ? CONF : opts.conf;
+    if (!Number.isInteger(maxf) || maxf < 1)
+      throw new Error("maxFields must be a positive integer");
+    if (!Number.isInteger(minf) || minf < 1)
+      throw new Error("minFields must be a positive integer");
+    if (typeof conf !== "number" || !Number.isFinite(conf) || conf <= 0.5 || conf >= 1)
+      throw new Error("conf must be a finite number strictly between 0.5 and 1");
     var order = spreadOrder(probs.length, maxf);
     var bad = 0, good = 0, call = null, used = order.length, p = null;
     for (var i = 0; i < order.length; i++) {
@@ -353,6 +372,7 @@
     naturalCompare: naturalCompare,
     spreadOrder: spreadOrder,
     pBadPosterior: pBadPosterior,
+    validateProbabilities: validateProbabilities,
     decide: decide,
     presentResult: presentResult
   };

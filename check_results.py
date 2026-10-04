@@ -28,6 +28,18 @@ def json_kind(value) -> str:
     return type(value).__name__
 
 
+def matches_type(value, expected: str) -> bool:
+    """Match JSON Schema numeric semantics while retaining json_kind diagnostics."""
+    if isinstance(value, bool):
+        return expected == "boolean"
+    if expected == "number":
+        return isinstance(value, int) or (isinstance(value, float) and math.isfinite(value))
+    if expected == "integer":
+        return (isinstance(value, int)
+                or (isinstance(value, float) and math.isfinite(value) and value.is_integer()))
+    return json_kind(value) == expected
+
+
 def _walk(value, path: str, filename: str, allowed_nulls: set[str], issues: list[str]) -> None:
     if value is None:
         if path not in allowed_nulls:
@@ -132,7 +144,7 @@ def check_results(here: Path | None = None, schema_path: Path | None = None) -> 
         parsed[filename] = value
         got_root = json_kind(value)
         expected_root = spec.get("root_type")
-        if got_root != expected_root:
+        if not matches_type(value, expected_root):
             issues.append(f"RESULT {filename}: root type {got_root}, expected {expected_root}")
         if isinstance(value, dict):
             for key, expected in spec.get("required", {}).items():
@@ -141,7 +153,7 @@ def check_results(here: Path | None = None, schema_path: Path | None = None) -> 
                     continue
                 got = json_kind(value[key])
                 accepted = [expected] if isinstance(expected, str) else expected
-                if got not in accepted:
+                if not any(matches_type(value[key], kind) for kind in accepted):
                     issues.append(f"RESULT {filename}: $.{key} type {got}, expected {' or '.join(accepted)}")
         _walk(value, "$", filename, set(null_rules.get(filename, [])), issues)
 
