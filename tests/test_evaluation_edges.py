@@ -68,6 +68,15 @@ class EvaluationEdges(unittest.TestCase):
                 module.main()
             text = (root / "results" / "tool_evaluation.json").read_text()
             out = json.loads(text)
+            sys.path.insert(0, str(ROOT))
+            import check_results
+            fixture = root / "fixture"
+            import shutil
+            shutil.copytree(ROOT / "results", fixture / "results")
+            shutil.copy2(ROOT / "results.schema.json", fixture / "results.schema.json")
+            shutil.copy2(root / "results" / "tool_evaluation.json",
+                         fixture / "results" / "tool_evaluation.json")
+            self.assertEqual(check_results.check_results(fixture), [])
         m8 = out["chip_sequential_by_min_fields"]["8"]
         self.assertEqual(m8["n_confident"], 0)
         self.assertIsNone(m8["chip_acc_among_confident"])

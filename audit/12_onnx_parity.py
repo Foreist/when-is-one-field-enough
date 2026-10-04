@@ -43,11 +43,20 @@ def main():
     for f in files:
         x = TF(Image.open(f).convert("RGB"))[None]
         with torch.no_grad():
-            a = torch.softmax(model(x), dim=1).numpy()
-        o = sess.run(None, {name: x.numpy()})[0]
+            a = np.asarray(torch.softmax(model(x), dim=1).numpy())
+        if a.shape != (1, 2) or not np.isfinite(a).all():
+            raise ValueError(f"PyTorch produced invalid probabilities for {f.name}")
+        o = np.asarray(sess.run(None, {name: x.numpy()})[0])
+        if o.shape != a.shape or not np.isfinite(o).all():
+            raise ValueError(f"ONNX produced invalid output for {f.name}")
         if not np.allclose(o.sum(-1), 1, atol=1e-4):          # logits -> softmax
             o = np.exp(o - o.max(-1, keepdims=True)); o /= o.sum(-1, keepdims=True)
-        diffs.append(float(np.abs(a - o).max()))
+        if not np.isfinite(o).all():
+            raise ValueError(f"ONNX produced invalid probabilities for {f.name}")
+        diff = float(np.abs(a - o).max())
+        if not np.isfinite(diff):
+            raise ValueError(f"non-finite parity difference for {f.name}")
+        diffs.append(diff)
     out = dict(space=SPACE, revision=REVISION if not args.onnx else None, onnx_sha256=digest,
                n_fields=len(files), max_abs_diff=max(diffs), mean_abs_diff=float(np.mean(diffs)),
                scope="identical Python-preprocessed tensors; not browser input-path validation")
@@ -55,7 +64,7 @@ def main():
         raise ValueError(f"ONNX parity exceeded tolerance: {max(diffs)}")
     print(out)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(out, indent=1))
+    args.out.write_text(json.dumps(out, indent=1, allow_nan=False))
 
 
 if __name__ == "__main__":

@@ -76,6 +76,89 @@ class ResultIntegrity(unittest.TestCase):
         finally:
             td.cleanup()
 
+    def test_tool_evaluation_all_abstain_nulls_are_conditionally_valid(self):
+        td, root = self.copy_fixture()
+        try:
+            path = root / "results" / "tool_evaluation.json"
+            data = json.loads(path.read_text())
+            metrics = data["chip_sequential_by_min_fields"]["8"]
+            metrics["n_confident"] = 0
+            metrics["chip_acc_among_confident"] = None
+            metrics["false_confident_rate"] = None
+            data["chip_acc_among_confident_wilson95"] = None
+            path.write_text(json.dumps(data))
+            self.assertEqual(check_results.check_results(root), [])
+
+            metrics["n_confident"] = 1
+            path.write_text(json.dumps(data))
+            issues = check_results.check_results(root)
+            self.assertTrue(any("chip_acc_among_confident" in issue and "expected number" in issue
+                                for issue in issues), issues)
+            self.assertTrue(any("false_confident_rate" in issue and "expected number" in issue
+                                for issue in issues), issues)
+        finally:
+            td.cleanup()
+
+    def test_tool_evaluation_zero_calls_require_undefined_metrics(self):
+        td, root = self.copy_fixture()
+        try:
+            path = root / "results" / "tool_evaluation.json"
+            data = json.loads(path.read_text())
+            metrics = data["chip_sequential_by_min_fields"]["8"]
+            metrics["n_confident"] = 0
+            metrics["chip_acc_among_confident"] = 0.0
+            metrics["false_confident_rate"] = 0.0
+            data["chip_acc_among_confident_wilson95"] = []
+            path.write_text(json.dumps(data))
+            issues = check_results.check_results(root)
+            self.assertTrue(any("chip_acc_among_confident must be null" in issue for issue in issues), issues)
+            self.assertTrue(any("false_confident_rate must be null" in issue for issue in issues), issues)
+            self.assertTrue(any("wilson95 must be null" in issue for issue in issues), issues)
+        finally:
+            td.cleanup()
+
+    def test_tool_evaluation_called_rates_are_bounded_and_present(self):
+        for metric in ('chip_acc_among_confident','false_confident_rate'):
+            for invalid in (-.1,1.1,10**1000,'missing'):
+                with self.subTest(metric=metric,invalid=invalid):
+                    td,root=self.copy_fixture()
+                    try:
+                        path=root/'results/tool_evaluation.json'
+                        data=json.loads(path.read_text())
+                        metrics=data['chip_sequential_by_min_fields']['8']
+                        if invalid=='missing':del metrics[metric]
+                        else:metrics[metric]=invalid
+                        path.write_text(json.dumps(data))
+                        issues=check_results.check_results(root)
+                        self.assertTrue(any(metric in issue for issue in issues),issues)
+                    finally:td.cleanup()
+
+    def test_tool_evaluation_requires_min8_metrics_for_its_interval(self):
+        td,root=self.copy_fixture()
+        try:
+            path=root/'results/tool_evaluation.json'
+            data=json.loads(path.read_text())
+            del data['chip_sequential_by_min_fields']['8']
+            path.write_text(json.dumps(data))
+            issues=check_results.check_results(root)
+            self.assertTrue(any('required min-fields 8 metrics' in issue for issue in issues),issues)
+        finally:td.cleanup()
+
+    def test_tool_evaluation_confident_count_domain(self):
+        for invalid in (True, -1, 26):
+            with self.subTest(invalid=invalid):
+                td, root = self.copy_fixture()
+                try:
+                    path = root / "results" / "tool_evaluation.json"
+                    data = json.loads(path.read_text())
+                    data["chip_sequential_by_min_fields"]["8"]["n_confident"] = invalid
+                    path.write_text(json.dumps(data))
+                    issues = check_results.check_results(root)
+                    self.assertTrue(any("n_confident must be an integer between 0 and n_chips" in issue
+                                        for issue in issues), issues)
+                finally:
+                    td.cleanup()
+
     def test_json_schema_numeric_type_semantics(self):
         accepted = [
             (0, "number"), (0.0, "number"), (-3, "number"), (-3.0, "number"),

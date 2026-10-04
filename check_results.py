@@ -40,6 +40,66 @@ def matches_type(value, expected: str) -> bool:
     return json_kind(value) == expected
 
 
+def _tool_evaluation_allowed_nulls(value, issues: list[str]) -> set[str]:
+    """Validate abstention-dependent metrics and return their legitimate null paths."""
+    allowed: set[str] = set()
+    if not isinstance(value, dict):
+        return allowed
+    sequential = value.get("chip_sequential_by_min_fields")
+    if not isinstance(sequential, dict):
+        return allowed
+    n_chips = value.get("n_chips")
+    valid_n_chips = type(n_chips) is int and n_chips >= 0
+
+    for min_fields, metrics in sequential.items():
+        item_path = f"$.chip_sequential_by_min_fields.{min_fields}"
+        if not isinstance(min_fields, str) or not min_fields.isdigit():
+            issues.append(f"RESULT tool_evaluation.json: invalid min-fields key {min_fields!r}")
+            continue
+        if not isinstance(metrics, dict):
+            issues.append(f"RESULT tool_evaluation.json: {item_path} type {json_kind(metrics)}, expected object")
+            continue
+        n_confident = metrics.get("n_confident")
+        if (type(n_confident) is not int or n_confident < 0
+                or not valid_n_chips or n_confident > n_chips):
+            issues.append(
+                f"RESULT tool_evaluation.json: {item_path}.n_confident must be an integer "
+                "between 0 and n_chips"
+            )
+            continue
+        for name in ("chip_acc_among_confident", "false_confident_rate"):
+            metric_path = f"{item_path}.{name}"
+            if name not in metrics:
+                issues.append(f"RESULT tool_evaluation.json: missing required metric {metric_path}")
+                continue
+            metric = metrics[name]
+            if n_confident == 0:
+                if metric is None:
+                    allowed.add(metric_path)
+                else:
+                    issues.append(
+                        f"RESULT tool_evaluation.json: {metric_path} must be null when n_confident is 0"
+                    )
+            elif not matches_type(metric, "number") or not 0 <= metric <= 1:
+                issues.append(
+                    f"RESULT tool_evaluation.json: {metric_path} type {json_kind(metric)}, "
+                    "expected number in [0, 1]"
+                )
+
+    min8 = sequential.get("8")
+    if not isinstance(min8, dict):
+        issues.append("RESULT tool_evaluation.json: required min-fields 8 metrics missing or invalid")
+    elif type(min8.get("n_confident")) is int and min8["n_confident"] == 0:
+        ci_path = "$.chip_acc_among_confident_wilson95"
+        if value.get("chip_acc_among_confident_wilson95") is None:
+            allowed.add(ci_path)
+        else:
+            issues.append(
+                f"RESULT tool_evaluation.json: {ci_path} must be null when min-fields 8 n_confident is 0"
+            )
+    return allowed
+
+
 def _walk(value, path: str, filename: str, allowed_nulls: set[str], issues: list[str]) -> None:
     if value is None:
         if path not in allowed_nulls:
@@ -142,6 +202,9 @@ def check_results(here: Path | None = None, schema_path: Path | None = None) -> 
             issues.append(f"RESULT {filename}: malformed JSON ({error})")
             continue
         parsed[filename] = value
+        semantic_nulls = set()
+        if filename == "tool_evaluation.json":
+            semantic_nulls = _tool_evaluation_allowed_nulls(value, issues)
         got_root = json_kind(value)
         expected_root = spec.get("root_type")
         if not matches_type(value, expected_root):
@@ -155,7 +218,8 @@ def check_results(here: Path | None = None, schema_path: Path | None = None) -> 
                 accepted = [expected] if isinstance(expected, str) else expected
                 if not any(matches_type(value[key], kind) for kind in accepted):
                     issues.append(f"RESULT {filename}: $.{key} type {got}, expected {' or '.join(accepted)}")
-        _walk(value, "$", filename, set(null_rules.get(filename, [])), issues)
+        _walk(value, "$", filename,
+              set(null_rules.get(filename, [])) | semantic_nulls, issues)
 
     for path in sorted(results_dir.glob("*.json")):
         if path.name in parsed or path.name in declared:

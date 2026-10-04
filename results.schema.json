@@ -453,7 +453,10 @@
     "tool_evaluation.json": {
       "required": {
         "checkpoint": "str",
-        "chip_acc_among_confident_wilson95": "array",
+        "chip_acc_among_confident_wilson95": [
+          "array",
+          "null"
+        ],
         "chip_all_fields_mean_acc": "number",
         "chip_fixed_k_spread": "object",
         "chip_sequential_by_min_fields": "object",
