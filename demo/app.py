@@ -39,12 +39,16 @@ def run_chip(files, max_fields=20, min_fields=8, conf=0.9):
     except ValueError as e:
         return None, str(e), ""
     probs = []
-    with torch.no_grad():
-        for p in paths:
-            x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
-            probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
-    n_scored = len(probs)
-    dec = sequential_decision(probs, thr_conf=conf, max_fields=max_fields, min_fields=min_fields)
+    try:
+        with torch.no_grad():
+            for p in paths:
+                x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
+                probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
+        n_scored = len(probs)
+        dec = sequential_decision(probs, thr_conf=conf, max_fields=max_fields, min_fields=min_fields)
+    except (OSError, ValueError, RuntimeError) as e:
+        return None, (f"**QC failed ({type(e).__name__}). No chip result.** "
+                      "Check the images/model and retry."), ""
     call, used, stopped, p_final = dec["call"], dec["n_fields"], dec["stopped"], dec["p_bad"]
     warn = short_chip_warning(n_scored, min_fields)
 
@@ -94,12 +98,16 @@ def run_plate(files):
     warns = []
     for chip, paths in sorted(groups.items()):
         probs = []
-        with torch.no_grad():
-            for p in sorted(paths, key=lambda q: natural_key(Path(q))):
-                x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
-                probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
-        n_scored = len(probs)
-        dec = sequential_decision(probs)                  # shipped settings: conf 0.9, min 8, max 20
+        try:
+            with torch.no_grad():
+                for p in sorted(paths, key=lambda q: natural_key(Path(q))):
+                    x = TF(Image.open(p).convert("RGB")).unsqueeze(0)
+                    probs.append(float(torch.softmax(MODEL(x), dim=1)[0, 0]))
+            n_scored = len(probs)
+            dec = sequential_decision(probs)              # shipped settings: conf 0.9, min 8, max 20
+        except (OSError, ValueError, RuntimeError) as e:
+            return (f"**QC failed ({type(e).__name__}). No plate result.** "
+                    "Check every chip's images/model and retry."), None
         call, used, p_final = dec["call"], dec["n_fields"], dec["p_bad"]
         tot_avail += n_scored; tot_used += used
         warn = short_chip_warning(n_scored, 8)
